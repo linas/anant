@@ -5,7 +5,7 @@
 CC = cc
 
 
-EXES= db-merge db-prt mp_zeta_test 
+EXES= db-merge db-prt unit-test 
 
 MPLIB=libanant.a
 
@@ -35,10 +35,10 @@ mp-zeta.o: mp-zeta.h db-cache.h mp-binomial.h mp-cache.h mp-complex.h mp-consts.
 
 cache-fill.o: db-cache.h mp-zeta.h mp-misc.h
 db-merge.o: db-cache.h mp-misc.h
-mp_zeta_test.o: mp-zeta.h mp-binomial.h mp-complex.h mp-consts.h mp-gamma.h mp-misc.h mp-polylog.h mp-trig.h
+unit-test.o: mp-zeta.h mp-binomial.h mp-complex.h mp-consts.h mp-gamma.h mp-misc.h mp-polylog.h mp-trig.h
 
-mp_zeta_test:	mp_zeta_test.o $(MPLIB)
-	$(CC) -o mp_zeta_test $^ -lgmp -lgsl -lgslcblas -ldb -lm -lc
+unit-test:	unit-test.o $(MPLIB)
+	$(CC) -o unit-test $^ -lgmp -lgsl -lgslcblas -ldb -lm -lc
 
 $(MPLIB): $(MPOBJS)
 	ar cru $(MPLIB) $^
