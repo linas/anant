@@ -1,4 +1,16 @@
 
 
+VERSION=0.1
+VERDIR=anant-${VERSION}
+
 dist:
-	tar -zcvf anant.tar.gz LICENSE README src/*.c src/*.h src/Makefile
+	rm -rf ${VERDIR}
+	mkdir ${VERDIR}
+	mkdir ${VERDIR}/src
+	cp LICENSE ${VERDIR}
+	cp Makefile ${VERDIR}
+	cp README ${VERDIR}
+	cp src/*.c ${VERDIR}/src
+	cp src/*.h ${VERDIR}/src 
+	cp src/Makefile ${VERDIR}/src
+	tar -zcvf ${VERDIR}.tar.gz ${VERDIR}
