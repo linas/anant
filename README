@@ -26,6 +26,20 @@ public consumption, and thus, will not have the usual amenities of
 established projects, such as clear documentation, a website, unit 
 test cases, or even a robust build system.  Caveat Emptor!
 
+Precision
+---------
+Most of the algorithms deal with precision issues in a fairly ad-hoc
+kind of way.  Many/most routines require an argument specifying the 
+number of decimal places of desired precision, and will typically 
+return answers that are accurate from about 90% to 100% of the specified
+precision. However, many of the algorithms use internal, intermediate 
+results that need to be maintained at a higher level of precision than
+the "desired" precision. Thus, correct usage requires that the user
+specify an mpf_set_default_prec() that is 10% to 50% larger than the
+desired precision of the results.  The proper amount to use is up to
+you to figure out!  A reasonable rule-of-thumb seems to be to use 
+mpf_set_default_prec(5*desired_decimal_places).
+
 
 Example Usage
 -------------
