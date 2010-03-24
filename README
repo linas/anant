@@ -48,12 +48,12 @@ in this library.
          // precision.
          //
          // 3.3 is equal to log_2(10), and is used to convert decimal
-         // places to numbr of binary bits.
+         // places to number of binary bits.
          //
          // The +600 adds some extra "padding precision" for 
          // intermediate calculations. Most algorithms require some
          // fair amount of additional bits of precision to be used in
-         // computing intermeidate results.  The precise amount needed
+         // computing intermediate results.  The precise amount needed
          // is somewhat ad-hoc, and not well-characterized for the
          // different functions; typically, an extra 20% to 50% is
          // needed.
