@@ -5,6 +5,7 @@ Changelog for the mp-* functions.
 	* Fix some minor(?) memory leaks in the gamma function.
 	* Add domain check to fp_log; return error if log(0) requested.
 	* Add routines to get real, imaginary parts as float pts.
+	* Routine to multiply by complex by float pt.
 
 19 Sept 2010
 	* Fix divide-by-zero when question mark is passed a zero.

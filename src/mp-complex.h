@@ -195,6 +195,18 @@ static inline void cpx_times_ui (cpx_t prod, const cpx_t a, unsigned int b)
 }
 
 /**
+ * cpx_times_d -- prod = a * b
+ */
+static inline void cpx_times_d (cpx_t prod, const cpx_t a, double b)
+{
+	mpf_t tmp;
+	mpf_init (tmp);
+	mpf_set_d (tmp, b);
+	cpx_times_mpf(prod, a, tmp);
+	mpf_clear (tmp);
+}
+
+/**
  * cpx_recip -- recip = 1/z
  */
 static inline void cpx_recip (cpx_t recip, const cpx_t z)
