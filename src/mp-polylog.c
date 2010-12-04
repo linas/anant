@@ -389,7 +389,7 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 	if (25 < mod) return 1;
 
 	/*
-	 * Limit the dept of recursion to avoid run-away. Now
+	 * Limit the depth of recursion to avoid run-away. Now
 	 * that the algo is working well, this seems to almost
 	 * never be needed (!?).
 	 */
@@ -1077,7 +1077,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
  *
  * Evaluate the polylog directly, if possible; else use the 
  * duplication formula to get into a region where its directly 
- * evaluable. The duplication formula is used to towards z=1
+ * evaluable. The duplication formula is used to move towards z=1
  * which is where the Hurwitz series at z=1 can be employed.
  * 
  * Return a non-zero value if no value was computed.
@@ -1090,13 +1090,13 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	double mod = zre*zre + zim*zim;
 
 	/*
-	 * Limit the dept of recursion to avoid run-away. Now
+	 * Limit the depth of recursion to avoid run-away. Now
 	 * that the algo is working well, this seems to almost
 	 * never be needed (!?).
 	 */
 	if (5 < depth)
 	{
-		fprintf (stderr, "excessive recursion (tow) at z=%g+ i%g\n", zre, zim);
+		fprintf (stderr, "excessive recursion (to) at z=%g+ i%g\n", zre, zim);
 		return 1;
 	}
 	depth ++;

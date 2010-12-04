@@ -10,12 +10,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -122,7 +122,7 @@ void question_inverse (mpf_t qinv, const mpf_t x, unsigned int prec)
 	int nbits = (int) floor (3.321 * prec);
 	nbits -= 3;
 
-   int *bitcnt = (int *) malloc ((nbits+1) * sizeof(int));
+	int *bitcnt = (int *) malloc ((nbits+1) * sizeof(int));
 	memset (bitcnt, 0, (nbits+1) * sizeof(int));
 
 	mpf_mul_2exp(mantissa, x, nbits);
@@ -137,11 +137,11 @@ void question_inverse (mpf_t qinv, const mpf_t x, unsigned int prec)
 	{
 		if (n%2 == 0)
 		{
-   		idx = mpz_scan0(bits, idx);
+			idx = mpz_scan0(bits, idx);
 		}
 		else
 		{
-   		idx = mpz_scan1(bits, idx);
+	  		idx = mpz_scan1(bits, idx);
 		}
 		if (ULONG_MAX == idx)
 		{
@@ -170,7 +170,7 @@ void question_inverse (mpf_t qinv, const mpf_t x, unsigned int prec)
 		mpf_ui_div(qinv, 1, qinv);
 	}
 
-   free (bitcnt);
+	free (bitcnt);
 	mpf_clear(mantissa);
 	mpz_clear(bits);
 }
