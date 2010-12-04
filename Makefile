@@ -1,6 +1,6 @@
 
 
-VERSION=0.1
+VERSION=0.1.1
 VERDIR=anant-${VERSION}
 
 dist:
