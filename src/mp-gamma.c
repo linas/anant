@@ -99,6 +99,7 @@ static void reduced_lngamma (mpf_t gam, const mpf_t ex, int prec)
 	mpf_clear (z);
 	mpf_clear (zn);
 	mpf_clear (term);
+	mpf_clear (maxterm);
 }
 
 /* ================================================= */
@@ -169,6 +170,7 @@ static void cpx_reduced_lngamma (cpx_t gam, const cpx_t ex, int prec)
 	cpx_clear (z);
 	cpx_clear (zn);
 	cpx_clear (term);
+	mpf_clear (maxterm);
 }
 
 /* ================================================= */

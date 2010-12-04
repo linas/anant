@@ -620,6 +620,16 @@ void fp_log (mpf_t lg, const mpf_t z, unsigned int prec)
 	mpf_set (zee, z);
 	int nexp = 0;
 
+	/* Assume branch cut in the usual location, viz
+	 * along negative z axis */
+	if (mpf_cmp_ui(zee, 0) <= 0)
+	{
+		fprintf(stderr, "Error: bad domain for fp_log: log(%g)\n",
+			mpf_get_d(zee));
+		mpf_clear (zee);
+		exit (1);
+	}
+
 	/* Find power of two by means of bit-shifts */
 	while (mpf_cmp_ui(zee, 2) > 0)
 	{
@@ -1086,7 +1096,11 @@ void cpx_pow_ui (cpx_t powc, const cpx_t q, unsigned int n)
 
 	for (k=0; k<32;k++)
 	{
-		if (0 == n) return;
+		if (0 == n)
+		{
+			cpx_clear (qsq);
+			return;
+		}
 
 		if (n & 0x1)
 		{

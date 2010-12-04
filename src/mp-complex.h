@@ -273,6 +273,20 @@ static inline int cpx_eq (const cpx_t a, const cpx_t b, unsigned int nbits)
 	return (mpf_eq(a[0].re, b[0].re, nbits)) && (mpf_eq(a[0].im, b[0].im, nbits));
 }
 
+/**
+ * Get the real, imaginary parts, as double-precision floats
+ */
+static inline double cpx_get_re (const cpx_t z)
+{
+	return mpf_get_d(z[0].re);
+}
+
+static inline double cpx_get_im (const cpx_t z)
+{
+	return mpf_get_d(z[0].im);
+}
+
+
 static inline void cpx_set_prec (cpx_t a, unsigned int nbits)
 {
 	mpf_set_prec (a[0].re, nbits);

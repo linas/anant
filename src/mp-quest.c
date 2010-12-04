@@ -33,21 +33,27 @@
 
 void question_mark (mpf_t qmark, const mpf_t x, unsigned int prec)
 {
-	mpf_t ox, h, bits, one;
+	mpf_t ox, h, bits, one, low_bound;
 	long bitsdone, ibits;
 	int place;
+
+	mpf_set_ui(qmark, 0);
+
+	/* if x == 0 then we are done */
+	if (0 == mpf_sgn(x)) return;
 
 	mpf_init(ox);
 	mpf_init(h);
 	mpf_init(bits);
 	mpf_init(one);
+	mpf_init(low_bound);
 
 	mpf_set(h, x);
 	mpf_set_ui(one, 1);
-	mpf_set_ui(qmark, 0);
 
 	/* Get the number of binary bits from prec = log_2 10 * prec */
 	long nbits = (long) floor (3.321 * prec);
+	mpf_div_2exp(low_bound, one, nbits-2);
 
 	bitsdone = -1;
 	place = 1;
@@ -75,11 +81,31 @@ void question_mark (mpf_t qmark, const mpf_t x, unsigned int prec)
 			mpf_sub(qmark, qmark, ox);
 		}
 
+// #define DEBUG 1
+#ifdef DEBUG
+		{
+			double h_f, q_f, b_f;
+			h_f = mpf_get_d(h);
+			q_f = mpf_get_d(qmark);
+			b_f = mpf_get_d(bits);
+			printf("duuude place=%d, bitsdone=%ld h=%g q=%g bits=%f s=%d\n",
+				place, bitsdone, h_f, q_f, b_f, mpf_sgn(h));
+		}
+#endif
 		// If the remainder is zero, we are done.
-		if (0 == mpf_sgn(h)) break;
+		// Due to rounding precision, we can't test for explicit zero;
+		// instead we test for h less than the requested precision.
+		// if (0 == mpf_sgn(h)) break;
+		if (mpf_cmp(h, low_bound) < 0) break;
 
 		place ++;
 	}
+
+	mpf_clear(ox);
+	mpf_clear(h);
+	mpf_clear(bits);
+	mpf_clear(one);
+	mpf_clear(low_bound);
 }
 
 void question_inverse (mpf_t qinv, const mpf_t x, unsigned int prec)
@@ -145,6 +171,8 @@ void question_inverse (mpf_t qinv, const mpf_t x, unsigned int prec)
 	}
 
    free (bitcnt);
+	mpf_clear(mantissa);
+	mpz_clear(bits);
 }
 
 /* ================================================================ */

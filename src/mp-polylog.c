@@ -389,7 +389,7 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 	if (25 < mod) return 1;
 
 	/*
-	 * Limit the depth of recursion to avoid run-away. Now
+	 * Limit the dept of recursion to avoid run-away. Now
 	 * that the algo is working well, this seems to almost
 	 * never be needed (!?).
 	 */
@@ -1077,7 +1077,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
  *
  * Evaluate the polylog directly, if possible; else use the 
  * duplication formula to get into a region where its directly 
- * evaluable. The duplication formula is used to move towards z=1
+ * evaluable. The duplication formula is used to towards z=1
  * which is where the Hurwitz series at z=1 can be employed.
  * 
  * Return a non-zero value if no value was computed.
@@ -1090,13 +1090,13 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	double mod = zre*zre + zim*zim;
 
 	/*
-	 * Limit the depth of recursion to avoid run-away. Now
+	 * Limit the dept of recursion to avoid run-away. Now
 	 * that the algo is working well, this seems to almost
 	 * never be needed (!?).
 	 */
 	if (5 < depth)
 	{
-		fprintf (stderr, "excessive recursion (to) at z=%g+ i%g\n", zre, zim);
+		fprintf (stderr, "excessive recursion (tow) at z=%g+ i%g\n", zre, zim);
 		return 1;
 	}
 	depth ++;
@@ -1557,7 +1557,10 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
  *
  * beta = 2 Gamma(s+1) (2\pi)^{-s} F(s,q)
  *
- * As of 22 December, seems to be passing the tests -- 
+ * The implemented algorithm is to compute periodic zeta, and 
+ * then renormalize and return the ressult.
+ *
+ * As of 22 December 2006, seems to be passing the tests -- 
  * that is, it gives the Bernoulli polynomials for integer s,
  * with all the right scale factors and signs, etc. Yay!
  */
@@ -1621,6 +1624,9 @@ void cpx_periodic_beta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)
  * Built up from the periodic zeta. Caches intermediate terms, and so
  * performance is much better if s is held const, while q is varied.
  * Expects the input value of q to be between 0 and 1.
+ *
+ * "built up" means periodic zeta is computed (twice) and then summed
+ * with appropriate factors, to compute hurwitz zeta.
  */
 
 static void hurwitz_zeta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)

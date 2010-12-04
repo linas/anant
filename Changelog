@@ -1,0 +1,11 @@
+
+Changelog for the mp-* functions.
+
+17 Nov 2010:
+	* Fix some minor(?) memory leaks in the gamma function.
+	* Add domain check to fp_log; return error if log(0) requested.
+	* Add routines to get real, imaginary parts as float pts.
+
+19 Sept 2010
+	* Fix divide-by-zero when question mark is passed a zero.
+	* Fix a bug due to rounding-overflow in the question-mark function.
