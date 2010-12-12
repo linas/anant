@@ -94,7 +94,7 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
 
 /* =============================================== */
 /**
- * find_zero.
+ * cpx_find_zero.
  * Numerically locate the zero of a complex-valued function.
  * 
  * @func function whose zeros are to be found.
@@ -123,7 +123,7 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
  * U Press, 1999.
  */
 
-int find_zero(cpx_t result,
+int cpx_find_zero(cpx_t result,
               void (*func)(cpx_t f, cpx_t z, int nprec),
               cpx_t initial_z,
               cpx_t e1, cpx_t e2,
