@@ -1,6 +1,9 @@
 
 Changelog for the mp-* functions.
 
+12 Dec 2010:
+	* Add the complex zerofinding (Powell's algorithm) routine.
+
 17 Nov 2010:
 	* Fix some minor(?) memory leaks in the gamma function.
 	* Add domain check to fp_log; return error if log(0) requested.
