@@ -30,6 +30,7 @@
 #include "mp-misc.h"
 #include "mp-zerofind.h"
 
+#ifdef TEST
 static void test_parabola(cpx_t y, cpx_t s, int nprec)
 {
 	cpx_t cent;
@@ -39,6 +40,7 @@ static void test_parabola(cpx_t y, cpx_t s, int nprec)
 	cpx_mul(y, cent, cent);
 	cpx_clear (cent);
 }
+#endif
 
 /* ---------------------------------------------- */
 /*
