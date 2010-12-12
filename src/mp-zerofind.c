@@ -26,8 +26,6 @@
 #include <math.h>
 
 #include "mp-complex.h"
-#include "mp-trig.h"
-#include "mp-misc.h"
 #include "mp-zerofind.h"
 
 #ifdef TEST

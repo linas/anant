@@ -31,7 +31,7 @@ mp-misc.o: mp-misc.h mp-complex.h
 mp-polylog.o: mp-polylog.h mp-binomial.h mp-cache.h mp-complex.h mp-consts.h mp-gamma.h mp-misc.h mp-trig.h mp-zeta.h
 mp-quest.o: mp-quest.h
 mp-trig.o: mp-trig.h mp-binomial.h mp-cache.h mp-complex.h mp-misc.h
-mp-zerofind.o: mp-complex.h mp-misc.h mp-trig.h
+mp-zerofind.o: mp-zerofind.h mp-complex.h
 mp-zeta.o: mp-zeta.h db-cache.h mp-binomial.h mp-cache.h mp-complex.h mp-consts.h mp-trig.h
 
 cache-fill.o: db-cache.h mp-zeta.h mp-misc.h
