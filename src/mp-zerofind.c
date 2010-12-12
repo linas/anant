@@ -1,6 +1,6 @@
 /**
  * mp-zerofind.c
- * Zero finder.
+ * Locate zeros of a function. 
  *
  * Linas Vepstas December 2010
  */
@@ -13,7 +13,7 @@
 #include "mp-trig.h"
 #include "mp-misc.h"
 
-static void test_parabola(cpx_t y, unsigned int nsteps, cpx_t s, int nprec)
+static void test_parabola(cpx_t y, cpx_t s, int nprec)
 {
 	cpx_t cent;
 	cpx_init (cent);
@@ -75,18 +75,40 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
 
 /* =============================================== */
 /**
- *  Powell's method, slightly adapted. 
+ * find_zero.
+ * Numerically locate the zero of a complex-valued function.
+ * 
+ * @func function whose zeros are to be found.
+ *       func takes z as input, returns f as output. 
+ *       'nprec' is the suggested decimal precisiton at which 'fun'
+ *       should perform its calculations.
+ * @initial_z initial suggestion for the location of the zero.
+ * @e1, @e2 initial suggestions for a bounding ellipse. These are
+ *       taken to be two vectors, specifying the major and minor axes of
+ *       an ellipse, centered at 'initial_z'. The true zero is presumed
+ *       to lie inside of, or at least, close to, this initial ellipse.
+ * @ndigits number of decimal digits of accuracy to which the zero
+ *       should be searched for.
+ * @nprec number of digits of decimal precision to which intermediate
+ *       terms will be maintained.
  *
- * The core problem here is that the summation is so incredibly
- * noisy, that the function is never really a quadratic form
- * even at the zero. Thus, we never really get quadratic convergence,
- * and the more typical performance seems to be about 2 bits 
- * of accuracy per iteration.
+ * @returns 0 if result is valid, else an error code.
  *
- * returns 0 if result is valid, else an error code.
+ * This implements Powell's method, slightly adapted; the adaptations
+ * are meant to imporve convergence when 'func' is extremely noisy, 
+ * i.e. when any sort of quardatic behaviour is obscured by
+ * high-freqency noise.
+ *
+ * A description of Powell's method can be found in Press, Teukolsky,
+ * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge 
+ * U Press, 1999.
  */
 
-int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
+int find_zero(cpx_t result,
+              void (*func)(cpx_t f, cpx_t z, int nprec),
+              cpx_t initial_z,
+              cpx_t e1, cpx_t e2,
+              int ndigits, int nprec)
 {
 	int rc = 1;
 	mpf_t zero, epsi;
@@ -95,7 +117,7 @@ int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
 	/* compute the tolerance */
 	mpf_init (epsi);
 	mpf_set_ui(epsi, 1);
-	mpf_div_2exp(epsi, epsi, (int)(3.3*ndigits));
+	mpf_div_2exp(epsi, epsi, (int)(3.321*ndigits));
 
 	cpx_t s0, s1, s2, s3, sa, sb;
 	cpx_init (s0);
@@ -132,14 +154,14 @@ int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
 	mpf_set_ui (lam1, 1);
 	mpf_neg (lam2, lam1);
 
-	/* Initial guess */
-	cpx_set_d (s0, 0.5, 15.0);
-	integral (y0, nsteps, s0, prec);
+	/* Initial guess for the zero. */
+	cpx_set (s0, initial_z);
+	func (y0, s0, nprec);
 	cpx_abs(f0, y0);
 
 	/* Initial directions */
-	cpx_set_d (na, 0.05, 0.0);
-	cpx_set_d (nb, 0.0, 0.1);
+	cpx_set (na, e1);
+	cpx_set (nb, e2);
 
 	/* Iterate */
 	int i;
@@ -160,9 +182,9 @@ int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
 			cpx_add(s1, s0, na);
 			cpx_sub(s2, s0, na);
 
-			// integral (y0, nsteps, s0, prec);
-			integral (y1, nsteps, s1, prec);
-			integral (y2, nsteps, s2, prec);
+			// func (y0, s0, nprec);
+			func (y1, s1, nprec);
+			func (y2, s2, nprec);
 
 			// cpx_abs(f0, y0);
 			cpx_abs(f1, y1);
@@ -174,7 +196,7 @@ int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
 			/* Move to that location */
 			cpx_times_mpf (nc, na, loc);
 			cpx_add (s3, s0, nc);
-			integral (y3, nsteps, s3, prec);
+			func (y3, s3, nprec);
 			cpx_abs(f3, y3);
 
 			/* Does f3 actually improve on f0 ? */
@@ -234,9 +256,9 @@ int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
 			cpx_add(s1, sa, nb);
 			cpx_sub(s2, sa, nb);
 
-			// integral (y0, nsteps, sa, prec);
-			integral (y1, nsteps, s1, prec);
-			integral (y2, nsteps, s2, prec);
+			// func (y0, sa, nprec);
+			func (y1, s1, nprec);
+			func (y2, s2, nprec);
 
 			// cpx_abs(f0, y0);
 			cpx_abs(f1, y1);
@@ -248,7 +270,7 @@ int find_zero(cpx_t result, int ndigits, int nsteps, int prec)
 			/* Move to that location */
 			cpx_times_mpf (nc, nb, loc);
 			cpx_add (s3, sa, nc);
-			integral (y3, nsteps, s3, prec);
+			func (y3, s3, nprec);
 			cpx_abs(f3, y3);
 
 			/* Does f3 actually improve on f0 ? */
