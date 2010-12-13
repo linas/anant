@@ -51,7 +51,7 @@ realclean:  clean
 	rm -f $(EXES) *.png *.jpeg *.tex *.dat *.ps *.eps
 
 .c.o:
-	$(CC) -c -g -O2 -Wall $<
+	$(CC) -c -g -O2 -Wall -I. $<
 
 .o:
 	$(CC) -g -o $* $^ $(MPLIB) -lgmp -ldb -lm
