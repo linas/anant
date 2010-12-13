@@ -23,7 +23,7 @@
  */
 
 #include <gmp.h>
-#include "mp-complex.h"
+#include <mp-complex.h>
 
 #ifdef  __cplusplus
 extern "C" {

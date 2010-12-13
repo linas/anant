@@ -92,8 +92,8 @@ static inline void cpx_add_d (cpx_t sum, const cpx_t a, double rb, double ib)
 
 static inline void cpx_add_ui (cpx_t sum, const cpx_t a, unsigned int rb, unsigned int ib)
 {
-	mpf_add_ui (sum[0].re, a[0].re, rb);
-	mpf_add_ui (sum[0].im, a[0].im, ib);
+	if (rb) mpf_add_ui (sum[0].re, a[0].re, rb);
+	if (ib) mpf_add_ui (sum[0].im, a[0].im, ib);
 }
 
 static inline void cpx_add_mpf (cpx_t sum, const cpx_t a, const mpf_t b)
@@ -110,14 +110,14 @@ static inline void cpx_sub (cpx_t dif, const cpx_t a, const cpx_t b)
 
 static inline void cpx_sub_ui (cpx_t sum, const cpx_t a, unsigned int rb, unsigned int ib)
 {
-	mpf_sub_ui (sum[0].re, a[0].re, rb);
-	mpf_sub_ui (sum[0].im, a[0].im, ib);
+	if (rb) mpf_sub_ui (sum[0].re, a[0].re, rb);
+	if (ib) mpf_sub_ui (sum[0].im, a[0].im, ib);
 }
 
 static inline void cpx_ui_sub (cpx_t sum, unsigned int ra, unsigned int ia, const cpx_t b)
 {
-	mpf_ui_sub (sum[0].re, ra, b[0].re);
-	mpf_ui_sub (sum[0].im, ia, b[0].im);
+	if (ra) mpf_ui_sub (sum[0].re, ra, b[0].re);
+	if (ia) mpf_ui_sub (sum[0].im, ia, b[0].im);
 }
 
 static inline void cpx_sub_mpf (cpx_t sum, const cpx_t a, const mpf_t b)
