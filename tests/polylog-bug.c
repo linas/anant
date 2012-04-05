@@ -1,4 +1,4 @@
-/* gmp3.c -- Test calc of Dilogarithm. */
+/* polylog-bug.c -- Ad-hoc bug report -- Test calc of Dilogarithm. */
 
 /* Last change: 27-Mar-2012.  Ken Roberts  */
 
@@ -7,6 +7,8 @@
  * again.  Expect consistent results.
  * Looking for possible bug re caching
  * of info within cpx_polylog logic.
+ *
+ * This exhibits a caching bug in anant-0.2.0   
  */
 
 #include <math.h>
@@ -21,8 +23,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <gmp.h>
-#include "anant/src/mp-complex.h"
-#include "anant/anant.h"
+#include "mp-complex.h"
+#include "mp-polylog.h"
 
 ulong gprec;
 ulong aprec;

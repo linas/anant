@@ -26,6 +26,27 @@ public consumption, and thus, will not have the usual amenities of
 established projects, such as clear documentation, a website, unit 
 test cases, or even a robust build system.  Caveat Emptor!
 
+Pre-requisites, Compiling, Installing, Testing
+----------------------------------------------
+This package requires a copy of the Berkeley DB database to be
+available. The database is used to cache certain intermediate values, to
+improve performance of various internal algorithms.
+
+This package has minimal build support. cd to the src directory, and
+'make'.  If you want to install the files somewhere, you will have to do
+this by hand, or custom-tailor to suit your needs.
+
+There is a unit test, rather ad-hoc in nature, and it is not
+"user-freindly".  It will report some errors in the last few decimal
+places of various routines, depending on how it was invoked. It is up
+to you to figure out if these are serious errors or not.  Caveat Emptor!
+
+(I mean, its 'error-free' for me, i.e. 'good enough'.  There is nothing
+in here that is horribly broken, as far as I know.  If quibbling over
+the last few decimal places is important to you, you might have a
+different opinion.)
+
+
 Precision
 ---------
 Most of the algorithms deal with precision issues in a fairly ad-hoc
@@ -38,7 +59,8 @@ the "desired" precision. Thus, correct usage requires that the user
 specify an mpf_set_default_prec() that is 10% to 50% larger than the
 desired precision of the results.  The proper amount to use is up to
 you to figure out!  A reasonable rule-of-thumb seems to be to use 
-mpf_set_default_prec(5*desired_decimal_places).
+mpf_set_default_prec(5*desired_decimal_places) -- noting that log_2(10)
+is 2.3.
 
 
 Example Usage
