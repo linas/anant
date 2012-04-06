@@ -1,21 +1,21 @@
 /*
  * mp-trig.c
  *
- * High-precison Elementary functions, using the 
+ * High-precison Elementary functions, using the
  * Gnu Multiple-precision library.
  *
  * Copyright (C) 2005, 2006, 2010 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -46,7 +46,7 @@ void i_pow (mpz_t p, unsigned int n, unsigned int m)
 
 	if ((1 == n) || (0 == m))
 	{
-		mpz_set_ui (p, 1); 
+		mpz_set_ui (p, 1);
 		return;
 	}
 
@@ -64,7 +64,7 @@ void i_pow (mpz_t p, unsigned int n, unsigned int m)
 }
 
 /**
- * fp_inv_pow - raise n to the -m power, where m must be positive. 
+ * fp_inv_pow - raise n to the -m power, where m must be positive.
  */
 
 void fp_inv_pow (mpf_t p, unsigned int n, unsigned int m)
@@ -72,7 +72,7 @@ void fp_inv_pow (mpf_t p, unsigned int n, unsigned int m)
 	DECLARE_FP_CACHE (cache);
 	if (1 == n)
 	{
-		mpf_set_ui (p, 1); 
+		mpf_set_ui (p, 1);
 		return;
 	}
 
@@ -96,8 +96,8 @@ void fp_inv_pow (mpf_t p, unsigned int n, unsigned int m)
 /* ======================================================================= */
 /**
  * fp_exp -  Floating point exponential
- * Implemented using a brute-force, very simple algo, with 
- * no attempts at optimization. Also, does not assume any 
+ * Implemented using a brute-force, very simple algo, with
+ * no attempts at optimization. Also, does not assume any
  * precomputed constants.
  */
 
@@ -114,7 +114,7 @@ void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec)
 	/* Make copy of argument now! */
 	mpf_set (zee, z);
 	mpf_set (z_n, zee);
-	
+
 	mpf_set_ui (ex, 1);
 	mpf_set_ui (fact, 1);
 
@@ -129,15 +129,15 @@ void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec)
 		fp_inv_factorial (fact, n, prec);
 		mpf_mul (term, z_n, fact);
 		mpf_add (ex, ex, term);
-		
+
 		/* don't go no farther than this */
 		mpf_abs (term, term);
 		if (mpf_cmp (term, maxterm) < 0) break;
-		
+
 		n++;
 		mpf_mul (z_n, z_n, zee);
 	}
-	
+
 	mpf_clear (zee);
 	mpf_clear (z_n);
 	mpf_clear (fact);
@@ -160,7 +160,7 @@ void fp_exp (mpf_t ex, const mpf_t z, unsigned int prec)
 	mpf_t zee, zf;
 	mpf_init (zee);
 	mpf_init (zf);
-	
+
 	mpf_set (zee, z);
 	mpf_floor (zf, zee);
 	mpf_sub (zee, zee, zf);
@@ -196,7 +196,7 @@ void fp_exp (mpf_t ex, const mpf_t z, unsigned int prec)
 /* ======================================================================= */
 /**
  * fp_sine_series -  Floating point sine function
- * Implemented using a brute-force, very simple algo: 
+ * Implemented using a brute-force, very simple algo:
  * i.e. sum the Taylor expansion. No other adjustments made.
  */
 
@@ -213,7 +213,7 @@ static void fp_sine_series (mpf_t si, const mpf_t z, unsigned int prec)
 	mpf_set (z_n, z);
 	mpf_mul (zsq, z, z);
 	mpf_set_ui (si, 0);
-	
+
 	/* Use 10^{-prec} for smallest term in sum */
 	prec += 2;
 	mpf_t maxterm;
@@ -235,17 +235,17 @@ static void fp_sine_series (mpf_t si, const mpf_t z, unsigned int prec)
 		{
 			mpf_sub (si, si, term);
 		}
-		
+
 		/* don't go no farther than this */
 		mpf_abs (term, term);
 		if (mpf_cmp (term, maxterm) < 0) break;
-		
+
 		n+=2;
 		mpf_mul (z_n, z_n, zsq);
 
 		s++;
 	}
-	
+
 	mpf_clear (zsq);
 	mpf_clear (z_n);
 	mpf_clear (fact);
@@ -259,7 +259,7 @@ static void fp_sine_series (mpf_t si, const mpf_t z, unsigned int prec)
  *
  * Adds or subtracts multiples of pi-halves until the argument
  * is in the first or fourth quadrant, and then performs the
- * brute-force taylor summation on it. 
+ * brute-force taylor summation on it.
  */
 
 void fp_sine (mpf_t si, const mpf_t z, unsigned int prec)
@@ -279,7 +279,7 @@ void fp_sine (mpf_t si, const mpf_t z, unsigned int prec)
 	mpf_mul (per, zee, top);
 	mpf_floor (per, per);
 	long quad = mpf_get_si (per);
-	
+
 	fp_pi_half (pih, prec);
 	mpf_mul (per, per, pih);
 	mpf_sub (zee, zee, per);
@@ -309,10 +309,10 @@ void fp_sine (mpf_t si, const mpf_t z, unsigned int prec)
 /* ======================================================================= */
 #if OBSOLETE_FOR_REFERENCE_ONLY
 /* The cosine_series code below works great, except that it has poorer
- * convergence for large z values. Thus, its re-implemented in terms 
+ * convergence for large z values. Thus, its re-implemented in terms
  * of sine, which is more efficient.
  *
- * This routine should be useful as an alternate high-precision algo, 
+ * This routine should be useful as an alternate high-precision algo,
  * useful for testing/validation, and should be moved to the test package.
  */
 
@@ -330,7 +330,7 @@ static void fp_cosine_series (mpf_t co, const mpf_t z, unsigned int prec)
 	mpf_mul (z_n, zee, zee);
 	mpf_set_ui (co, 1);
 	mpf_set_ui (fact, 2);
-	
+
 	/* Use 10^{-prec} for smallest term in sum */
 	prec +=2;
 	mpf_t maxterm;
@@ -351,22 +351,22 @@ static void fp_cosine_series (mpf_t co, const mpf_t z, unsigned int prec)
 		{
 			mpf_sub (co, co, term);
 		}
-		
+
 		/* Don't go no farther than this */
 		mpf_abs (term, term);
 		if (mpf_cmp (term, maxterm) < 0) break;
-		
+
 		n++;
 		mpf_mul (z_n, z_n, zee);
 		mpf_mul_ui (fact, fact, n);
-		
+
 		n++;
 		mpf_mul (z_n, z_n, zee);
 		mpf_mul_ui (fact, fact, n);
 
 		s++;
 	}
-	
+
 	mpf_clear (zee);
 	mpf_clear (z_n);
 	mpf_clear (fact);
@@ -418,7 +418,7 @@ void cpx_exp (cpx_t ex, const cpx_t z, unsigned int prec)
 
 	mpf_mul (ex->re, mag, co);
 	mpf_mul (ex->im, mag, si);
-	
+
 	mpf_clear (mag);
 	mpf_clear (si);
 	mpf_clear (co);
@@ -429,7 +429,7 @@ void cpx_sine (cpx_t sn, const cpx_t z, unsigned int prec)
 	cpx_t zee;
 	cpx_init (zee);
 	cpx_times_i (zee, z);
-	
+
 	cpx_exp (sn, zee, prec);
 	cpx_neg (zee, zee);
 	cpx_exp (zee, zee, prec);
@@ -441,7 +441,7 @@ void cpx_sine (cpx_t sn, const cpx_t z, unsigned int prec)
 	mpf_div_2exp (sn[0].im, sn[0].im, 1);
 	cpx_times_i (sn, sn);
 	cpx_neg (sn, sn);
-	
+
 	cpx_clear (zee);
 }
 
@@ -450,13 +450,13 @@ void cpx_cosine (cpx_t cs, const cpx_t z, unsigned int prec)
 	cpx_t zee;
 	cpx_init (zee);
 	cpx_times_i (zee, z);
-	
+
 	cpx_exp (cs, zee, prec);
 	cpx_neg (zee, zee);
 	cpx_exp (zee, zee, prec);
 	cpx_add (cs, cs, zee);
 	cpx_div_ui (cs, cs, 2);
-	
+
 	cpx_clear (zee);
 }
 
@@ -466,22 +466,22 @@ void cpx_tangent (cpx_t tn, const cpx_t z, unsigned int prec)
 	cpx_init (zee);
 	cpx_init (cn);
 	cpx_init (sn);
-	
+
 	cpx_times_i (zee, z);
 	cpx_exp (tn, zee, prec);
 	cpx_neg (zee, zee);
 	cpx_exp (sn, zee, prec);
-	
+
 	/* cn now holds 2*cos */
 	cpx_add (cn, tn, sn);
-	
+
 	/* sn now holds 2i*sin */
 	cpx_sub (sn, tn, sn);
-	
+
 	/* tan = sin/cos */
 	cpx_div (tn, sn, cn);
 	cpx_times_i (tn, tn);
-	
+
 	cpx_clear (zee);
 	cpx_clear (sn);
 	cpx_clear (cn);
@@ -491,8 +491,8 @@ void cpx_tangent (cpx_t tn, const cpx_t z, unsigned int prec)
 /**
  * fp_log_m1 -  Floating point logarithm
  * Computes -log(1-z) using Taylor expansion for small z.
- * Implemented using a brute-force, very simple algo, with 
- * no attempts at optimization. Also, does not assume any 
+ * Implemented using a brute-force, very simple algo, with
+ * no attempts at optimization. Also, does not assume any
  * precomputed constants.
  */
 
@@ -508,7 +508,7 @@ void fp_log_m1 (mpf_t lg, const mpf_t z, unsigned int prec)
 	mpf_set (zee, z);
 	mpf_mul (z_n, zee, zee);
 	mpf_set (lg, zee);
-	
+
 	/* Use 10^{-prec} for smallest term in sum */
 	mpf_t maxterm;
 	mpf_init (maxterm);
@@ -519,15 +519,15 @@ void fp_log_m1 (mpf_t lg, const mpf_t z, unsigned int prec)
 	{
 		mpf_div_ui (term, z_n, n);
 		mpf_add (lg, lg, term);
-		
+
 		/* don't go no farther than this */
 		mpf_abs (term, term);
 		if (mpf_cmp (term, maxterm) < 0) break;
-		
+
 		n ++;
 		mpf_mul (z_n, z_n, zee);
 	}
-	
+
 	mpf_clear (zee);
 	mpf_clear (z_n);
 	mpf_clear (term);
@@ -564,7 +564,7 @@ void fp_log_2exp (mpf_t lg, unsigned int k, unsigned int prec)
 		fp_one_d_cache_fetch (&log_n, lg, k);
 		return;
 	}
-	
+
 	mpf_set_ui (lg, 1);
 	mpf_div_2exp (lg, lg, k);
 	mpf_neg (lg, lg);
@@ -574,7 +574,8 @@ void fp_log_2exp (mpf_t lg, unsigned int k, unsigned int prec)
 	fp_one_d_cache_store (&log_n, lg, k, prec);
 }
 
-/* Implement the Feynman shift-add algorithm 
+#if CODE_WROKS_BUT_IS_NOT_CURRENTLY_USED_ANYWHERE_SO_AVOID_GCC_WARNING
+/* Implement the Feynman shift-add algorithm
  * The argument z must lie between 1 and 2 inclusive
  */
 static void fp_log_shiftadd (mpf_t lg, const mpf_t z, unsigned int prec)
@@ -584,11 +585,11 @@ static void fp_log_shiftadd (mpf_t lg, const mpf_t z, unsigned int prec)
 	mpf_init (tp);
 	mpf_init (ex);
 	mpf_init (su);
-	
+
 	/* Make a copy of the input arguments now! */
 	mpf_set (zee, z);
 	mpf_set_ui (lg, 0);
-	
+
 	mpf_set_ui (tp, 1);
 	mpf_set_ui (ex, 1);
 	int n;
@@ -612,6 +613,7 @@ static void fp_log_shiftadd (mpf_t lg, const mpf_t z, unsigned int prec)
 	mpf_clear (tp);
 	mpf_clear (zee);
 }
+#endif /* CODE_WROKS_BUT_IS_NOT_CURRENTLY_USED_ANYWHERE_SO_AVOID_GCC_WARNING */
 
 void fp_log (mpf_t lg, const mpf_t z, unsigned int prec)
 {
@@ -696,7 +698,7 @@ void fp_log_ui (mpf_t lg, unsigned int k, unsigned int prec)
 		fp_one_d_cache_fetch (&log_n, lg, k);
 		return;
 	}
-	
+
 	mpf_set_ui (lg, k);
 	fp_log (lg, lg, prec);
 
@@ -707,8 +709,8 @@ void fp_log_ui (mpf_t lg, unsigned int k, unsigned int prec)
 /**
  * cpx_log_m1 -  Floating point logarithm
  * Computes -log(1-z) using Taylor expansion for small z.
- * Implemented using a brute-force, very simple algo, with 
- * no attempts at optimization. Also, does not assume any 
+ * Implemented using a brute-force, very simple algo, with
+ * no attempts at optimization. Also, does not assume any
  * precomputed constants.
  * Direct cut-n-paste of algos above.
  */
@@ -725,7 +727,7 @@ void cpx_log_m1 (cpx_t lg, const cpx_t z, unsigned int prec)
 	cpx_set (zee, z);
 	cpx_mul (z_n, zee, zee);
 	cpx_set (lg, zee);
-	
+
 	/* Use 10^{-prec} for smallest term in sum */
 	mpf_t sqterm, maxterm;
 	mpf_init (maxterm);
@@ -737,15 +739,15 @@ void cpx_log_m1 (cpx_t lg, const cpx_t z, unsigned int prec)
 	{
 		cpx_div_ui (term, z_n, n);
 		cpx_add (lg, lg, term);
-		
+
 		/* don't go no farther than this */
 		cpx_mod_sq (sqterm, term);
 		if (mpf_cmp (sqterm, maxterm) < 0) break;
-		
+
 		n ++;
 		cpx_mul (z_n, z_n, zee);
 	}
-	
+
 	cpx_clear (zee);
 	cpx_clear (z_n);
 	cpx_clear (term);
@@ -759,7 +761,7 @@ void cpx_log (cpx_t lg, const cpx_t z, unsigned int prec)
 	mpf_t r;
 	mpf_init (r);
 
-	/* log (re^{itheta}) = log(r) +  itheta) 
+	/* log (re^{itheta}) = log(r) +  itheta)
 	 * theta = arctan (y/x)
 	 */
 	cpx_mod_sq (r, z);
@@ -776,9 +778,9 @@ void cpx_log (cpx_t lg, const cpx_t z, unsigned int prec)
 /* ======================================================================= */
 /**
  * atan_series -  Floating point arctangent
- * Implemented using a brute-force, very simple algo, with 
- * no attempts at optimization. 
- * Implements A&S equation 4.4.42 
+ * Implemented using a brute-force, very simple algo, with
+ * no attempts at optimization.
+ * Implements A&S equation 4.4.42
  * Input value of z should be less than 1/2 for fastest convergence.
  */
 
@@ -798,7 +800,7 @@ static void atan_series (mpf_t atn, const mpf_t zee, unsigned int prec)
 	mpf_mul (zsq, zee, zee);
 	mpf_mul (z_n, zee, zsq);
 	mpf_set (atn, zee);
-		
+
 	unsigned int n=1;
 	while(1)
 	{
@@ -811,11 +813,11 @@ static void atan_series (mpf_t atn, const mpf_t zee, unsigned int prec)
 		{
 			mpf_add (atn, atn, term);
 		}
-		
+
 		/* don't go no farther than this */
 		mpf_abs (term, term);
 		if (mpf_cmp (term, maxterm) < 0) break;
-		
+
 		n ++;
 		mpf_mul (z_n, z_n, zsq);
 	}
@@ -830,11 +832,11 @@ static void atan_series (mpf_t atn, const mpf_t zee, unsigned int prec)
 /**
  * atan2_reduce -- use half-angle reduction to quickly eval arctangent.
  *
- * The half-angle reduction formula is 
+ * The half-angle reduction formula is
  * atan(z) = 2 atan (z/(1+sqrt(1+z^2)))
  *
  * We also get a "free" reduction (no sqrt needed) by using
- * atan (z) = pi/2 - atan (1/z) 
+ * atan (z) = pi/2 - atan (1/z)
  * whenever z>1.
  *
  * For the half-angle formula to work, its assumed that x>0
@@ -882,16 +884,16 @@ static void atan2_reduce (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int 
 
 /**
  * fp_arctan -  Floating point arctangent
- * Implemented using a brute-force, very simple algo, with 
- * no serious attempts at optimization. 
- * Implements A&S equation 4.4.42 
+ * Implemented using a brute-force, very simple algo, with
+ * no serious attempts at optimization.
+ * Implements A&S equation 4.4.42
  */
 
 void fp_arctan2 (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec)
 {
 	int sgn_x = mpf_sgn(x);
 	int sgn_y = mpf_sgn(y);
-	
+
 	if (0 < sgn_y)
 	{
 		if (0 < sgn_x)
@@ -917,7 +919,7 @@ void fp_arctan2 (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec)
 			fp_pi_half (atn, prec);
 		}
 	}
-	else 
+	else
 	{
 		if (0 < sgn_x)
 		{
@@ -964,7 +966,7 @@ void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
 
 	cpx_mod_sq (modulus, z);
 	mpf_sqrt (modulus, modulus);
-	
+
 #ifdef GET_HALF_ANGLE_ARCTAN_STYLE
 	mptf_t phase;
 	mpf_init (phase);
@@ -987,7 +989,7 @@ void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
 	// mpf_div_ui (rt[0].re, rt[0].re, 2);
 	mpf_div_2exp (rt[0].re, rt[0].re, 1);
 	mpf_sqrt (rt[0].re, rt[0].re);
-	
+
 	/* avoid divide by zero when cosine(half) is zero
 	 * i.e. when sine (full angle) is zero */
 	if (mpf_cmp_ui(rt[0].im,0))
@@ -1015,7 +1017,7 @@ void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
  *
  * Brute-force algo, this thing is pretty slow, as it requires
  * a logarithm, an exp, sin and cos to be computed, each of which
- * are kinda slow ... Consider using fp_pow_rc instead, which will 
+ * are kinda slow ... Consider using fp_pow_rc instead, which will
  * cache values if q and s are heald const, while k is varied.
  */
 void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
@@ -1025,7 +1027,7 @@ void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
 	mpf_init (mag);
 	mpf_init (pha);
 
-	/* Domain error is kq is not positive 
+	/* Domain error is kq is not positive
 	 * We could define this to be exp (i pi s) times result, but I'm lazy */
 	if (mpf_cmp_ui (kq, 0) < 0)
 	{
@@ -1034,10 +1036,10 @@ void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
 	}
 
 	fp_log (logkq, kq, prec);
-	
+
 	/* magnitude is exp(re(s) * log(kq)) */
 	mpf_mul (mag, ess->re, logkq);
-	
+
 	fp_exp (mag, mag, prec);
 
 	/* phase is im(s) * log(kq)) */
@@ -1045,10 +1047,10 @@ void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
 
 	fp_cosine (powc->re, pha, prec);
 	mpf_mul (powc->re, mag, powc->re);
-	
+
 	fp_sine (powc->im, pha, prec);
 	mpf_mul (powc->im, mag, powc->im);
-	
+
 	mpf_clear(logkq);
 	mpf_clear(mag);
 	mpf_clear(pha);
@@ -1061,7 +1063,7 @@ void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
  * Brute-force algo, this thing is pretty slow, as it requires
  * a logarithm, an exp, sin and cos to be computed, each of which
  * are kinda slow ... If q and s can be held const, while k is varied,
- * then consider using cpx_pow_rc instead, which will cache values 
+ * then consider using cpx_pow_rc instead, which will cache values
  * for performance.
  */
 void cpx_pow (cpx_t powc, const cpx_t que, const cpx_t ess, int prec)
@@ -1110,7 +1112,7 @@ void cpx_pow_ui (cpx_t powc, const cpx_t q, unsigned int n)
 		n >>= 1;
 		cpx_mul(qsq, qsq, qsq);
 	}
-	
+
 	cpx_clear (qsq);
 }
 
@@ -1118,8 +1120,8 @@ void cpx_pow_ui (cpx_t powc, const cpx_t q, unsigned int n)
 /**
  * cpx_ui_pow -- return k^s for complex s, integer k.
  *
- * Uses a brute-force algo: it requires a logarithm, an exp, sin 
- * and cos to be computed, each of which are kinda slow ... 
+ * Uses a brute-force algo: it requires a logarithm, an exp, sin
+ * and cos to be computed, each of which are kinda slow ...
  */
 void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 {
@@ -1129,10 +1131,10 @@ void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 	mpf_init (pha);
 
 	fp_log_ui (logkq, k, prec);
-	
+
 	/* magnitude is exp(re(s) * log(kq)) */
 	mpf_mul (mag, ess->re, logkq);
-	
+
 	fp_exp (mag, mag, prec);
 
 	/* phase is im(s) * log(kq)) */
@@ -1140,10 +1142,10 @@ void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 
 	fp_cosine (powc->re, pha, prec);
 	mpf_mul (powc->re, mag, powc->re);
-	
+
 	fp_sine (powc->im, pha, prec);
 	mpf_mul (powc->im, mag, powc->im);
-	
+
 	mpf_clear(logkq);
 	mpf_clear(mag);
 	mpf_clear(pha);
@@ -1184,7 +1186,7 @@ void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 		cpx_one_d_cache_fetch (&powcache, powc, k);
 		return;
 	}
-	
+
 	cpx_ui_pow (powc, k, ess, prec);
 
 	cpx_one_d_cache_store (&powcache, powc, k, prec);
@@ -1200,7 +1202,7 @@ void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
  *
  * Overall, though, this thing is pretty slow, as it requires
  * a logarithm, an exp, sin and cos to be computed, each of which
- * are kinda slow ... 
+ * are kinda slow ...
  */
 void fp_pow_rc (cpx_t powc, int k, const mpf_t q, const cpx_t ess, int prec)
 {
@@ -1249,7 +1251,7 @@ void fp_pow_rc (cpx_t powc, int k, const mpf_t q, const cpx_t ess, int prec)
 		next_q = &cache_q_two;
 		next_s = &cache_s_two;
 	}
-	
+
 	if (mpf_eq(q, cache_q_two, prec*3.322) &&
 	    cpx_eq(ess, cache_s_two, prec*3.322))
 	{
@@ -1263,7 +1265,7 @@ void fp_pow_rc (cpx_t powc, int k, const mpf_t q, const cpx_t ess, int prec)
 		next_q = &cache_q_one;
 		next_s = &cache_s_one;
 	}
-	
+
 	if (NULL == powcache)
 	{
 		powcache = next_cache;
@@ -1328,7 +1330,7 @@ void cpx_pow_rc (cpx_t powc, int k, const cpx_t q, const cpx_t ess, int prec)
 		next_q = &cache_q_two;
 		next_s = &cache_s_two;
 	}
-	
+
 	if (cpx_eq(q, cache_q_two, prec*3.322) &&
 	    cpx_eq(ess, cache_s_two, prec*3.322))
 	{
@@ -1342,7 +1344,7 @@ void cpx_pow_rc (cpx_t powc, int k, const cpx_t q, const cpx_t ess, int prec)
 		next_q = &cache_q_one;
 		next_s = &cache_s_one;
 	}
-	
+
 	if (NULL == powcache)
 	{
 		powcache = next_cache;
@@ -1352,7 +1354,7 @@ void cpx_pow_rc (cpx_t powc, int k, const cpx_t q, const cpx_t ess, int prec)
 		cpx_set(*next_s, ess);
 	}
 
-	
+
 	cpx_t kq;
 	cpx_init (kq);
 	mpf_add_ui (kq[0].re, q[0].re, k);

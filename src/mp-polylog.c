@@ -1,28 +1,28 @@
 
-/** 
+/**
  * mp-polylog.c
  *
  * Implement Borwein-style polylogarithm.
- * Also implement the "periodic zeta" and 
+ * Also implement the "periodic zeta" and
  * the Hurwitz zeta function.
  * Also implements te Euler-Maclaurin expansion as well.
  *
  * As of 22 December 2006, seems to be fully functional
  * and correct, and passes tests. The range of convergence
  * is rather limited because of precision/rounding errors.
- * 
+ *
  * Copyright (C) 2006,2007 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -50,7 +50,7 @@
  * A polynomial of order 2n is used to perform the estimation.
  * The value of n must be suitably large.
  * Muse have |z^2/(z-1)| < 3.7 in order for the thing to converge
- * to an accurate answer. 
+ * to an accurate answer.
  *
  * Appears to work well. Suggest n=31 for most cases,
  * should return answers accurate to 1e-16
@@ -86,7 +86,7 @@ static void polylog_borwein (cpx_t plog, const cpx_t ess, const cpx_t zee, int n
 	cpx_sub_ui (ska, ska, 1, 0);
 	cpx_recip (ska, ska);
 	cpx_pow_ui (ska, ska, norder);
-	
+
 	cpx_set_ui (pz, 1, 0);
 	cpx_set_ui (acc, 0, 0);
 	cpx_set_ui (plog, 0, 0);
@@ -107,7 +107,7 @@ static void polylog_borwein (cpx_t plog, const cpx_t ess, const cpx_t zee, int n
 		mpf_set_z (term[0].re, ibin);
 		mpf_set_ui (term[0].im, 0);
 		cpx_mul (term, term, pz);
-		
+
 		if (k%2)
 		{
 			cpx_sub (bins, bins, term);
@@ -149,7 +149,7 @@ static void polylog_borwein (cpx_t plog, const cpx_t ess, const cpx_t zee, int n
 	{
 		cpx_add (plog, acc, plog);
 	}
-	
+
 	cpx_clear (s);
 	cpx_clear (z);
 	cpx_clear (ska);
@@ -184,8 +184,8 @@ inline static double polylog_get_zone (double zre, double zim)
 
 inline static double polylog_modsq (const cpx_t zee)
 {
-	double zre = mpf_get_d (zee[0].re);	
-	double zim = mpf_get_d (zee[0].im);	
+	double zre = mpf_get_d (zee[0].re);
+	double zim = mpf_get_d (zee[0].im);
 
 	double den = zre*zre + zim*zim;
 
@@ -193,7 +193,7 @@ inline static double polylog_modsq (const cpx_t zee)
 }
 
 /*
- * polylog_terms_est() -- estimate number of terms needed 
+ * polylog_terms_est() -- estimate number of terms needed
  * in the polylog summation in order to keep the error
  * to be less than 10^-prec.
  */
@@ -202,11 +202,11 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 	double fterms = 2.302585 * prec;  /* log(10) */
 
 	/* Estimate for the gamma. A slightly better estimate
-	 * can be obtained for sre negative but still small. 
+	 * can be obtained for sre negative but still small.
 	 */
 	double gamterms;
-	double sre = mpf_get_d (ess[0].re);	
-	double sim = mpf_get_d (ess[0].im);	
+	double sre = mpf_get_d (ess[0].re);
+	double sim = mpf_get_d (ess[0].im);
 	if (0.0 > sim) sim = -sim;
 	if (0.0 < sre) {
 		gamterms = 0.5*M_PI*sim;
@@ -215,7 +215,7 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 	}
 	/* XXX TODO replace lgamma with stirling approx slog(s)-s for better
 	 * performance and speed */
-	gamterms -= lgamma(sre); 
+	gamterms -= lgamma(sre);
 
 	/*
 	 * If lngamma is divergent, then sre is a negative integer,
@@ -230,11 +230,11 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 	{
 		return (int) (-sre+3.0);
 	}
-	
+
 	fterms += gamterms;
 
-	double zre = mpf_get_d (zee[0].re);	
-	double zim = mpf_get_d (zee[0].im);	
+	double zre = mpf_get_d (zee[0].re);
+	double zim = mpf_get_d (zee[0].im);
 	double cterms = 0.0;
 	if (0.0 < zre)
 	{
@@ -256,7 +256,7 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 	/* den = | z^2/(z-1)|^2 */
 	double den = polylog_get_zone (zre, zim);
 
-	/* fterms may become negative -- a negative value means 
+	/* fterms may become negative -- a negative value means
 	 * it will never converge. Caller must test for negative value.
 	 */
 	fterms /= -0.5*log(den) + 1.386294361;  /* log 4 */
@@ -265,7 +265,7 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 #if 0
 gamterms /=  -0.5*log(den) + 1.386294361;
 cterms /=  -0.5*log(den) + 1.386294361;
-printf ("# duude z= %g +i %g den=%g  prec=%d deno=%g nterms = %d gam=%g ct=%g\n", 
+printf ("# duude z= %g +i %g den=%g  prec=%d deno=%g nterms = %d gam=%g ct=%g\n",
 zre, zim, sqrt(den), prec,  -0.5*log(den) + 1.386294361, nterms, gamterms, cterms);
 #endif
 
@@ -275,7 +275,7 @@ zre, zim, sqrt(den), prec,  -0.5*log(den) + 1.386294361, nterms, gamterms, cterm
 /* ============================================================= */
 
 static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth);
-  
+
 static inline int polylog_recurse_duple (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int rc;
@@ -308,7 +308,7 @@ printf ("\n");
 	cpx_mul (plog, pp, s);
 
 	cpx_sub (plog, plog, pn);
-	
+
 bailout:
 	cpx_clear (s);
 	cpx_clear (pp);
@@ -340,7 +340,7 @@ static inline int polylog_recurse_triple (cpx_t plog, const cpx_t ess, const cpx
 	mpf_div_ui (tr[0].re, tr[0].re, 2);
 	mpf_neg (tr[0].re, tr[0].re);
 	fp_half_sqrt_three (tr[0].im);
-	
+
 	cpx_mul (zcu, tr, zee);
 	rc = recurse_away_polylog (pu, s, zcu, prec, depth);
 	if (rc) goto bailout;
@@ -357,7 +357,7 @@ static inline int polylog_recurse_triple (cpx_t plog, const cpx_t ess, const cpx
 
 	cpx_sub (plog, plog, pu);
 	cpx_sub (plog, plog, pd);
-	
+
 bailout:
 	cpx_clear (s);
 	cpx_clear (tr);
@@ -371,18 +371,18 @@ bailout:
 /**
  * recurse_away_polylog() -- use duplication formula to extend domain
  *
- * Evaluate the polylog directly, if possible; else use the 
- * duplication formula to get into a region where its directly 
+ * Evaluate the polylog directly, if possible; else use the
+ * duplication formula to get into a region where its directly
  * evaluable. The duplication formula is used to move away from
  * z=1, and the Hurwitz series at z=1 is *not* used.
- * 
+ *
  * Return a non-zero value if no value was computed.
  */
 static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int rc;
-	double zre = mpf_get_d (zee[0].re);	
-	double zim = mpf_get_d (zee[0].im);	
+	double zre = mpf_get_d (zee[0].re);
+	double zim = mpf_get_d (zee[0].im);
 	double mod = zre*zre + zim*zim;
 
 	/* The algo will never converge when modulus >= 5 or so */
@@ -401,8 +401,8 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 	depth ++;
 
 	/*
-	 * The Borwein algo seems to always be faster than direct 
-	 * summation, even when the direct-sum region is made quite 
+	 * The Borwein algo seems to always be faster than direct
+	 * summation, even when the direct-sum region is made quite
 	 * small, e.g. even when it is of radius less than 1/4.
 	 * Never use direct summation.
 	 */
@@ -414,13 +414,13 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 	}
 #endif
 
-	/* The zone of convergence for the Borwein algorithm is 
-	 * |z^2/(z-1)| < 3.  If z is within this zone, then all is 
-	 * well. If not, use the duplication formula to make 
-	 * recursive calls, until the leaves of the recursion 
-	 * are in this zone. 
+	/* The zone of convergence for the Borwein algorithm is
+	 * |z^2/(z-1)| < 3.  If z is within this zone, then all is
+	 * well. If not, use the duplication formula to make
+	 * recursive calls, until the leaves of the recursion
+	 * are in this zone.
 	 *
-	 * The algo seems to be more precise (!??) and have less 
+	 * The algo seems to be more precise (!??) and have less
 	 * trouble when an even smaller bound is used, e.g.
 	 * when |z^2/(z-1)| < 1.25. The non-recursive algo seems
 	 * to choke up when it gets too close to z=1.
@@ -432,11 +432,11 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 	/* nterms = number of terms needed for computation */
 	int nterms = polylog_terms_est (ess, zee, prec);
 
-	/* To carry out the computation, an internal precision is needed 
+	/* To carry out the computation, an internal precision is needed
 	 * that is a bit higher than what the user asked for. This internal
 	 * precision depends on the degree of the approximating polynomial.
 	 * Thus, look at the available bits of precision, and decide if
-	 * the calculation can be performed in that way. 
+	 * the calculation can be performed in that way.
 	 *
 	 * The degree of internal precision available limits the largest
 	 * effective order of the apprximating polynomial that can be used.
@@ -451,16 +451,16 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 	 * never converge, and so subdivision is the only option.
 	 * Uhh, this should be equivalent to den>15, and we already subdivide
 	 * for large den.
-	 * 
-	 * The algo seems to have some trouble near z=1 when 
-	 * if (den>4) is used to decide subdivision. 
+	 *
+	 * The algo seems to have some trouble near z=1 when
+	 * if (den>4) is used to decide subdivision.
 	 */
 	if ((den > 1.5) || (maxterms < nterms))
 	{
 		// printf ("splitsville-away, z=%g +i %g  den=%g nterms=%d\n", zre, zim, den, nterms);
 		rc = polylog_recurse_duple (plog, ess, zee, prec, depth);
-		/* 
-		 * The angle-tripling recursion equation is not as effective 
+		/*
+		 * The angle-tripling recursion equation is not as effective
 		 * as the angle-doubling equation in pulling points into the
 		 * zone of convergence. So we don't use it.
 		 *
@@ -468,17 +468,17 @@ static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, i
 		 */
 		return rc;
 
-		/* 
+		/*
 		 * Under no circumstances does it ever seem to work to bring
-		 * distant points closer in by using the sqrt relation to 
+		 * distant points closer in by using the sqrt relation to
 		 * pull them in. The problem seems to be that distant points
-		 * get pulled in close to z>=1, where they can't be evaluated 
+		 * get pulled in close to z>=1, where they can't be evaluated
 		 * anyway, so this is no particular help.
-		 * 
+		 *
 		 * rc = polylog_recurse_sqrt (plog, ess, zee, prec, depth);
 		 */
 	}
-	
+
 	/* Use the larger, adjusted internal precision discussed above
 	 * in the final calculation.
 	 */
@@ -501,7 +501,7 @@ int cpx_polylog_away (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec)
 
 static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth);
 
-static inline int 
+static inline int
 polylog_recurse_sqrt (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int rc;
@@ -546,14 +546,14 @@ bailout:
  * polylog_invert -- implement the polylog inversion formula
  *
  * Implement the following inversion formula for polylog:
- * (1-e^{2pi is}) Li_s(z) =  e^{i\pi s} (2pi i)^s / Gamma(s) 
- *           (zeta(1-s, ln z/(2pi i) -e^{ipi s} zeta(1-s, 1- ln z/(2pi i)) 
+ * (1-e^{2pi is}) Li_s(z) =  e^{i\pi s} (2pi i)^s / Gamma(s)
+ *           (zeta(1-s, ln z/(2pi i) -e^{ipi s} zeta(1-s, 1- ln z/(2pi i))
  *
- * This formula appears to work well for both positive and negative 
+ * This formula appears to work well for both positive and negative
  * half s-plane.
  */
 #if THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION
-static int 
+static int
 polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	mpf_t twopi;
@@ -591,7 +591,7 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
 	cpx_ui_sub (tmp, 1, 0, s);
 	// cpx_hurwitz_taylor (term, tmp, logz, prec);
 	cpx_hurwitz_euler (term, tmp, logz, prec);
-	
+
 	/* plus e^{ipi s} zeta (1-s, 1-ln z/(2pi i)) */
 	cpx_neg (logz, logz);
 	cpx_add_ui (logz, logz, 1, 0);
@@ -634,11 +634,11 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
  *
  * The following is an alternate version of the invert routine,
  * it works, too, for the upper half or the lower half s-plane.
- * The only difference between this and the above is that the 
+ * The only difference between this and the above is that the
  * gamma function reflection formula was used to put the gamma
  * on the top and not the bottom.
  */
-static int 
+static int
 polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int redo = 0;
@@ -726,7 +726,7 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
 	/* zeta (s, ln z/(2pi i)) */
 	// cpx_hurwitz_taylor (plog, s, logz, prec);
 	cpx_hurwitz_euler (plog, s, logz, prec);
-	
+
 	/* plus e^{-ipi s} zeta (s, 1-ln z/(2pi i)) */
 	cpx_ui_sub (logz, 1, 0, logz);
 	// cpx_hurwitz_taylor (tmp, s, logz, prec);
@@ -745,7 +745,7 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
 // #define NON_WORKING_INVERSION_ROUTINES
 #ifdef NON_WORKING_INVERSION_ROUTINES
 /* Implement the following inversion formula for polylog:
- * Li_s(z) = - e^{i\pi s} Li_s(1/z) 
+ * Li_s(z) = - e^{i\pi s} Li_s(1/z)
  *           + (2pi i)^s zeta(1-s, ln z/(2pi i)) / Gamma (s)
  *
  * This polylog inversion formula "should" work well.
@@ -754,7 +754,7 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
  * brokenness is confusing, since its theoretically the same
  * formula as the one that works. Not clear what the gig is.
  */
-static int 
+static int
 polylog_invert_broken_for_lower_half_plane(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	mpf_t twopi;
@@ -780,7 +780,7 @@ polylog_invert_broken_for_lower_half_plane(cpx_t plog, const cpx_t ess, const cp
 	/* - e^i\pi s Li_s(1/z) */
 	int rc = recurse_towards_polylog (plog, s, oz, prec, depth);
 	if (rc) goto bail;
-	
+
 	cpx_mul (plog, plog, ph);
 	cpx_mul (plog, plog, ph);
 	cpx_neg (plog, plog);
@@ -799,7 +799,7 @@ polylog_invert_broken_for_lower_half_plane(cpx_t plog, const cpx_t ess, const cp
 	/* zeta (1-s, ln z/(2pi i)) */
 	cpx_ui_sub (tmp, 1, 0, s);
 	cpx_hurwitz_taylor (term, tmp, logz, prec);
-	
+
 	/* (2pi)^s i^s zeta /gamma (s) */
 	cpx_mul (term, term, ph);
 
@@ -827,7 +827,7 @@ bail:
  * The Nth sheet of Li_s(z) is given by
  *      (2pi i)^s zeta(1-s, ln z/(2pi i)) / Gamma (s)
  */
-void 
+void
 cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, int z1_dromy, int prec)
 {
 	if (0 == z1_dromy)
@@ -850,7 +850,7 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
 	cpx_set_ui (norm, 1, 0);
 
 	/* Do the z0_dromy */
-	if (z0_dromy) 
+	if (z0_dromy)
 	{
 		cpx_times_mpf (tmp, s, twopi);
 		cpx_times_i (tmp, tmp);
@@ -865,7 +865,7 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
 			cpx_neg (tmp,tmp);
 		}
 		cpx_exp (norm, tmp, prec);
-		if (z0_dromy%2) 
+		if (z0_dromy%2)
 		{
 			cpx_neg (norm, norm);
 		}
@@ -876,11 +876,11 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
 	cpx_div_mpf (q, q, twopi);
 	cpx_times_i (q, q);
 	cpx_neg (q,q);
-	
-	/* Place branch cut of the polylog so that it extends to the 
-	 * right from z=1. This is the same as adding 2pi i to the value 
+
+	/* Place branch cut of the polylog so that it extends to the
+	 * right from z=1. This is the same as adding 2pi i to the value
 	 * of the log, if the value is in the lower half plane, so that
-	 * we move the cut of the log to lie along the positive, not 
+	 * we move the cut of the log to lie along the positive, not
 	 * negative axis. */
 	if (mpf_sgn(q[0].re) < 0)
 	{
@@ -946,7 +946,7 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
 	mpf_clear (twopi);
 }
 
-void 
+void
 cpx_polylog_sheet_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
 {
 	if (0 == direction)
@@ -972,14 +972,14 @@ cpx_polylog_sheet_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
 		cpx_neg (ph, ph);
 	}
 	cpx_exp (ph, ph, prec);
-	if (direction%2) 
+	if (direction%2)
 	{
 		cpx_neg (ph, ph);
 	}
 	mpf_clear (twopi);
 }
 
-void 
+void
 cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec)
 {
 	if (0 == direction)
@@ -1004,11 +1004,11 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_div_mpf (q, q, twopi);
 	cpx_times_i (q, q);
 	cpx_neg (q,q);
-	
-	/* Place branch cut of the polylog so that it extends to the 
-	 * right from z=1. This is the same as adding 2pi i to the value 
+
+	/* Place branch cut of the polylog so that it extends to the
+	 * right from z=1. This is the same as adding 2pi i to the value
 	 * of the log, if the value is in the lower half plane, so that
-	 * we move the cut of the log to lie along the positive, not 
+	 * we move the cut of the log to lie along the positive, not
 	 * negative axis. */
 	if (mpf_sgn(q[0].re) < 0)
 	{
@@ -1017,10 +1017,10 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 
 	/* Move to the n'th sheet; sheets of the log and the polylog
 	 * are now one and the same thing. */
-	// XXX this is wrong, if zero is crossed. 
-	// That is, this works correctly only if direction is +1 or -1 
+	// XXX this is wrong, if zero is crossed.
+	// That is, this works correctly only if direction is +1 or -1
 	// or if z1_dromy is same sign as sheet.  But for now, this
-	// restriction is enough. 
+	// restriction is enough.
 	int z1_dromy = sheet + direction;
 	if (0 < z1_dromy)
 	{
@@ -1081,18 +1081,18 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 /**
  * recurse_towards_polylog() -- use duplication formula to extend domain
  *
- * Evaluate the polylog directly, if possible; else use the 
- * duplication formula to get into a region where its directly 
+ * Evaluate the polylog directly, if possible; else use the
+ * duplication formula to get into a region where its directly
  * evaluable. The duplication formula is used to move towards z=1
  * which is where the Hurwitz series at z=1 can be employed.
- * 
+ *
  * Return a non-zero value if no value was computed.
  */
 static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int rc;
-	double zre = mpf_get_d (zee[0].re);	
-	double zim = mpf_get_d (zee[0].im);	
+	double zre = mpf_get_d (zee[0].re);
+	double zim = mpf_get_d (zee[0].im);
 	double mod = zre*zre + zim*zim;
 
 	/*
@@ -1108,8 +1108,8 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	depth ++;
 
 	/*
-	 * The Borwein algo seems to always be faster than direct 
-	 * summation, even when the direct-sum region is made quite 
+	 * The Borwein algo seems to always be faster than direct
+	 * summation, even when the direct-sum region is made quite
 	 * small, e.g. even when it is of radius less than 1/4.
 	 * Never use direct summation.
 	 */
@@ -1121,13 +1121,13 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	}
 #endif
 
-	/* The zone of convergence for the Borwein algorithm is 
-	 * |z^2/(z-1)| < 3.  If z is within this zone, then all is 
-	 * well. If not, use the duplication formula to make 
-	 * recursive calls, until the leaves of the recursion 
-	 * are in this zone. 
+	/* The zone of convergence for the Borwein algorithm is
+	 * |z^2/(z-1)| < 3.  If z is within this zone, then all is
+	 * well. If not, use the duplication formula to make
+	 * recursive calls, until the leaves of the recursion
+	 * are in this zone.
 	 *
-	 * The algo seems to be more precise (!??) and have less 
+	 * The algo seems to be more precise (!??) and have less
 	 * trouble when an even smaller bound is used, e.g.
 	 * when |z^2/(z-1)| < 1.25. The non-recursive algo seems
 	 * to choke up when it gets too close to z=1.
@@ -1139,11 +1139,11 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	/* nterms = number of terms needed for computation */
 	int nterms = polylog_terms_est (ess, zee, prec);
 
-	/* To carry out the computation, an internal precision is needed 
+	/* To carry out the computation, an internal precision is needed
 	 * that is a bit higher than what the user asked for. This internal
 	 * precision depends on the degree of the approximating polynomial.
 	 * Thus, look at the available bits of precision, and decide if
-	 * the calculation can be performed in that way. 
+	 * the calculation can be performed in that way.
 	 *
 	 * The degree of internal precision available limits the largest
 	 * effective order of the apprximating polynomial that can be used.
@@ -1155,7 +1155,7 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 
 	// printf ("invoke-twrds, z=%g +i %g  den=%g nterms=%d, maxterms=%d\n", zre, zim, den, nterms, maxterms);
 
-	/* If the z value is sufficently close to z=-1, then the Borwein 
+	/* If the z value is sufficently close to z=-1, then the Borwein
 	 * algorithm can be applied directly. So apply it. Oh, make sure
 	 * that it doesn't take a hopeless numer of terms to get there.
 	 */
@@ -1180,9 +1180,9 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	}
 
 	/* Use the polylog-hurwitz reflection formula, if the z value
-	 * is sufficiently close to z=1. Basically, the hurwitz series 
-	 * converges well when |q| < 0.5, or, in this case, if 
-	 * |ln z / (2 pi i) | < 0.5. Note that flt point is good 
+	 * is sufficiently close to z=1. Basically, the hurwitz series
+	 * converges well when |q| < 0.5, or, in this case, if
+	 * |ln z / (2 pi i) | < 0.5. Note that flt point is good
 	 * enough for this test.
 	 */
 	if (log(mod) < 6.28)
@@ -1192,7 +1192,7 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	}
 
 	/* If we are here, we are not close to either z=-1 or z=+1, and
-	 * so the only option is to use the duplication formula to try 
+	 * so the only option is to use the duplication formula to try
 	 * to get into one of these regions.
 	 *
 	 * Actually, with current algo, this statement should never be
@@ -1242,14 +1242,14 @@ void cpx_polylog_sum (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec)
 
 	/* Estimate the number of terms needed to sum over */
 	double mag = polylog_modsq (zee);
-	
+
 	/* Domain error, should be less than one */
 	if (1.0 <= mag)
 	{
-		fprintf (stderr, "cpx_polylog_sum(): Domain error, |z|=%g\n", sqrt(mag)); 
+		fprintf (stderr, "cpx_polylog_sum(): Domain error, |z|=%g\n", sqrt(mag));
 		return;
 	}
-	
+
 	int nterms = -2.0 * prec *2.302585093 / log(mag);
 	for (n=1; n<nterms; n++)
 	{
@@ -1309,7 +1309,7 @@ void cpx_polylog_nint (cpx_t plog, unsigned int negn, const cpx_t zee)
 			mpf_set_ui (term[0].im, 0);
 
 			cpx_mul (term, term, zp);
-	
+
 			cpx_add (plog, plog, term);
 			cpx_mul (zp, zp, z);
 			mpz_mul_ui (fac, fac, k);
@@ -1427,11 +1427,11 @@ void cpx_polylog_euler (cpx_t zeta, const cpx_t ess, const cpx_t zee, int prec)
 
 /* ============================================================= */
 /**
- * cpx_periodic_zeta -- Periodic zeta function 
+ * cpx_periodic_zeta -- Periodic zeta function
  *
  * F(s,q) = sum_{n=1}^infty exp(2pi iqn)/ n^s
  *        = Li_s (exp(2pi iq))
- * where 
+ * where
  * Li_s(z) is the polylogarithm
  *
  * Periodic zeta function is defined as F(s,q) by Tom Apostol, chapter 12
@@ -1445,7 +1445,7 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 	mpf_t q, qf;
 	mpf_init (q);
 	mpf_init (qf);
-	
+
 	cpx_t s, sm;
 	cpx_init (s);
 	cpx_init (sm);
@@ -1455,16 +1455,16 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 	mpf_sub (q, q, qf);
 
 	cpx_set (s, ess);
-	
+
 	double fq = mpf_get_d (q);
 	if ((1.0e-15 > fq) || (1.0e-15 > 1.0-fq))
 	{
 		// XXX should be more precise with the next order
-		// q correction ... 
+		// q correction ...
 		// riemann_zeta (s.re, s.im, &z.re, &z.im);
 		cpx_set_ui (z, 0, 0);
 	}
-	else if (mpf_cmp_d (q, 0.25) < 0) 
+	else if (mpf_cmp_d (q, 0.25) < 0)
 	{
 		/* Use the duplication formula to get into convergent region */
 		cpx_t ts, bt;
@@ -1479,7 +1479,7 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 		fp_log2 (qf, prec);
 		cpx_times_mpf (sm, sm, qf);
 		cpx_exp (ts, sm, prec);
-		
+
 		/* bt = pzeta (2q) * 2^{1-s} */
 		mpf_mul_ui (qf, q, 2);
 		cpx_periodic_zeta (bt, s, qf, prec);
@@ -1491,11 +1491,11 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 		mpf_add (qf, q, qf);
 		cpx_periodic_zeta (z, s, qf, prec);
 		cpx_sub (z, bt, z);
-		
+
 		cpx_clear (ts);
 		cpx_clear (bt);
 	}
-	else if (mpf_cmp_d (q, 0.75) > 0) 
+	else if (mpf_cmp_d (q, 0.75) > 0)
 	{
 		/* Use the duplication formula to get into convergent region */
 		cpx_t ts, bt;
@@ -1510,7 +1510,7 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 		fp_log2 (qf, prec);
 		cpx_times_mpf (sm, sm, qf);
 		cpx_exp (ts, sm, prec);
-		
+
 		/* bt = pzeta (2q-1) * 2^{1-s} */
 		mpf_mul_ui (qf, q, 2);
 		mpf_sub_ui (qf, qf, 1);
@@ -1535,7 +1535,7 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 
 		fp_cosine (z[0].re, qf, prec);
 		fp_sine (z[0].im, qf, prec);
-		
+
 		// cpx_polylog (z, s, z, prec);
 		int nterms = polylog_terms_est (s, z, prec);
 		if (4 < nterms)
@@ -1547,7 +1547,7 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 			fprintf (stderr, "Error: cpx_periodic_zeta() has bad terms estimate\n");
 		}
 	}
-	
+
 	mpf_clear (q);
 	mpf_clear (qf);
 
@@ -1557,16 +1557,16 @@ void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec)
 
 /* ============================================================= */
 /**
- * cpx_periodic_beta -- Periodic beta function 
+ * cpx_periodic_beta -- Periodic beta function
  *
  * Similar to periodic zeta, but with different normalization
  *
  * beta = 2 Gamma(s+1) (2\pi)^{-s} F(s,q)
  *
- * The implemented algorithm is to compute periodic zeta, and 
+ * The implemented algorithm is to compute periodic zeta, and
  * then renormalize and return the ressult.
  *
- * As of 22 December 2006, seems to be passing the tests -- 
+ * As of 22 December 2006, seems to be passing the tests --
  * that is, it gives the Bernoulli polynomials for integer s,
  * with all the right scale factors and signs, etc. Yay!
  */
@@ -1609,7 +1609,7 @@ void cpx_periodic_beta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)
 		/* times (2pi)^{-s} */
 		fp_two_pi (two_pi, prec);
 		cpx_neg (s, ess);
-		cpx_mpf_pow (tps, two_pi, s, prec); 
+		cpx_mpf_pow (tps, two_pi, s, prec);
 		cpx_mul (scale, scale, tps);
 
 		/* times two */
@@ -1690,14 +1690,14 @@ static void hurwitz_zeta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)
 		/* times (2pi)^{-s} */
 		fp_two_pi (t, prec);
 		cpx_neg (s, s);
-		cpx_mpf_pow (tps, t, s, prec); 
+		cpx_mpf_pow (tps, t, s, prec);
 		cpx_neg (s, s);
 		cpx_mul (scale, scale, tps);
 
 		/* times two */
 		cpx_clear (tps);
 	}
-	
+
 	/* F(s,q) and F(s, 1-q) */
 	cpx_periodic_zeta (zee, s, que, prec);
 	mpf_ui_sub (t, 1, que);
@@ -1781,7 +1781,7 @@ void cpx_hurwitz_taylor (cpx_t zee, const cpx_t ess, const cpx_t que, int prec)
 	cpx_set (s, ess);
 	cpx_set (q, que);
 
-	/* Compute 1/q^s if the real part of q is near 0. 
+	/* Compute 1/q^s if the real part of q is near 0.
 	 * Else navigate the waters of the Hurwitz branch cut.
 	 */
 	cpx_neg (s, s);
@@ -1821,7 +1821,7 @@ goto punt;
 	{
 		/* s+n-1 */
 		/* The caching version uses precomputed values,
-		 * making te algo faster. This also means that 
+		 * making te algo faster. This also means that
 		 * sn does not need to be incremented. */
 		// cpx_binomial (bin, sn, n);
 		// cpx_add_ui (sn, sn, 1, 0);
@@ -1886,7 +1886,7 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 
 	/* deriv = 1/(M+q)^s */
 	fp_pow_rc (deriv, em, q, s, prec);
-	
+
 	/* Add another (1/2) of 1 /(M+q)^s */
 	cpx_div_ui (term, deriv, 2);
 	cpx_add (zeta, zeta, term);
@@ -1899,7 +1899,7 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 
 	mpq_t bern;
 	mpq_init (bern);
-	
+
 	/* emq = M+q */
 	mpf_add_ui (emq, q, em);
 
@@ -1915,16 +1915,16 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 
 	/* emq = 1/(M+q)^2 */
 	mpf_mul (emq, emq, emq);
-	
+
 	mpf_set_ui (fact, 1);
 	mpf_div_ui (fact, fact, 2);
-	
+
 	cpx_sub_ui (s, s, 1, 0);
 	cpx_neg (s, s);
 	cpx_set (spoch, s);
 
 	fp_epsilon (eps, 2*prec);
-	
+
 	k = 1;
 	while (1)
 	{
@@ -1932,7 +1932,7 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 		q_bernoulli (bern, 2*k);
 		mpf_set_q (ft, bern);
 		mpf_mul (ft, ft, fact);
-		
+
 		cpx_times_mpf (term, deriv, ft);
 		cpx_mul (term, term, spoch);
 		cpx_add (zeta, zeta, term);
@@ -1945,7 +1945,7 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 #endif
 
 		k++;
-		
+
 		mpf_div_ui (fact, fact, (2*k-1)*2*k);
 		cpx_times_mpf (deriv, deriv, emq);
 		mpf_add_ui (s[0].re, s[0].re, 1);
@@ -1953,7 +1953,7 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 		mpf_add_ui (s[0].re, s[0].re, 1);
 		cpx_mul (spoch, spoch, s);
 	}
-	
+
 	mpq_clear (bern);
 	mpf_clear (fact);
 	mpf_clear (emq);
@@ -1962,7 +1962,7 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 	cpx_clear (spoch);
 	cpx_clear (term);
 	cpx_clear (deriv);
-} 
+}
 
 static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 {
@@ -1987,7 +1987,7 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 
 	/* deriv = 1/(M+q)^s */
 	cpx_pow_rc (deriv, em, emq, s, prec);
-	
+
 	/* Add another (1/2) of 1 /(M+q)^s */
 	cpx_div_ui (term, deriv, 2);
 	cpx_add (zeta, zeta, term);
@@ -1999,7 +1999,7 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 
 	mpq_t bern;
 	mpq_init (bern);
-	
+
 	/* emq = M+q */
 	mpf_add_ui (emq[0].re, emq[0].re, em);
 
@@ -2015,16 +2015,16 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 
 	/* emq = 1/(M+q)^2 */
 	cpx_mul (emq, emq, emq);
-	
+
 	mpf_set_ui (fact, 1);
 	mpf_div_ui (fact, fact, 2);
-	
+
 	cpx_sub_ui (s, s, 1, 0);
 	cpx_neg (s, s);
 	cpx_set (spoch, s);
 
 	fp_epsilon (eps, 2*prec);
-	
+
 	k = 1;
 	while (1)
 	{
@@ -2032,7 +2032,7 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 		q_bernoulli (bern, 2*k);
 		mpf_set_q (ft, bern);
 		mpf_mul (ft, ft, fact);
-		
+
 		cpx_times_mpf (term, deriv, ft);
 		cpx_mul (term, term, spoch);
 		cpx_add (zeta, zeta, term);
@@ -2045,7 +2045,7 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 #endif
 
 		k++;
-		
+
 		mpf_div_ui (fact, fact, (2*k-1)*2*k);
 		cpx_mul (deriv, deriv, emq);
 		mpf_add_ui (s[0].re, s[0].re, 1);
@@ -2053,7 +2053,7 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 		mpf_add_ui (s[0].re, s[0].re, 1);
 		cpx_mul (spoch, spoch, s);
 	}
-	
+
 	mpq_clear (bern);
 	mpf_clear (fact);
 	mpf_clear (ft);
@@ -2061,7 +2061,7 @@ static void zeta_euler(cpx_t zeta, cpx_t ess, cpx_t q, int em, int prec)
 	cpx_clear (spoch);
 	cpx_clear (term);
 	cpx_clear (deriv);
-} 
+}
 
 void cpx_hurwitz_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int prec)
 {
@@ -2081,7 +2081,7 @@ void cpx_hurwitz_euler(cpx_t zeta, cpx_t ess, cpx_t q, int prec)
 }
 
 /* ============================================================= */
-/* Implement algorithm 1 from Cohen, Villegas, Zagier et al 
+/* Implement algorithm 1 from Cohen, Villegas, Zagier et al
  * The naive implementation below is a total failure, I don't know why.
  * Clearly, for real s, one might expect failure, since the series
  * is not alternating. However, for s with a large imaginary component,
@@ -2096,7 +2096,7 @@ void cpx_pade_hurwitz_zeta (cpx_t hur, const cpx_t ess, const mpf_t que, int pre
 	int nterms;
 
 	nterms = 1.31*prec;
-	
+
 	cpx_t s, term;
 	cpx_init (s);
 	cpx_init (term);
@@ -2137,7 +2137,7 @@ void cpx_pade_hurwitz_zeta (cpx_t hur, const cpx_t ess, const mpf_t que, int pre
 	}
 
 	cpx_div_mpf (hur, hur, d);
-	
+
 	mpf_clear (b);
 	mpf_clear (c);
 	mpf_clear (d);
@@ -2149,11 +2149,11 @@ void cpx_pade_hurwitz_zeta (cpx_t hur, const cpx_t ess, const mpf_t que, int pre
 
 /* ============================================================= */
 
-/** 
+/**
  * test_bernoulli_poly - compare periodic zeta to the Bernoulli poly's
  *
- * The Bernoulli polynomials have a fourier transform that is the 
- * periodic zeta function. 
+ * The Bernoulli polynomials have a fourier transform that is the
+ * periodic zeta function.
  *
  * Test is now passing with flying colors
  */
@@ -2177,7 +2177,7 @@ int test_bernoulli_poly (int n)
 		} else {
 			z = cplex_add (zl,zh);
 		}
-		
+
 		double bs;
 		if (0 == n%2)
 		{
@@ -2199,10 +2199,10 @@ int test_bernoulli_poly (int n)
 		ess.im = 0;
 		cplex hz = hurwitz_zeta(ess,q);
 		bs = -n * hz.re;
-		
+
 		// double b = q*q-q+1.0/6.0;
 		double b = bernoulli_poly (n,q);
-		
+
 		printf ("q=%5.3g	bs=%13.10g	bernoulli=%13.10g	reldiff=%6.3g\n", q, bs, b, (bs-b)/b);
 	}
 }
@@ -2231,7 +2231,7 @@ main (int argc, char * argv[])
 
 // #define HURWITZ_ZETA
 #ifdef HURWITZ_ZETA
-	/* As of 22 December 2006, this test seems to be passing, 
+	/* As of 22 December 2006, this test seems to be passing,
 	 * with decent accuracy, for anything with real part less than about 8
 	 */
 	cplex s;
@@ -2240,9 +2240,9 @@ main (int argc, char * argv[])
 	for (s.re = 1.05; s.re < n; s.re += 0.1)
 	{
 		cplex hz= hurwitz_zeta (s, q);
-		
+
 		double zeta = gsl_sf_hzeta (s.re, q);
-		
+
 		printf ("s=%5.3g	algo=%12.10g	exact=%12.10g	reldiff=%6.3g\n", s.re, hz.re, zeta, (hz.re-zeta)/zeta);
 	}
 #endif

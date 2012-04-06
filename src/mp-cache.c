@@ -5,17 +5,17 @@
  * Gnu Multiple-precision library.
  *
  * Copyright (C) 2005 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -139,7 +139,7 @@ int q_one_d_cache_check (q_cache *c, unsigned int n)
 /* Almost a cut-n-paste of above, but using fp instead */
 
 /** fp_one_d_cache_check() -- check if mpf_t value is in the cache
- *  If there is a cached value, this returns the precision of the 
+ *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
  *  This assumes a 1-dimensional cache layout (simple array)
  */
@@ -177,7 +177,7 @@ void fp_one_d_cache_clear (fp_cache *c)
 
 /* ======================================================================= */
 /** fp_triangle_cache_check() -- check if mpf_t value is in the cache
- *  If there is a cached value, this returns the precision of the 
+ *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
  *  This assumes a trianglular cache layout (two indecies)
  *  with 0 <= k <=n
@@ -216,7 +216,7 @@ int fp_triangle_cache_check (fp_cache *c, unsigned int n, unsigned int k)
 /* A cut-n-paste of above, but using cpx instead */
 
 /** cpx_one_d_cache_check() -- check if cpx_t value is in the cache
- *  If there is a cached value, this returns the precision of the 
+ *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
  *  This assumes a 1-dimensional cache layout (simple array)
  */
