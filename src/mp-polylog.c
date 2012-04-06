@@ -637,6 +637,10 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
  * The only difference between this and the above is that the
  * gamma function reflection formula was used to put the gamma
  * on the top and not the bottom.
+ *
+ * Note: this will throw an exception when ess is a positive integer.
+ * That's because it needs to calculate gamma(1-s) which has a pole
+ * at these locations.
  */
 static int
 polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
@@ -692,6 +696,8 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
 	if(redo || !cpx_eq (ess, cache_ess, prec*3.322))
 	{
 		cpx_set (cache_ess, ess);
+
+		/* s = 1-ess */
 		cpx_ui_sub (s, 1, 0, ess);
 
 		/* compute ph = e^{-i pi s / 2} = (-i)^s */

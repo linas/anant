@@ -64,6 +64,12 @@ void cpx_polylog_sum (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
  * Possible bug: This may work badly when Re s is negative integer,
  * and Im s isn't zero. This is because an internal estimator for 
  * the number of terms to compute fails for this case.
+ *
+ * Actual bug: This will crash when s is a positive integer, and
+ * magnitude of z is greater than about 1.4 or so.  This is because
+ * computations in this range use a certain inversion formula that
+ * is singular at these points (it computes gamma(1-s) which has
+ * poles).
  */
 int cpx_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
 
