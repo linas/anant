@@ -40,14 +40,14 @@ int i_one_d_cache_check (i_cache *c, unsigned int n)
 	if (c->disabled) return 0;
 	if ((n > c->nmax) || 0==c->nmax )
 	{
-		unsigned int newsize = 1.5*n+1;
+		unsigned int newsize = 1.5*n+2;
 		c->cache = (mpz_t *) realloc (c->cache, newsize * sizeof (mpz_t));
 		c->ticky = (char *) realloc (c->ticky, newsize * sizeof (char));
 
 		unsigned int en;
 		unsigned int nstart = c->nmax+1;
 		if (0 == c->nmax) nstart = 0;
-		for (en=nstart; en <newsize; en++)
+		for (en = nstart; en < newsize; en++)
 		{
 			mpz_init (c->cache[en]);
 			c->ticky[en] = 0;
@@ -69,12 +69,15 @@ int i_triangle_cache_check (i_cache *c, unsigned int n, unsigned int k)
 {
 	if ((n > c->nmax) || 0==c->nmax )
 	{
+		if (0 == n) n = 1;
 		unsigned int newsize = (n+1)*(n+2)/2;
 		c->cache = (mpz_t *) realloc (c->cache, newsize * sizeof (mpz_t));
 		c->ticky = (char *) realloc (c->ticky, newsize * sizeof (char));
 
 		unsigned int en;
-		for (en=c->nmax+1; en <=n; en++)
+      unsigned int nstart = c->nmax + 1;
+      if (0 == c->nmax) nstart = 0;
+		for (en = nstart; en <= n; en++)
 		{
 			unsigned int j;
 			unsigned int idx = en * (en+1) /2;
@@ -112,14 +115,14 @@ int q_one_d_cache_check (q_cache *c, unsigned int n)
 {
 	if ((n > c->nmax) || 0==c->nmax )
 	{
-		unsigned int newsize = 1.5*n+1;
+		unsigned int newsize = 1.5*n+2;
 		c->cache = (mpq_t *) realloc (c->cache, newsize * sizeof (mpq_t));
 		c->ticky = (char *) realloc (c->ticky, newsize * sizeof (char));
 
 		unsigned int en;
 		unsigned int nstart = c->nmax+1;
 		if (0 == c->nmax) nstart = 0;
-		for (en=nstart; en <newsize; en++)
+		for (en = nstart; en < newsize; en++)
 		{
 			mpq_init (c->cache[en]);
 			c->ticky[en] = 0;
@@ -144,14 +147,14 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 {
 	if ((n > c->nmax) || 0==c->nmax )
 	{
-		unsigned int newsize = 1.5*n+1;
+		unsigned int newsize = 1.5*n+2;
 		c->cache = (mpf_t *) realloc (c->cache, newsize * sizeof (mpf_t));
 		c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
 
 		unsigned int en;
 		unsigned int nstart = c->nmax+1;
 		if (0 == c->nmax) nstart = 0;
-		for (en=nstart; en <newsize; en++)
+		for (en = nstart; en < newsize; en++)
 		{
 			mpf_init (c->cache[en]);
 			c->precision[en] = 0;
@@ -183,12 +186,15 @@ int fp_triangle_cache_check (fp_cache *c, unsigned int n, unsigned int k)
 {
 	if ((n > c->nmax) || 0==c->nmax )
 	{
+		if (0 == n) n = 1;
 		unsigned int newsize = (n+1)*(n+2)/2;
 		c->cache = (mpf_t *) realloc (c->cache, newsize * sizeof (mpf_t));
 		c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
 
 		unsigned int en;
-		for (en=c->nmax+1; en <=n; en++)
+      unsigned int nstart = c->nmax + 1;
+      if (0 == c->nmax) nstart = 0;
+		for (en = nstart; en <= n; en++)
 		{
 			unsigned int j;
 			unsigned int idx = en * (en+1) /2 ;
@@ -218,14 +224,14 @@ int cpx_one_d_cache_check (cpx_cache *c, unsigned int n)
 {
 	if ((n > c->nmax) || 0==c->nmax )
 	{
-		unsigned int newsize = 1.5*n+1;
+		unsigned int newsize = 1.5*n+2;
 		c->cache = (cpx_t *) realloc (c->cache, newsize * sizeof (cpx_t));
 		c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
 
 		unsigned int en;
 		unsigned int nstart = c->nmax+1;
 		if (0 == c->nmax) nstart = 0;
-		for (en=nstart; en <newsize; en++)
+		for (en = nstart; en < newsize; en++)
 		{
 			cpx_init (c->cache[en]);
 			c->precision[en] = 0;
