@@ -70,6 +70,11 @@ void cpx_polylog_sum (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
  * computations in this range use a certain inversion formula that
  * is singular at these points (it computes gamma(1-s) which has
  * poles).
+ *
+ * If you really just want the polylog at the postive integers,
+ * then the algorithm implemented here is probably not your best
+ * choice, its a bit of an overkill.  There are simplers algos that
+ * would work better, faster, for this special case.
  */
 int cpx_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
 

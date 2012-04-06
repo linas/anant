@@ -15,6 +15,5 @@ dist:
 	cp src/*.h ${VERDIR}/src 
 	cp src/Makefile ${VERDIR}/src
 	cp tests/*.c ${VERDIR}/tests
-	cp tests/*.h ${VERDIR}/tests 
 	cp tests/Makefile ${VERDIR}/tests
 	tar -zcvf ${VERDIR}.tar.gz ${VERDIR}
