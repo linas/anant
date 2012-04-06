@@ -67,6 +67,15 @@ int cpx_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
  * cpx_polylog_euler -- compute the polylogarithm from Hurwitz Euler.
  *
  * Combine two Hurwitz Euler-Maclaurin evaluations to obtain the polylogarithm.
+ *
+ * Note: the current Hurwitz Euler-Maclaurin implementations aren't very
+ * accurate in the critical strip, so this may be dodgy.
+ *
+ * Note: the current algorithm will crash when ess is a positive
+ * integer.  This is because the algo uses gamma(1-s) to combine
+ * parts together, and of course, gamma is infinite at the neg integers.
+ * This could be fixed with a fancier algo but has not been, yet.
+ * XXX FIXME per the above remarks.
  */
 void cpx_polylog_euler (cpx_t zeta, const cpx_t ess, const cpx_t zee, int prec);
 
