@@ -1,24 +1,24 @@
 /*
- * mp_zeta_test.c
+ * unit-test.c
  *
- * Small test suite for 
- * High-precison Riemann zeta function, using the 
+ * Small test suite for
+ * High-precison Riemann zeta function, using the
  * Gnu Multiple-precision library.
  *
  * Currently semi-automated, done partly by visual inspection
  *
- * Copyright (C) 2005,2006 Linas Vepstas
- * 
+ * Copyright (C) 2005, 2006 Linas Vepstas
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -101,7 +101,7 @@ void fp_euler_mascheroni_string (mpf_t gam)
 
 		// char * g="0.5772156649015328606065120900824024310421593359399235988057672348848677267776646709369470632917467495e0";
 	char * g="0.57721566490153286060651209008240243104215933593992359880576723488486772677766 467093694706329174674951463144724980708248096050401448654283622417399764492353 625350033374293733773767394279259525824709491600873520394816567085323315177661 152862119950150798479374508570574002992135478614669402960432542151905877553526 733139925401296742051375413954911168510280798423487758720503843109399736137255 306088933126760017247953783675927135157722610273492913940798430103417771778088 154957066107501016191663340152278935867965497252036212879226555953669628176388";
-	
+
 		mpf_set_str (e, g, 10);
 	}
 	mpf_set (gam, e);
@@ -121,11 +121,11 @@ void fp_zeta2 (mpf_t zeta)
 		mpf_t pi, pisq;
 		mpf_init (pi);
 		mpf_init (pisq);
-		
+
 		fp_pi (pi, 1000);  // XXX  bad hard-coded prcision value
 		mpf_mul (pisq, pi, pi);
 		mpf_div_ui (z, pisq, 6);
-	
+
 		mpf_clear (pi);
 		mpf_clear (pisq);
 	}
@@ -204,12 +204,12 @@ void fp_zeta9 (mpf_t zeta)
 }
 
 /* ==================================================================== */
-/* 
+/*
  * From http://pi.lacim.uqam.ca/piDATA/zeta100.html
  * Non trivial zeros of the Riemann Zeta function,
  * to over 1000 decimal digits each.  We consider here the Imaginary
  * part of 1/2 + iy = z, for which Zeta(z) is a zero.
- * 
+ *
  * These values were computed by Andrew M. Odlyzko, AT&T Labs - Research.
  * To see more tables of zeros and related papers, see
  * <A HREF="http://www.research.att.com/~amo">his home page.</a>
@@ -233,8 +233,8 @@ void zeta_zero (mpf_t zero, int k)
  2516911271068291052375961797743181517071354531677549515382893784903647 \
  4709727019948485532209253574357909226125247736595518016975233461213977 \
  3160053541259267474557258778014726098308089786007125320875093959979666 \
- 60675378381214891908864977277554420656532052405"; 
- 
+ 60675378381214891908864977277554420656532052405";
+
 	zp[1] = " \
   21.022039638771554992628479593896902777334340524902781754629520403587 \
  5985860688907997136585141801514195337254736424758913838650686037313212 \
@@ -268,7 +268,7 @@ void zeta_zero (mpf_t zero, int k)
  6269691774251249095257214003855886494422730332216278403670865759210329 \
  0789866156020484275192735141927597017849166084411074821559128310749314 \
  22640278339513428773126644105168571016344289902";
- 
+
 	zp[3] = " \
   30.424876125859513210311897530584091320181560023715440180962146036993 \
  3293893332779202905842939020891106309917115273954991176332266711863193 \
@@ -285,7 +285,7 @@ void zeta_zero (mpf_t zero, int k)
  4417916583251901867849867644777729648215979712565041026341481014213352 \
  4013338332668144856154491448771220118284070765164762211312808070237683 \
  31017097022722833154052850963731871619582513781";
-	
+
 	zp[4] = " \
   32.935061587739189690662368964074903488812715603517039009280003440784 \
  8156086305510059388484961353487245496025252805975815135792377828577545 \
@@ -319,7 +319,7 @@ void zeta_zero (mpf_t zero, int k)
  5572399332457099842085439308578390827058000428133328048210695855943079 \
  8354229722750553495935631680975274173043012765178378868858782566744124 \
  56445093066944548079936612500679148846677611635";
- 
+
 	zp[6] = " \
   101.31785100573139122878544794029230890633286638430089479992831871523 \
  0143082729312355508904945205971856606279547624688363814627931506495066 \
@@ -336,7 +336,7 @@ void zeta_zero (mpf_t zero, int k)
  5628179115847506969995235243562404830232843095615924404234446553656737 \
  0206639404178561780789560787362584550692015911545434547952233252252548 \
  10551193284721748482559527977334395819351122225";
-  
+
 	zp[7] = " \
   103.72553804047833941639840810869528083448117306949576451988516579403 \
  6522108301648805438145498492016894600891106996629226791146592306589237 \
@@ -353,7 +353,7 @@ void zeta_zero (mpf_t zero, int k)
  2677949479957450018023614180524583700107010331375974459845150758554994 \
  6071345506415657116138223829473877123421248508443746546157265660993368 \
  10040644930213234365990073855542458653893947561";
- 
+
 	zp[8] = " \
   105.44662305232609449367083241411180899728275392853513848056944711418 \
  1494447575962839773554931962814515480735223511489685170485682218940337 \
@@ -370,7 +370,7 @@ void zeta_zero (mpf_t zero, int k)
  3016159856686826941364109233810820811457787047082284476809086868447671 \
  9191160203130997109080928554149891729293934541248464866435624402037121 \
  55718531952992295774004038490270855445232703343";
- 
+
 	zp[9] = " \
   231.25018870049916477380618677001037260670849584312337140680603034414 \
  0047722005275297107726867291239984314549185611962233738127940815362089 \
@@ -387,7 +387,7 @@ void zeta_zero (mpf_t zero, int k)
  2860352718274303234653427799971763888327923378636820718351619867147443 \
  0199152562958529960013357820186609020345725026777663549619600427481140 \
  98064700216812020741170015838931040128668327422";
- 
+
 	zp[10] = " \
   231.98723525318024860377166853919786220541983399456249648472682389683 \
  0763674863891148755524430359243470247636260196277988598029555692481618 \
@@ -404,7 +404,7 @@ void zeta_zero (mpf_t zero, int k)
  7796185897060277298349554190279919536418693029198830877804883634584615 \
  3007321188976083853577821526855947207127363234295980453425340867137129 \
  46902968651314477613688963498143666844069697484";
-  
+
 	zp[11] = " \
   233.69340417890830064070449473256978817953722775456583636301480873894 \
  0154701248547362941997285322469889631102282082522926752244730132449471 \
@@ -421,7 +421,7 @@ void zeta_zero (mpf_t zero, int k)
  6497101855471906017522063295574409062466395578250384902326017330131825 \
  9340477803173737115408536099456014154394252756554609149017830897672667 \
  52789999139962465789899130970561104489398394494";
-  
+
 	zp[12] = " \
   236.52422966581620580247550795566297868952949521218912370091896098781 \
  9150384292332826261444604065174015827315678371311908125834666026514272 \
@@ -438,7 +438,7 @@ void zeta_zero (mpf_t zero, int k)
  2681054686977186813195678067420928919099149530103114468675907950861633 \
  3258478241372746723689425816666668066628696207830016767930784349540940 \
  46048236402952743224761478361793490446024555390";
-  
+
 	if ((k>12) || (k<0))
 		return;
 
@@ -480,7 +480,7 @@ static inline int cpx_check_for_zero (int nfaults, cpx_t zer, mpf_t epsi, char *
 static inline int check_for_equality (int nfaults, mpf_t val, double fval, double epsi, char * str, double x)
 {
 	double y = mpf_get_d (val);
-		
+
 	double diff = fabs(y/fval-1.0);
 	if (epsi < diff)
 	{
@@ -507,7 +507,7 @@ int test_cpx_sqrt (int nterms, int prec)
 	cpx_t za, zb;
 	cpx_init (za);
 	cpx_init (zb);
-	
+
 	/* take square of square root */
 	double step=0.13245876;
 	cpx_set_d (za, -2.39876, 0.0184735);
@@ -542,7 +542,7 @@ int test_cpx_sqrt (int nterms, int prec)
 		cpx_neg (za, za);
 		cpx_add_d (za, za, step, 0.312347*step);
 	}
-	
+
 	cpx_clear (za);
 	cpx_clear (zb);
 	mpf_clear (epsi);
@@ -573,7 +573,7 @@ int test_complex_pow (int nterms, int prec)
 	cpx_init (zn);
 	cpx_init (pn);
 	cpx_set_ui (z, 1, 0);
-	
+
 	mpf_t q;
 	mpf_init (q);
 
@@ -592,7 +592,7 @@ int test_complex_pow (int nterms, int prec)
 			cpx_mul (zn,zn, z);
 		}
 	}
-	
+
 	rfz = -2.34567;
 	ifz = 19.39841;
 	double rfmax = 33.3334567;
@@ -653,14 +653,14 @@ int test_real_sine (int nterms, int prec)
 	int nstart = -25;
 	mpf_mul_ui (pi2n, pi2, -nstart);
 	mpf_neg (pi2n,pi2n);
-	
+
 	/* check values at pi-halves, should be zero, or one */
 	int n;
 	for (n=nstart; n<13+nterms; n++)
 	{
 		int rem = n%4;
 		if (0>rem) rem +=4;
-		
+
 		fp_sine (ex, pi2n, prec);
 		if (1==rem)
 		{
@@ -697,13 +697,13 @@ int test_real_sine (int nterms, int prec)
 		fp_sine (ex, ex, prec);
 
 		nfaults = check_for_equality (nfaults, ex, sin(x), 1e-16, "real sine", x);
-		
+
 		mpf_set_d (ex, x);
 		fp_cosine (ex, ex, prec);
 
 		nfaults = check_for_equality (nfaults, ex, cos(x), 1e-16, "real cosine", x);
 	}
-	
+
 	mpf_clear (ex);
 	mpf_clear(pi2);
 	mpf_clear(pi2n);
@@ -730,7 +730,7 @@ int test_complex_riemann_zeta (int nterms, int prec)
 	/* This test was passing in Nov 2006 */
 	mpf_t nzeta;
 	mpf_init (nzeta);
-	
+
 	cpx_t zeta, ess;
 	cpx_init (zeta);
 	cpx_init (ess);
@@ -758,7 +758,7 @@ int test_complex_riemann_zeta (int nterms, int prec)
 		// double z_expected, z_got;
 		fp_zeta (nzeta, i, pr);
 		// z_expected = mpf_get_d (nzeta);
-		
+
 		cpx_set_ui (ess, i, 0);
 		cpx_borwein_zeta (zeta, ess, pr);
 		// z_got = mpf_get_d(zeta[0].re);
@@ -795,7 +795,7 @@ int test_real_gamma (int nterms, int prec)
 	/* compute square root of pi */
 	mpf_t pi;
 	mpf_init (pi);
-	
+
 	mpf_t gam, ex, acc;
 	mpf_init (ex);
 	mpf_init (gam);
@@ -809,46 +809,46 @@ int test_real_gamma (int nterms, int prec)
 	fp_gamma (gam, ex, prec);
 	mpf_sub (gam,gam,pi);
 	nfaults = check_for_zero (nfaults, gam, epsi, "real gamma", 0.5);
-	
+
 	mpf_set_d (ex, 1.5);
 	fp_gamma (gam, ex, prec);
 	mpf_mul_ui (gam, gam, 2);
 	mpf_sub (gam,gam,pi);
 	nfaults = check_for_zero (nfaults, gam, epsi, "real gamma", 1.5);
-	
+
 	mpf_set_d (gam, 2.5);
 	fp_gamma (gam, gam, prec);
 	mpf_mul_ui (gam, gam, 4);
 	mpf_div_ui (gam, gam, 3);
 	mpf_sub (gam,gam,pi);
 	nfaults = check_for_zero (nfaults, gam, epsi, "real gamma", 2.5);
-	
+
 	mpf_set_d (gam, -0.5);
 	fp_gamma (gam, gam, prec);
 	mpf_div_ui (gam, gam, 2);
 	mpf_add (gam,gam,pi);
 	nfaults = check_for_zero (nfaults, gam, epsi, "real gamma", -0.5);
-	
+
 	mpf_set_d (gam, -1.5);
 	fp_gamma (gam, gam, prec);
 	mpf_mul_ui (gam, gam, 3);
 	mpf_div_ui (gam, gam, 4);
 	mpf_sub (gam,gam,pi);
 	nfaults = check_for_zero (nfaults, gam, epsi, "real gamma", -1.5);
-	
+
 	/* Expect factorial for simple products */
 	int i;
 	double fac=1.0;
 	for (i=1; i<28; i++)
 	{
 		mpf_set_ui (ex, i+1);
-		
+
 		fp_gamma (gam, ex, prec);
 		nfaults = check_for_equality (nfaults, gam, fac, 1e-16, "real factorial", i+1);
 
 		fac *= i+1;
 	}
-	
+
 	/* Use the reflection test */
 	fp_pi (pi, prec);
 	for (i=1; i<nterms; i++)
@@ -861,14 +861,14 @@ int test_real_gamma (int nterms, int prec)
 		mpf_mul (acc, pi, ex);
 		fp_sine (acc, acc, prec);
 		mpf_div (acc, acc, pi);
-		
+
 		fp_gamma (gam, ex, prec);
 		mpf_mul (acc, acc, gam);
 
 		mpf_ui_sub (ex, 1,ex);
 		fp_gamma (gam, ex, prec);
 		mpf_mul (acc, acc, gam);
-		
+
 		mpf_sub_ui (acc, acc, 1);
 		nfaults = check_for_zero (nfaults, acc, epsi, "real gamma duplication", x);
 	}
@@ -890,7 +890,7 @@ int test_real_gamma (int nterms, int prec)
 	mpf_clear (acc);
 	mpf_clear (pi);
 	mpf_clear (epsi);
-	
+
 	if (0 == nfaults)
 	{
 		fprintf(stderr, "Real gamma test passed!\n");
@@ -913,7 +913,7 @@ int test_complex_gamma (int nterms, int prec)
 	mpf_t pi;
 	mpf_init (pi);
 	fp_pi (pi, prec);
-	
+
 	mpf_t tmp;
 	mpf_init (tmp);
 
@@ -936,12 +936,12 @@ int test_complex_gamma (int nterms, int prec)
 		cpx_set_ui (zb, 1,0);
 		cpx_div_ui (zb, zb, 2);
 		cpx_add (zb, zb, za);
-		
+
 		/* compute Gamma(z) * Gamma (z+1/2) */
 		cpx_gamma (gam, za, prec);
 		cpx_gamma (rgam, zb, prec);
 		cpx_mul (gam, gam, rgam);
-		
+
 		/* divide by Gamma (2z) */
 		cpx_times_ui (zb, za, 2);
 		cpx_gamma (rgam, zb, prec);
@@ -951,14 +951,14 @@ int test_complex_gamma (int nterms, int prec)
 		cpx_div_ui (gam, gam, 2);
 		mpf_sqrt (tmp, pi);
 		cpx_div_mpf (gam, gam, tmp);
-		
+
 		/* times 4^z */
 		cpx_ui_pow (rgam, 4, za, prec);
 		cpx_mul (gam, gam, rgam);
 
 		/* this should be one */
 		cpx_sub_ui (gam,gam, 1,0);
-		
+
 		nfaults = cpx_check_for_zero (nfaults, gam, epsi, "complex gamma duplication", i, rez, imz);
 
 		rez += red;
@@ -976,7 +976,7 @@ int test_complex_gamma (int nterms, int prec)
 		cpx_set_d (za, rez, imz);
 		cpx_set_ui (zb, 1,0);
 		cpx_sub (zb, zb, za);
-		
+
 		/* compute Gamma(z) * Gamma (1-z) */
 		cpx_gamma (gam, za, prec);
 		cpx_gamma (rgam, zb, prec);
@@ -990,13 +990,13 @@ int test_complex_gamma (int nterms, int prec)
 
 		/* this should be one */
 		cpx_sub_ui (gam,gam, 1,0);
-		
+
 		nfaults = cpx_check_for_zero (nfaults, gam, epsi, "complex gamma reflection", i, rez, imz);
 
 		rez += red;
 		imz += imd;
 	}
-	
+
 	/* Do a reflection-formula test along Re z = 1/2 */
 	red = 0.0;
 	imd = 1.3225121;
@@ -1008,7 +1008,7 @@ int test_complex_gamma (int nterms, int prec)
 		cpx_set_d (za, rez, imz);
 		cpx_set_ui (zb, 1,0);
 		cpx_sub (zb, zb, za);
-		
+
 		/* compute Gamma(z) * Gamma (1-z) */
 		cpx_gamma (gam, za, prec);
 		cpx_gamma (rgam, zb, prec);
@@ -1022,7 +1022,7 @@ int test_complex_gamma (int nterms, int prec)
 
 		/* this should be one */
 		cpx_sub_ui (gam,gam, 1,0);
-		
+
 		nfaults = cpx_check_for_zero (nfaults, gam, epsi, "complex gamma im axis", i, rez, imz);
 
 		rez += red;
@@ -1036,7 +1036,7 @@ int test_complex_gamma (int nterms, int prec)
 	mpf_clear (pi);
 	mpf_clear (epsi);
 	mpf_clear (tmp);
-	
+
 	if (0 == nfaults)
 	{
 		fprintf(stderr, "Complex gamma test passed!\n");
@@ -1045,10 +1045,10 @@ int test_complex_gamma (int nterms, int prec)
 }
 
 /* ==================================================================== */
-/** 
+/**
  * test_polylog() -- very trivial test of polylog
  * Performs a check of polylog at a few negative integer values.
- * Mostly sort-of-passes, except that it has some convergence 
+ * Mostly sort-of-passes, except that it has some convergence
  * problems in some areas.
  */
 int test_polylog (int nterms, int prec, int which)
@@ -1078,12 +1078,12 @@ int test_polylog (int nterms, int prec, int which)
 	for (i=0; i<nterms; i++)
 	{
 		cpx_set_d (zee, rez, imz);
-		
+
 		/* compute z/(1-z) */
 		cpx_sub_ui (exact, zee, 1, 0);
 		cpx_neg (exact, exact);
 		cpx_div (exact, zee, exact);
-	
+
 		if (0 == which) {
 			cpx_polylog_nint (plog, 0, zee);
 		} else {
@@ -1096,11 +1096,11 @@ printf ("\n");
 #endif
 		}
 		cpx_sub (plog, plog, exact);
-	
+
 		/* returned value is good iff rc == 0 */
 		if (0 == rc)
 			nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog", 0, rez, imz);
-		
+
 		rez += red;
 		imz += imd;
 	}
@@ -1109,29 +1109,29 @@ printf ("\n");
 	imd = 1.555 / ((double) nterms);
 	rez = -2.1334123331;
 	imz = -1.31233387765;
-	
+
 	cpx_set_ui (ess, 1, 0);
 	cpx_neg (ess, ess);
 	for (i=0; i<nterms; i++)
 	{
 		cpx_set_d (zee, rez, imz);
-		
+
 		/* compute z/(1-z)^2 */
 		cpx_sub_ui (exact, zee, 1, 0);
 		cpx_mul (exact, exact, exact);
 		cpx_div (exact, zee, exact);
-	
+
 		if (0 == which) {
 			cpx_polylog_nint (plog, 1, zee);
 		} else {
 			rc = cpx_polylog (plog, ess, zee, prec);
 		}
 		cpx_sub (plog, plog, exact);
-	
+
 		/* returned value is good iff rc == 0 */
 		if (0 == rc)
 			nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog", -1, rez, imz);
-		
+
 		rez += red;
 		imz += imd;
 	}
@@ -1140,13 +1140,13 @@ printf ("\n");
 	imd = 1.555 / ((double) nterms);
 	rez = -2.1334123331;
 	imz = -1.31233387765;
-	
+
 	cpx_set_ui (ess, 2, 0);
 	cpx_neg (ess, ess);
 	for (i=0; i<nterms; i++)
 	{
 		cpx_set_d (zee, rez, imz);
-		
+
 		/* compute z(z+1)/(1-z)^3 */
 		cpx_sub_ui (term, zee, 1, 0);
 		cpx_neg (term, term);
@@ -1162,11 +1162,11 @@ printf ("\n");
 			rc = cpx_polylog (plog, ess, zee, prec);
 		}
 		cpx_sub (plog, plog, exact);
-	
+
 		/* returned value is good iff rc == 0 */
 		if (0 == rc)
 			nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog", -2, rez, imz);
-		
+
 		rez += red;
 		imz += imd;
 	}
@@ -1191,7 +1191,7 @@ printf ("\n");
 }
 
 /* ==================================================================== */
-/** 
+/**
  * test_polylog_series() -- compare the two difference polylog algos.
  *
  * Works great. Just note that the Borwein-style sums fail near z=1,
@@ -1218,7 +1218,7 @@ int test_polylog_series (int nterms, int prec)
 	cpx_set_ui (ess, 0.9124444431, 12.1234077777);
 
 	double erms = 1.0/sqrt (nterms);
-	
+
 	double r;
 	for (r=0.0623746562; r<0.9; r+=0.9*erms +0.01052892347222)
 	{
@@ -1228,11 +1228,11 @@ int test_polylog_series (int nterms, int prec)
 			double rez = r * cos (2.0*M_PI*q);
 			double imz = r * sin (2.0*M_PI*q);
 			cpx_set_d (zee, rez, imz);
-			
+
 			cpx_polylog_sum (psum, ess, zee, prec);
 			rc = cpx_polylog (plog, ess, zee, prec);
 			cpx_sub (plog, plog, psum);
-		
+
 			/* returned value is good iff rc == 0 */
 			if (0 == rc)
 				nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog", 0, r, q);
@@ -1251,7 +1251,7 @@ int test_polylog_series (int nterms, int prec)
 	{
 		fprintf(stderr, "Polylog series test passed!\n");
 	}
-	else 
+	else
 	{
 		fprintf(stderr, "Polylog series test FAILED!\n");
 	}
@@ -1259,7 +1259,7 @@ int test_polylog_series (int nterms, int prec)
 }
 
 /* ==================================================================== */
-/** 
+/**
  * test_polylog_euler() -- compare the two difference polylog algos.
  *
  * Works great. Just note that the Borwein-style sums fail near z=1,
@@ -1285,7 +1285,7 @@ int test_polylog_euler (int nterms, int prec)
 	cpx_set_ui (ess, 0.9124444431, 12.1234077777);
 
 	double erms = 1.0/sqrt (nterms);
-	
+
 	double r;
 	for (r=0.0623746562; r<0.9; r+=0.9*erms +0.01052892347222)
 	{
@@ -1295,11 +1295,11 @@ int test_polylog_euler (int nterms, int prec)
 			double rez = r * cos (2.0*M_PI*q);
 			double imz = r * sin (2.0*M_PI*q);
 			cpx_set_d (zee, rez, imz);
-			
+
 			cpx_polylog_sum (psum, ess, zee, prec);
 			cpx_polylog_euler (plog, ess, zee, prec);
 			cpx_sub (plog, plog, psum);
-		
+
 			nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog-euler", 0, r, q);
 		}
 	}
@@ -1316,7 +1316,7 @@ int test_polylog_euler (int nterms, int prec)
 	{
 		fprintf(stderr, "Polylog Euler-Maclaurin test passed!\n");
 	}
-	else 
+	else
 	{
 		fprintf(stderr, "Polylog Euler-Maclaurin test FAILED!\n");
 	}
@@ -1324,12 +1324,12 @@ int test_polylog_euler (int nterms, int prec)
 }
 
 /* ==================================================================== */
-/** 
+/**
  * test_periodic_zeta() -- compare periodic zeta to Riemann zeta
- * 
+ *
  * As of 22 December 2006, this test is passing, with flying colors
- * Explores value of periodic zeta for various complex s values, for 
- * q=1/2, where it can be compared to the Riemann zeta. 
+ * Explores value of periodic zeta for various complex s values, for
+ * q=1/2, where it can be compared to the Riemann zeta.
  * (Actually, compared to the Dirichlet eta)
  * Passes, very nicely and cleanly, (i.e. error of order 1e-16)
  * although starts to get rough for the large negative s.
@@ -1373,30 +1373,30 @@ int test_periodic_zeta (int nterms, int prec)
 printf ("start periodic zeta test at %g +i%g\n", sre, sim);
 			cpx_set_d (s, sre, sim);
 			cpx_periodic_zeta (zl, s, q, prec);
-			
+
 			/* sm = 1-s */
 			cpx_neg (sm, s);
 			cpx_add_ui (sm, sm, 1, 0);
-	
+
 			/* ts = 2^{1-s} */
 			cpx_times_mpf (sm, sm, l2);
 			cpx_exp (ts, sm, prec);
-			
+
 			/* ts = -(1-2^(1-s)) */
 			cpx_neg (ts, ts);
 			cpx_add_ui (ts, ts, 1,0);
 			cpx_neg (ts, ts);
 			cpx_div (zl, zl, ts);
-			
+
 			/* compare to the known-working Riemann zeta function */
 			cpx_borwein_zeta (zb, s, prec);
-	
+
 			cpx_sub (zl, zl, zb);
-			
+
 			nfaults = cpx_check_for_zero (nfaults, zl, epsi, "periodic zeta", 0, sre, sim);
 		}
 	}
-	
+
 	mpf_clear (q);
 	mpf_clear (l2);
 	cpx_clear (s);
@@ -1414,7 +1414,7 @@ printf ("start periodic zeta test at %g +i%g\n", sre, sim);
 }
 
 /* ==================================================================== */
-/** 
+/**
  * test_hurwitz_zeta() -- compare hurwitz zeta to Riemann zeta, and to gsl_sf_hzeta
  * As of Dec 2006, passing, more or less, with some rounding errors bigger than
  * desired.
@@ -1483,19 +1483,19 @@ int test_hurwitz_zeta (int nterms, int prec)
 // printf ("start hurwitz zeta test %g +i%g\n", sre, sim);
 			cpx_set_d (s, sre, sim);
 			cpx_hurwitz_zeta (zl, s, q, prec);
-			
+
 			/* ts = 2^s - 1 */
 			cpx_times_mpf (ts, s, l2);
 			cpx_exp (ts, ts, prec);
 			cpx_sub_ui (ts, ts, 1,0);
 
 			cpx_div (zl, zl, ts);
-			
+
 			/* compare to the known-working Riemann zeta function */
 			cpx_borwein_zeta (zb, s, prec);
-	
+
 			cpx_sub (zl, zl, zb);
-			
+
 			nfaults = cpx_check_for_zero (nfaults, zl, epsi, "hurwitz zeta", 0, sre, sim);
 		}
 	}
@@ -1600,10 +1600,10 @@ int main (int argc, char * argv[])
 		printf ("---\n");
 	}
 #endif
-	
+
 	if (argc < 3)
 	{
-		fprintf (stderr, "Usage: %s [ndigits] [nterms]\n", argv[0]); 
+		fprintf (stderr, "Usage: %s [ndigits] [nterms]\n", argv[0]);
 		exit (1);
 	}
 
@@ -1617,12 +1617,12 @@ int main (int argc, char * argv[])
 	double v = ((double) prec) *log(10.0) / log(2.0);
 
 	/* the variable-precision calculations are touchy about this */
-	/* XXX this should be stirling's approx for binomial */ 
+	/* XXX this should be stirling's approx for binomial */
 	int bits = (int) (v + 300 + 3*nterms);
-	
+
 	/* set the precision (number of binary bits) */
 	mpf_set_default_prec (bits);
-	
+
 // #define TEST_LOG
 #ifdef TEST_LOG
 	mpf_t lg;
@@ -1633,7 +1633,7 @@ int main (int argc, char * argv[])
 	fp_prt ("log 2= ", lg);
 	mpf_clear (lg);
 #endif
-	
+
 // #define TEST_PI
 #ifdef TEST_PI
 	mpf_t pi, pis;
@@ -1647,7 +1647,7 @@ int main (int argc, char * argv[])
 	mpf_clear (pi);
 	mpf_clear(pis);
 #endif
-	
+
 // #define TEST_EULER
 #ifdef TEST_EULER
 	mpf_t gam, gams;
@@ -1661,7 +1661,7 @@ int main (int argc, char * argv[])
 	mpf_clear (gam);
 	mpf_clear(gams);
 #endif
-	
+
 // #define TEST_ZETA_INT
 #ifdef TEST_ZETA_INT
 	mpf_t zeta, zetas;
@@ -1687,12 +1687,12 @@ int main (int argc, char * argv[])
 	mpf_clear(one);
 #endif
 
-	
+
 // #define ZETA_STUFF
 #ifdef ZETA_STUFF
 	mpf_t zeta;
 	mpf_init (zeta);
-	
+
 	printf ("           000000000011111111112222222222333333333344444444445555555555666666666677777777778\n");
 	printf ("           012345678901234567890123456789012345678901234567890123456789012345678901234567890\n");
 	fp_zeta (zeta, 2, 13);
@@ -1715,7 +1715,7 @@ int main (int argc, char * argv[])
 #ifdef TEST_ZETA
 	mpf_t zeta;
 	mpf_init (zeta);
-	// fp_zeta_odd (zeta, 3, 180, 7, 360, 0, 60); 
+	// fp_zeta_odd (zeta, 3, 180, 7, 360, 0, 60);
 	// fp_prt ("duude zeta3= ", zeta);
 	int i;
 	int pr = prec;
@@ -1744,7 +1744,7 @@ int main (int argc, char * argv[])
 	mpq_t bern;
 	mpq_init (bern);
 	int n = 4;
-	for (n=8; n<30; n++) 
+	for (n=8; n<30; n++)
 	{
 		q_bernoulli (bern, n);
 		printf ("bernoulli (%d)= ", n);
@@ -1791,7 +1791,7 @@ int main (int argc, char * argv[])
 #ifdef HANDY_COMPLEX_ZETA
 	mpf_t nzeta;
 	mpf_init (nzeta);
-	
+
 	cpx_t zeta, ess;
 	cpx_init (zeta);
 	cpx_init (ess);
@@ -1836,9 +1836,9 @@ int main (int argc, char * argv[])
 	cpx_set_d (a, 0.3, 0.678);
 	cpx_set_d (b, 0.3434, 0.678);
 	cpx_set_d (z, 1.3434, 2.678);
-	
+
 	int n;
-	for (n=0; n< nterms; n++) 
+	for (n=0; n< nterms; n++)
 	{
 		/* identity 13.4.1. from A&S */
 		cpx_sub (c1,b,a);
@@ -1915,7 +1915,7 @@ int main (int argc, char * argv[])
 		fprintf(stderr, "FAILURE!! %d failed tests\n", nfaults);
 	}
 
-	
+
 	return 0;
 }
 
