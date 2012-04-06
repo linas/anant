@@ -275,7 +275,8 @@ void mpf_gamma_cache (mpf_t gam, const mpf_t z, int prec)
 
 /* ================================================= */
 /* 
- * gamma function, but valid only for -2 < ImZ < 2 
+ * gamma function, but valid only for -2 < ImZ < 2 (and any Re z).
+ *
  * Use pochhammer to get into range of 1.5 < Re Z < 2.5,
  * Then use the reduced summation formula. The range
  * of 1.5 < ReZ < 2.5 is particularly quickly convergent
@@ -286,11 +287,11 @@ static void cpx_reduced_gamma (cpx_t gam, const cpx_t z, int prec)
 	cpx_t zee;
 	cpx_init (zee);
 
-	/* make a copy of the input arg NOW! */
+	/* Make a copy of the input arg NOW! */
 	cpx_set (zee, z);
 	
-	/* double-presision used, this code doesn't need to 
-	 * be all that accurate; just need a reasonable int part. 
+	/* double-presision used; its just for the if-tests, and so doesn't
+	 * need to be all that accurate; just need a reasonable int part. 
 	 */
 	double flo = mpf_get_d (zee[0].re);
 	if (flo > 2.5)
@@ -313,6 +314,12 @@ static void cpx_reduced_gamma (cpx_t gam, const cpx_t z, int prec)
 		 */
 		if (flo+intpart < 1.5) intpart ++;
 		cpx_poch_rising (gam, zee, intpart);
+
+		/* XXX The below will throw a floating-point execption when
+		 * z is zero or a negative integer.  Appropriate, as gamma
+		 * has poles at these values; however, if you are reading
+		 * this, you may have been surprised by your crashing code!
+		 */
 		cpx_recip (gam, gam);
 
 		cpx_add_ui (zee, zee, intpart, 0);
@@ -336,11 +343,12 @@ static void cpx_reduced_gamma (cpx_t gam, const cpx_t z, int prec)
 /* ================================================= */
 /* 
  * gamma function for general complex argument
- * Use the multiplication theorem
+ *
+ * Use the multiplication theorem to compute result.
  */ 
 void cpx_gamma (cpx_t gam, const cpx_t z, int prec)
 {
-	/* step one: find out how big the imaginary part is */
+	/* Step one: find out how big the imaginary part is */
 	double img = fabs(mpf_get_d (z[0].im));
 	int m = (int) (img + 1.0);
 
@@ -350,7 +358,7 @@ void cpx_gamma (cpx_t gam, const cpx_t z, int prec)
 		return;
 	}
 	
-	/* step two: prepare to use the multiplicatin theorem */
+	/* Step two: prepare to use the multiplicatin theorem */
 	cpx_t zee, mzee, term, acc;
 	cpx_init (zee);
 	cpx_init (mzee);

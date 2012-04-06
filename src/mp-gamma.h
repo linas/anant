@@ -46,6 +46,11 @@ void fp_gamma_cache (mpf_t gam, const mpf_t ex, int prec);
  *
  * The caching version skips the calculation, if called again with
  * the same value of ex (up to the nprec precision bits).
+ *
+ * Note: This code will throw a floating-point exeception, from deep
+ * inside the algo, if called with a value of ex that is zero or a
+ * negative integer.  Of course, gamma is infinite here; none-the-less
+ * don't be surprised when this happens!
  */
 void cpx_gamma (cpx_t gam, const cpx_t ex, int prec);
 void cpx_gamma_cache (cpx_t gam, const cpx_t ex, int prec);
