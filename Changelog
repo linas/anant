@@ -2,10 +2,10 @@
 Changelog
 ---------
 
-Version 0.2.1:
+Version 0.2.1 (6 April 2012):
 	* trite performance improvements of complex utilities.
 	* Bug fix in caching: failed initialization.
-	* Unit test improvements.
+	* Unit test fixes & improvements.
 
 Version 0.2.0 (12 December 2010):
 	* Add the complex zero-finding (Powell's algorithm) routine.
