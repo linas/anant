@@ -60,6 +60,10 @@ void cpx_polylog_sum (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
  *
  * Returns a non-zero value if algo was unable to evaluate at
  * the given point.
+ *
+ * Possible bug: This may work badly when Re s is negative integer,
+ * and Im s isn't zero. This is because an internal estimator for 
+ * the number of terms to compute fails for this case.
  */
 int cpx_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
 

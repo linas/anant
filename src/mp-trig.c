@@ -1172,6 +1172,7 @@ void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 		cpx_set_prec (cache_s, 3.322*prec+50);
 	}
 
+	// If value of s has changed, then clear the cache.
 	if (!cpx_eq (ess, cache_s, prec*3.322))
 	{
 		cpx_one_d_cache_clear (&powcache);

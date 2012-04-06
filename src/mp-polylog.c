@@ -76,7 +76,7 @@ static void polylog_borwein (cpx_t plog, const cpx_t ess, const cpx_t zee, int n
 	cpx_neg (s, ess);
 	cpx_set (z, zee);
 
-	/* first binomial summation term is 1 */
+	/* First binomial summation term is 1 */
 	cpx_set_ui (bins, 1, 0);
 	cpx_one_d_cache_check (&bin_sum, 0);
 	cpx_one_d_cache_store (&bin_sum, bins, 0, prec);
@@ -202,7 +202,7 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 	double fterms = 2.302585 * prec;  /* log(10) */
 
 	/* Estimate for the gamma. A slightly better estimate
-	 * can be obtains for sre negative but still small. 
+	 * can be obtained for sre negative but still small. 
 	 */
 	double gamterms;
 	double sre = mpf_get_d (ess[0].re);	
@@ -222,9 +222,9 @@ static int polylog_terms_est (const cpx_t ess, const cpx_t zee, int prec)
 	 * and the approximation is in fact an exact result. Thus,
 	 * we need only set nterms to be minus the real part of s.
 	 *
-	 * XXXX this is wrong, this would hold only for
+	 * XXX this is wrong, this would hold only for
 	 * sim = 0. But if someone passes in sre=-n and sim != 0,
-	 * then this does the wrong thing :-( Boooo...
+	 * then this does the wrong thing :-( Boooo...  FIXME
 	 */
 	if ((-10123>gamterms) || (10123 < gamterms))
 	{
@@ -544,6 +544,7 @@ bailout:
 
 /*
  * polylog_invert -- implement the polylog inversion formula
+ *
  * Implement the following inversion formula for polylog:
  * (1-e^{2pi is}) Li_s(z) =  e^{i\pi s} (2pi i)^s / Gamma(s) 
  *           (zeta(1-s, ln z/(2pi i) -e^{ipi s} zeta(1-s, 1- ln z/(2pi i)) 
@@ -551,6 +552,7 @@ bailout:
  * This formula appears to work well for both positive and negative 
  * half s-plane.
  */
+#if THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION
 static int 
 polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
@@ -625,9 +627,13 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
 	mpf_clear (twopi);
 	return 0;
 }
+#endif /* THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION */
 
-/* The following is an alternate version of the invert routine,
- * it works, too, for the upper half or the lower half plane.
+/*
+ * polylog_invert -- implement the polylog inversion formula
+ *
+ * The following is an alternate version of the invert routine,
+ * it works, too, for the upper half or the lower half s-plane.
  * The only difference between this and the above is that the 
  * gamma function reflection formula was used to put the gamma
  * on the top and not the bottom.
@@ -637,7 +643,7 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
 {
 	int redo = 0;
 
-	/* create a cache of commonly re-used values */
+	/* Create a cache of commonly re-used values. */
 	static int cache_prec = -1;
 	static mpf_t twopi, otp, log_twopi;
 	static cpx_t phase, scale, cache_ess, s;
