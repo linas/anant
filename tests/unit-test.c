@@ -456,8 +456,10 @@ static inline int check_for_zero (int nfaults, mpf_t zer, mpf_t epsi, char * str
 	{
 		nfaults ++;
 		fprintf (stderr, "Error: %s imprecise for x=%g\n", str, x);
+		fflush(stderr);
 		fp_prt ("should be zero=", zer);
 		printf ("\n");
+		fflush(stdout);
 	}
 	return nfaults;
 }
@@ -472,6 +474,7 @@ static inline int cpx_check_for_zero (int nfaults, cpx_t zer, mpf_t epsi, char *
 		fprintf (stderr, "Error: %s imprecise for n=%d x=%g +i %g\n", str, n, x,y);
 		ecpx_prt ("should be zero=", zer);
 		fprintf (stderr, "\n");
+		fflush(stderr);
 	}
 	return nfaults;
 }
@@ -487,6 +490,7 @@ static inline int check_for_equality (int nfaults, mpf_t val, double fval, doubl
 		nfaults ++;
 		fprintf (stderr, "Error: %s faulty: "
 		        "x=%g\t expected=%g\t got=%g\t diff=%g\n", str, x, fval, y, diff);
+		fflush(stderr);
 	}
 	return nfaults;
 }
@@ -509,7 +513,7 @@ int test_cpx_sqrt (int nterms, int prec)
 	cpx_init (zb);
 
 	/* take square of square root */
-	double step=0.13245876;
+	double step = 0.13245876;
 	cpx_set_d (za, -2.39876, 0.0184735);
 	int i;
 	for (i=1; i<nterms; i++)
@@ -1141,6 +1145,7 @@ printf ("\n");
 		rez += red;
 		imz += imd;
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	red = 2.5 / ((double) nterms);
 	imd = 1.555 / ((double) nterms);
@@ -1176,6 +1181,7 @@ printf ("\n");
 		rez += red;
 		imz += imd;
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	cpx_clear (plog);
 	cpx_clear (exact);
@@ -1244,6 +1250,7 @@ int test_polylog_series (int nterms, int prec)
 				nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog", 0, r, q);
 		}
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	cpx_clear (plog);
 	cpx_clear (psum);
@@ -1309,6 +1316,7 @@ int test_polylog_euler (int nterms, int prec)
 			nfaults = cpx_check_for_zero (nfaults, plog, epsi, "polylog-euler", 0, r, q);
 		}
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	cpx_clear (plog);
 	cpx_clear (psum);
@@ -1402,6 +1410,7 @@ printf ("start periodic zeta test at %g +i%g\n", sre, sim);
 			nfaults = cpx_check_for_zero (nfaults, zl, epsi, "periodic zeta", 0, sre, sim);
 		}
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	mpf_clear (q);
 	mpf_clear (l2);
@@ -1462,7 +1471,7 @@ int test_hurwitz_zeta (int nterms, int prec)
 		cpx_set_d (s, sre, 0);
 		for (que = qlo; que < qhi; que += (qhi-qlo+0.01835567)/nterms)
 		{
-// printf ("start gsl hurwitz zeta test s=%g q=%g\n", sre, que);
+// fprintf (stderr, "start gsl hurwitz zeta test s=%g q=%g\n", sre, que);
 			mpf_set_d (q, que);
 			cpx_hurwitz_zeta (zl, s, q, prec);
 			double gz = gsl_sf_hzeta (sre, que);
@@ -1471,6 +1480,7 @@ int test_hurwitz_zeta (int nterms, int prec)
 			nfaults = check_for_equality (nfaults, zl[0].re, gz, 5e-16, "gsl hurwitz zeta", sre);
 		}
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	/* Compare Hurwitz zeta at q=1/2 to the Riemann zeta */
 	srlo = -4.01396826;
@@ -1505,6 +1515,7 @@ int test_hurwitz_zeta (int nterms, int prec)
 			nfaults = cpx_check_for_zero (nfaults, zl, epsi, "hurwitz zeta", 0, sre, sim);
 		}
 	}
+	if (nfaults) fprintf(stderr, "---\n");
 
 	mpf_clear (q);
 	mpf_clear (l2);
