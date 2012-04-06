@@ -631,6 +631,8 @@ int test_complex_pow (int nterms, int prec)
 
 /* ==================================================================== */
 /* Test the real-valued sine function, return the number of failures
+ *
+ * prec is the number of decimal places of precision to test to.
  */
 
 int test_real_sine (int nterms, int prec)
@@ -652,7 +654,7 @@ int test_real_sine (int nterms, int prec)
 
 	int nstart = -25;
 	mpf_mul_ui (pi2n, pi2, -nstart);
-	mpf_neg (pi2n,pi2n);
+	mpf_neg (pi2n, pi2n);
 
 	/* check values at pi-halves, should be zero, or one */
 	int n;
@@ -686,7 +688,9 @@ int test_real_sine (int nterms, int prec)
 		mpf_add (pi2n, pi2n, pi2);
 	}
 
-	/* check values against built-in functions */
+	/* check values against built-in libmath functions.
+	 * This is not so much an accuracy check as a sanity check,
+	 * to make sure we haven't gone completely nuts. */
 	int i;
 	for (i=1; i<nterms; i++)
 	{
@@ -696,12 +700,14 @@ int test_real_sine (int nterms, int prec)
 		mpf_set_d (ex, x);
 		fp_sine (ex, ex, prec);
 
-		nfaults = check_for_equality (nfaults, ex, sin(x), 1e-16, "real sine", x);
+		/* On my system, glibc since and cosine are accurate to only 1.11e-16 
+		 * and sometimes only to 2.22e-16 */
+		nfaults = check_for_equality (nfaults, ex, sin(x), 5e-16, "real sine", x);
 
 		mpf_set_d (ex, x);
 		fp_cosine (ex, ex, prec);
 
-		nfaults = check_for_equality (nfaults, ex, cos(x), 1e-16, "real cosine", x);
+		nfaults = check_for_equality (nfaults, ex, cos(x), 5e-16, "real cosine", x);
 	}
 
 	mpf_clear (ex);
@@ -844,7 +850,7 @@ int test_real_gamma (int nterms, int prec)
 		mpf_set_ui (ex, i+1);
 
 		fp_gamma (gam, ex, prec);
-		nfaults = check_for_equality (nfaults, gam, fac, 1e-16, "real factorial", i+1);
+		nfaults = check_for_equality (nfaults, gam, fac, 5e-16, "real factorial", i+1);
 
 		fac *= i+1;
 	}
