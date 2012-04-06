@@ -20,11 +20,17 @@ received much attention in the more established packages. Users are
 strongly encouraged to port the contents of this package to other
 systems.
 
+A note about floating-point exceptions: many of the special functions
+computed here have poles at various values.  These will show up as
+mysterious floating-point exceptions deep within the code.  If you
+get an exception, make sure you are not evaluating a function at a pole!
+
 This package has its origins as a collection of tools & utilities for 
 the benefit of the author.  As such, it was never really intended for
 public consumption, and thus, will not have the usual amenities of
 established projects, such as clear documentation, a website, unit 
 test cases, or even a robust build system.  Caveat Emptor!
+
 
 Pre-requisites, Compiling, Installing, Testing
 ----------------------------------------------
