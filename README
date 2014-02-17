@@ -31,6 +31,15 @@ public consumption, and thus, will not have the usual amenities of
 established projects, such as clear documentation, a website, unit 
 test cases, or even a robust build system.  Caveat Emptor!
 
+There are several publications that describe this code, or make use of
+it. The most notable is this:
+
+Vepstas, L. (2008) "An efficient algorithm for accelerating
+the convergence of oscillatory series, useful for computing the
+polylogarithm and Hurwitz zeta functions". Numerical Algorithms 
+vol. 47 issue 3: pp. 211-252. arXiv:math.CA/0702243.
+doi:10.1007/s11075-007-9153-8. 
+
 
 Pre-requisites, Compiling, Installing, Testing
 ----------------------------------------------
@@ -128,3 +137,10 @@ in this library.
          return 0;
       }
       
+
+Current repository:
+-------------------
+in Bazaar, in Launchpad:
+   https://launchpad.net/anant
+
+Source tarballs are available there too.
