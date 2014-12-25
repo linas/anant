@@ -2,11 +2,12 @@
 Changelog
 ---------
 
-Version 0.2.2 (XXX)
+Version 0.3.0 (XXX)
 	* Add a 'make install' target.
+	* Add topologist's sine function series.
 
 Version 0.2.1 (6 April 2012):
-	* trite performance improvements of complex utilities.
+	* Trite performance improvements of complex utilities.
 	* Bug fix in caching: failed initialization.
 	* Unit test fixes & improvements.
 
