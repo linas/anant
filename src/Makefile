@@ -1,5 +1,7 @@
-
-# build Gnu MP code
+#
+# Build the Anant library.
+# This is a very low-brow makefile; could be replaced by CMake,
+# I guess.
 #
 # CC = cc -pg
 CC = cc
@@ -45,6 +47,11 @@ clean:
 
 realclean:  clean
 	rm -f $(EXES) *.png *.jpeg *.tex *.dat *.ps *.eps
+
+install:
+	cp -p $(MPLIB) /usr/local/lib
+	mkdir /usr/local/include/anant
+	cp -p mp-*.h /usr/local/include/anant
 
 .c.o:
 	$(CC) -c -g -O2 -Wall -I. $<

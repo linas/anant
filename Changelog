@@ -2,6 +2,9 @@
 Changelog
 ---------
 
+Version 0.2.2 (XXX)
+	* Add a 'make install' target.
+
 Version 0.2.1 (6 April 2012):
 	* trite performance improvements of complex utilities.
 	* Bug fix in caching: failed initialization.
