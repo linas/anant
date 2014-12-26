@@ -33,7 +33,6 @@
 #include "mp-binomial.h"
 #include "mp-consts.h"
 #include "mp-topsin.h"
-#include "mp-trig.h"
 
 void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 {
@@ -111,8 +110,13 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 
 #define RUN_TEST
 #ifdef RUN_TEST
-void sum_test(double xf, int prec)
+
+#include "mp-trig.h"
+#include <stdbool.h>
+
+bool sum_test(double xf, int prec)
 {
+	bool fail = false;
 	int k;
 	mpf_t a_k, x, xn, term, sum, sino;
 
@@ -123,6 +127,9 @@ void sum_test(double xf, int prec)
 	mpf_init(sum);
 	mpf_init(sino);
 
+
+	// Sum the series sum_k=1^\infty a_k x^k
+	// It should equal sin(2pi/(1+x))
 	mpf_set_d(x, xf);
 	mpf_set_ui(sum, 0);
 	mpf_set_ui(xn, 1);
@@ -135,6 +142,7 @@ void sum_test(double xf, int prec)
 		mpf_mul(xn, xn, x);
 	}
 
+	// Now compute sin(2pi/(1+x))
 	mpf_set_ui(term, 1);
 	mpf_add(term, term, x);
 	fp_two_pi(sino, prec);
@@ -142,10 +150,16 @@ void sum_test(double xf, int prec)
 	
 	fp_sine(sino, term, prec);
 
+	// the sum and the sine should be equal
 	mpf_sub(term, sino, sum);
 	double zero = mpf_get_d(term);
 
-	printf("its %g\n", zero);
+	double lim = pow(10.0, -prec);
+	if (fabs(zero) > lim)
+	{
+		printf("Error: Expecting precision 1.0e-%d got %g at x=%f\n", prec, zero, xf);
+		fail = true;
+	}
 
 	mpf_clear(a_k);
 	mpf_clear(x);
@@ -153,6 +167,8 @@ void sum_test(double xf, int prec)
 	mpf_clear(term);
 	mpf_clear(sum);
 	mpf_clear(sino);
+
+	return fail;
 }
 
 int main (int argc, char * argv[])
@@ -178,7 +194,15 @@ int main (int argc, char * argv[])
 	twopi -= 2.0*M_PI;
 	if (fabs(twopi) > 1.0e-16) printf("Error  at k=2: %g\n", twopi);
 
-	sum_test(0.5, prec);
+	double x;
+	bool fail = false;
+	for (x=0.999; x>-1.0; x -= 0.018756)
+	{
+		fail = fail || sum_test(x, prec);
+	}
+
+	if (fail) printf("Error: test failed\n");
+	else printf("Success: test worked\n");
 	
 	return 0;
 }
