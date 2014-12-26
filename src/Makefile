@@ -7,7 +7,7 @@
 CC = cc
 
 
-EXES= db-merge db-prt mp-topsin
+EXES= db-merge db-prt
 
 MPLIB=libanant.a
 

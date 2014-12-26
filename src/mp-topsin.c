@@ -108,7 +108,7 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 
 /* ================================================================ */
 
-#define RUN_TEST
+// #define RUN_TEST
 #ifdef RUN_TEST
 
 #include "mp-trig.h"
@@ -192,15 +192,19 @@ int main (int argc, char * argv[])
 
 	mpf_init(a_k);
 
+	// a_1 should be -2pi
 	topsin_series(a_k, 1, prec);
 	double twopi = mpf_get_d(a_k);
 	twopi += 2.0*M_PI;
 	if (fabs(twopi) > 1.0e-16) printf("Error  at k=1: %g\n", twopi);
 
+	// a_2 should be +2pi
 	topsin_series(a_k, 2, prec);
 	twopi = mpf_get_d(a_k);
 	twopi -= 2.0*M_PI;
 	if (fabs(twopi) > 1.0e-16) printf("Error  at k=2: %g\n", twopi);
+
+	// a_3 should be 2pi (3-2pi^2) / 3 = -35.05851693322
 
 	double x;
 	bool fail = false;
