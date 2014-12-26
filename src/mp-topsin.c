@@ -29,11 +29,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "mp-binomial.h"
+#include "mp-consts.h"
 #include "mp-topsin.h"
 
 void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 {
-	mpf_t fourpi, numer, fact;
+	unsigned int n;
+	mpf_t fourpi, numer, fact, low_bound, term, xterm;
+	mpz_t bino;
 
 	mpf_set_ui(a_k, 0);
 
@@ -41,43 +46,34 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 	if (0 == k) return;
 
 	mpf_init(fourpi);
-	mpf_init(h);
-	mpf_init(bits);
-	mpf_init(one);
+	mpf_init(numer);
+	mpf_init(fact);
 	mpf_init(low_bound);
+	mpf_init(term);
+	mpf_init(xterm);
+	mpz_init(bino);
 
-	mpf_set(h, x);
-	mpf_set_ui(one, 1);
+	mpf_set_ui(fact, 1);
+
+	fp_two_pi(numer, prec);
+	mpf_neg(numer, numer);
+
+	// fourpi is actually -4pi^2
+	mpf_mul(fourpi, numer, numer);
+	mpf_neg(fourpi, fourpi);
 
 	/* Get the number of binary bits from prec = log_2 10 * prec */
 	long nbits = (long) floor (3.321 * prec);
-	mpf_div_2exp(low_bound, one, nbits-2);
+	mpf_div_2exp(low_bound, fact, nbits-2);
 
-	bitsdone = -1;
-	place = 1;
-	while (bitsdone < nbits)
+	for (n=0; n<2023123123; n++)
 	{
-		// Compute h(x) = 1/x - floor(1/x);
-		mpf_ui_div(ox, 1, h);
-		mpf_floor(bits, ox);
-		mpf_sub(h, ox, bits);
+		i_binomial(bino, 2*n+k, 2*n);
+		mpf_set_z(term, bino);
+		mpf_mul(xterm, term, numer);
+		mpf_div(term, xterm, fact);
 
-		// bit is just floor(1/x)
-		ibits = mpf_get_si(bits);
-		bitsdone += ibits;
-
-		// shift right by bits
-		mpf_div_2exp(ox, one, bitsdone);
-
-		// Add or subtract dyadic parts
-		if (place%2 == 1)
-		{
-			mpf_add(qmark, qmark, ox);
-		}
-		else
-		{
-			mpf_sub(qmark, qmark, ox);
-		}
+		mpf_add(a_k, a_k, term);
 
 // #define DEBUG 1
 #ifdef DEBUG
@@ -90,20 +86,22 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 				place, bitsdone, h_f, q_f, b_f, mpf_sgn(h));
 		}
 #endif
-		// If the remainder is zero, we are done.
-		// Due to rounding precision, we can't test for explicit zero;
-		// instead we test for h less than the requested precision.
-		// if (0 == mpf_sgn(h)) break;
-		if (mpf_cmp(h, low_bound) < 0) break;
+		// If the term is small enough, we are done.
+		mpf_abs(xterm, term);
+		if (mpf_cmp(xterm, low_bound) < 0) break;
 
-		place ++;
+		// Now iterate
+		mpf_mul(numer, numer, fourpi);
+		mpf_mul_ui(fact, fact, (2*n+3)*2*(n+1));
 	}
 
-	mpf_clear(ox);
-	mpf_clear(h);
-	mpf_clear(bits);
-	mpf_clear(one);
+	mpf_clear(fourpi);
+	mpf_clear(numer);
+	mpf_clear(fact);
 	mpf_clear(low_bound);
+	mpf_clear(term);
+	mpf_clear(xterm);
+	mpz_clear(bino);
 }
 
 /* ================================================================ */
