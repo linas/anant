@@ -1,21 +1,21 @@
 /*
  * mp-trig.h
  *
- * High-precison Elementary functions, using the 
+ * High-precision Elementary trigonometric functions, using the
  * Gnu Multiple-precision library.
  *
  * Copyright (C) 2005 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -37,15 +37,15 @@ extern "C" {
 void i_pow (mpz_t p, unsigned int n, unsigned int m);
 
 /**
- * fp_inv_pow - raise n to the -m power, where m must be positive. 
+ * fp_inv_pow - raise n to the -m power, where m must be positive.
  */
 void fp_inv_pow (mpf_t p, unsigned int n, unsigned int m);
 
 /**
  * fp_exp -  Floating point exponential
- * Implemented using a brute-force, very simple algo, with 
- * no attempts at optimization. Also, does not assume any 
- * precomputed constants. 
+ * Implemented using a brute-force, very simple algo, with
+ * no attempts at optimization. Also, does not assume any
+ * precomputed constants.
  *
  * The complex exp is built up from the real trig functions.
  * The complex trig functions are built up from the complex exp.
@@ -62,14 +62,14 @@ void cpx_tangent (cpx_t tang, const cpx_t z, unsigned int prec);
 
 /**
  * fp_log -  Floating point logarithm
- * Implemented using a brute-force, simple algo, with 
- * minor attempts at optimization. 
+ * Implemented using a brute-force, simple algo, with
+ * minor attempts at optimization.
  *
  * fp_log_m1 computes -log(1-z) using Taylor's expansion for small z.
  * Does not perform any other optimizations -- just simply sums the
  * Taylor series, and that's all.
  *
- * fp_log_ui takes integer arguments, and keeps previous 
+ * fp_log_ui takes integer arguments, and keeps previous
  * results cached for improved performance.
  */
 void fp_log_m1 (mpf_t lg, const mpf_t z, unsigned int prec);
@@ -80,7 +80,7 @@ void cpx_log (cpx_t lg, const cpx_t z, unsigned int prec);
 
 /**
  * fp_arctan -  Floating point arctangent
- * Implemented using a brute-force, very simple algo, with 
+ * Implemented using a brute-force, very simple algo, with
  * no attempts at optimization. Very slow near y=x
  */
 void fp_arctan (mpf_t atn, const mpf_t z, unsigned int prec);
@@ -119,8 +119,8 @@ void cpx_pow_ui (cpx_t powc, const cpx_t q, unsigned int n);
 /**
  * cpx_ui_pow -- return k^s for complex s, integer k.
  *
- * Uses a brute-force algo: it requires a logarithm, an exp, sin 
- * and cos to be computed, each of which are kinda slow ... 
+ * Uses a brute-force algo: it requires a logarithm, an exp, sin
+ * and cos to be computed, each of which are kinda slow ...
  */
 void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec);
 

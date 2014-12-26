@@ -33,6 +33,7 @@
 #include "mp-binomial.h"
 #include "mp-consts.h"
 #include "mp-topsin.h"
+#include "mp-trig.h"
 
 void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 {
@@ -95,6 +96,8 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 		mpf_mul_ui(fact, fact, (2*n+3)*2*(n+1));
 	}
 
+	if (k%2 == 0) mpf_neg(a_k, a_k);
+
 	mpf_clear(fourpi);
 	mpf_clear(numer);
 	mpf_clear(fact);
@@ -106,16 +109,56 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 
 /* ================================================================ */
 
-// #define RUN_TEST
+#define RUN_TEST
 #ifdef RUN_TEST
+void sum_test(double xf, int prec)
+{
+	int k;
+	mpf_t a_k, x, xn, term, sum, sino;
+
+	mpf_init(a_k);
+	mpf_init(x);
+	mpf_init(xn);
+	mpf_init(term);
+	mpf_init(sum);
+	mpf_init(sino);
+
+	mpf_set_d(x, xf);
+	mpf_set_ui(sum, 0);
+	mpf_set_ui(xn, 1);
+	mpf_mul(xn, xn, x);
+	for (k=1; k<1000; k++)
+	{
+		topsin_series(a_k, k, prec);
+		mpf_mul(term, a_k, xn);
+		mpf_add(sum, sum, term);
+		mpf_mul(xn, xn, x);
+	}
+
+	mpf_set_ui(term, 1);
+	mpf_add(term, term, x);
+	fp_two_pi(sino, prec);
+	mpf_div(term, sino, term);
+	
+	fp_sine(sino, term, prec);
+
+	mpf_sub(term, sino, sum);
+	double zero = mpf_get_d(term);
+
+	printf("its %g\n", zero);
+
+	mpf_clear(a_k);
+	mpf_clear(x);
+	mpf_clear(xn);
+	mpf_clear(term);
+	mpf_clear(sum);
+	mpf_clear(sino);
+}
+
 int main (int argc, char * argv[])
 {
-	int n, d;
-	double qid;
-	mpf_t qi, x;
+	mpf_t a_k;
 	int prec, nbits;
-
-	d = atoi(argv[1]);
 
 	prec = 50;
 
@@ -123,21 +166,19 @@ int main (int argc, char * argv[])
 	nbits = 3.3*prec;
 	mpf_set_default_prec (nbits);
 
-	mpf_init(qi);
-	mpf_init(x);
+	mpf_init(a_k);
 
-	// n = 2*171;
-	// d = 3*171;
-	for (n=0; n<=d; n++)
-	{
-		double xd = ((double) n) / ((double) d);
-		mpf_set_ui (x, n);
-		mpf_div_ui (x, x, d);
+	topsin_series(a_k, 1, prec);
+	double twopi = mpf_get_d(a_k);
+	twopi += 2.0*M_PI;
+	if (fabs(twopi) > 1.0e-16) printf("Error  at k=1: %g\n", twopi);
+	
+	topsin_series(a_k, 2, prec);
+	twopi = mpf_get_d(a_k);
+	twopi -= 2.0*M_PI;
+	if (fabs(twopi) > 1.0e-16) printf("Error  at k=2: %g\n", twopi);
 
-		question_inverse(qi, x, prec);
-		qid = mpf_get_d(qi);
-		printf("%d	%f	%f\n", n, xd, qid);
-	}
+	sum_test(0.5, prec);
 	
 	return 0;
 }
