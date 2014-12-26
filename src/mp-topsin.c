@@ -53,8 +53,6 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 	mpf_init(xterm);
 	mpz_init(bino);
 
-	mpf_set_ui(fact, 1);
-
 	fp_two_pi(numer, prec);
 	mpf_neg(numer, numer);
 
@@ -62,9 +60,11 @@ void topsin_series (mpf_t a_k, unsigned int k, unsigned int prec)
 	mpf_mul(fourpi, numer, numer);
 	mpf_neg(fourpi, fourpi);
 
+	mpf_set_ui(fact, 1);
+
 	/* Get the number of binary bits from prec = log_2 10 * prec */
 	long nbits = (long) floor (3.321 * prec);
-	mpf_div_2exp(low_bound, fact, nbits-2);
+	mpf_div_2exp(low_bound, fact, nbits+32);
 
 	for (n=0; n<2023123123; n++)
 	{
@@ -118,7 +118,7 @@ bool sum_test(double xf, int prec)
 {
 	bool fail = false;
 	int k;
-	mpf_t a_k, x, xn, term, sum, sino;
+	mpf_t a_k, x, xn, term, sum, sino, low_bound;
 
 	mpf_init(a_k);
 	mpf_init(x);
@@ -126,28 +126,35 @@ bool sum_test(double xf, int prec)
 	mpf_init(term);
 	mpf_init(sum);
 	mpf_init(sino);
+	mpf_init(low_bound);
 
+	long nbits = (long) floor (3.321 * prec);
+	mpf_set_ui(x, 1);
+	mpf_div_2exp(low_bound, x, nbits+32);
 
 	// Sum the series sum_k=1^\infty a_k x^k
 	// It should equal sin(2pi/(1+x))
 	mpf_set_d(x, xf);
 	mpf_set_ui(sum, 0);
-	mpf_set_ui(xn, 1);
-	mpf_mul(xn, xn, x);
-	for (k=1; k<1000; k++)
+	mpf_set(xn, x);
+	for (k=1; k<100000; k++)
 	{
 		topsin_series(a_k, k, prec);
 		mpf_mul(term, a_k, xn);
 		mpf_add(sum, sum, term);
+
+		// If the term is small enough, we are done.
+		mpf_abs(term, term);
+		if (mpf_cmp(term, low_bound) < 0) break;
+
 		mpf_mul(xn, xn, x);
 	}
 
 	// Now compute sin(2pi/(1+x))
-	mpf_set_ui(term, 1);
-	mpf_add(term, term, x);
+	mpf_add_ui(term, x, 1);
 	fp_two_pi(sino, prec);
 	mpf_div(term, sino, term);
-	
+
 	fp_sine(sino, term, prec);
 
 	// the sum and the sine should be equal
@@ -179,8 +186,9 @@ int main (int argc, char * argv[])
 	prec = 50;
 
 	/* Set the precision (number of binary bits) */
+	/* We need more bits than what what is available, for intermediate calcs */
 	nbits = 3.3*prec;
-	mpf_set_default_prec (nbits);
+	mpf_set_default_prec (nbits+200);
 
 	mpf_init(a_k);
 
@@ -188,7 +196,7 @@ int main (int argc, char * argv[])
 	double twopi = mpf_get_d(a_k);
 	twopi += 2.0*M_PI;
 	if (fabs(twopi) > 1.0e-16) printf("Error  at k=1: %g\n", twopi);
-	
+
 	topsin_series(a_k, 2, prec);
 	twopi = mpf_get_d(a_k);
 	twopi -= 2.0*M_PI;
@@ -196,14 +204,17 @@ int main (int argc, char * argv[])
 
 	double x;
 	bool fail = false;
-	for (x=0.999; x>-1.0; x -= 0.018756)
+	for (x=0.95; x>-0.95; x -= 0.018756)
 	{
-		fail = fail || sum_test(x, prec);
+		bool result = sum_test(x, prec);
+		fail = fail || result;
+		printf("."); fflush(stdout);
 	}
+	printf("\n");
 
 	if (fail) printf("Error: test failed\n");
 	else printf("Success: test worked\n");
-	
+
 	return 0;
 }
 #endif
