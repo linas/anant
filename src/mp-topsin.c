@@ -174,6 +174,7 @@ bool sum_test(double xf, int prec)
 	mpf_clear(term);
 	mpf_clear(sum);
 	mpf_clear(sino);
+	mpf_clear(low_bound);
 
 	return fail;
 }
@@ -218,6 +219,39 @@ int main (int argc, char * argv[])
 
 	if (fail) printf("Error: test failed\n");
 	else printf("Success: test worked\n");
+
+	return 0;
+}
+#endif
+
+// #define PRINT_OUT_AK
+#ifdef PRINT_OUT_AK
+int main (int argc, char * argv[])
+{
+	mpf_t a_k;
+	int prec, nbits;
+
+	prec = 80;
+
+	/* Set the precision (number of binary bits) */
+	/* We need more bits than what what is available, for intermediate calcs */
+	nbits = 3.3*prec;
+	mpf_set_default_prec (nbits+200);
+
+	mpf_init(a_k);
+
+   printf("#\n# The topsin series a_k\n#\n");
+
+	int k;
+	double akprev=0.0;
+	for (k=0; k<5001; k++)
+	{
+		topsin_series(a_k, k, prec);
+		double ak = mpf_get_d(a_k);
+
+		printf("%d	%20.16g	%20.16g\n", k, ak, ak+akprev);
+		akprev = ak;
+	}
 
 	return 0;
 }
