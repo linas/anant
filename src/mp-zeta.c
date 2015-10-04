@@ -1,21 +1,21 @@
 /*
  * mp-zeta.c
  *
- * High-precison Riemann zeta function, using the 
+ * High-precison Riemann zeta function, using the
  * Gnu Multiple-precision library.
- * 
+ *
  * Copyright (C) 2005,2006 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -38,7 +38,7 @@
 
 /* ======================================================================= */
 /* Helmut Hasse zeta -- use the globally convergent Helmut Hasse zeta
- * series for computing the value of the zeta ... 
+ * series for computing the value of the zeta ...
  */
 
 void fp_hasse_zeta_compute (mpf_t zeta, unsigned int s, int prec)
@@ -47,14 +47,14 @@ void fp_hasse_zeta_compute (mpf_t zeta, unsigned int s, int prec)
 	// This works because the bin_xform_pow is always of order 1.
 	int nmax = (3.321928*prec+3);
 	int n;
-	
+
 	mpf_t twon, term;
 	mpf_init (twon);
 	mpf_init (term);
-	
+
 	mpf_set_ui (twon, 1);
 	mpf_div_ui (twon, twon, 2);
-	
+
 	mpf_set_ui (zeta, 0);
 	for (n=0; n<nmax; n++)
 	{
@@ -66,10 +66,10 @@ void fp_hasse_zeta_compute (mpf_t zeta, unsigned int s, int prec)
 	}
 	mpf_set_ui (twon, 1);
 	mpf_div_2exp (twon, twon, s-1);
-	
+
 	mpf_set_ui (term, 1);
 	mpf_sub (term, term, twon);
-	
+
 	mpf_div (zeta, zeta, term);
 
 	mpf_clear (twon);
@@ -81,7 +81,7 @@ void fp_hasse_zeta (mpf_t zeta, unsigned int s, int prec)
 	DECLARE_FP_CACHE (cache);
 	if (1 >= s)
 	{
-		mpf_set_ui (zeta, 0); 
+		mpf_set_ui (zeta, 0);
 		return;
 	}
 	int have_prec = fp_one_d_cache_check (&cache, s);
@@ -118,7 +118,7 @@ void q_bernoulli (mpq_t bern, int n)
 		q_one_d_cache_fetch (&cache, bern, hn);
 		return;
 	}
-	
+
 	/* Not found in cache, will have to compute */
 	mpz_t binom;
 	mpz_init (binom);
@@ -128,7 +128,7 @@ void q_bernoulli (mpq_t bern, int n)
 	mpq_init (tmp);
 
 	mpq_set_si (bern, 1-n, 2);
-	
+
 	int i;
 	for (i=1; i<hn; i++)
 	{
@@ -156,10 +156,10 @@ void q_bernoulli (mpq_t bern, int n)
  * fp_zeta_even - return the zeta value for even "n".
  * @prec - decimal places of precision to work to.
  *
- * Uses a fast algorithm to compute the zeta function for any 
+ * Uses a fast algorithm to compute the zeta function for any
  * even value of n. This is obtained by recursievly computing
  * the Bernoulli numbers, and multiplying by an appropriate factor
- * of pi and factorial. 
+ * of pi and factorial.
  */
 void fp_zeta_even (mpf_t zeta, unsigned int n, int prec)
 {
@@ -181,11 +181,11 @@ void fp_zeta_even (mpf_t zeta, unsigned int n, int prec)
 
 	/* fix the sign */
 	if (0==n%4) mpq_neg (bb, bb);
-	
+
 	mpf_t pi, pip;
 	mpf_init (pi);
 	mpf_init (pip);
-	
+
 	fp_pi (pi, prec);
 	mpf_mul_ui (pi, pi, 2);
 	mpf_pow_ui (pip, pi, n);
@@ -233,14 +233,14 @@ static void fp_ess (mpf_t ess_plus, mpf_t ess_minus, unsigned int k, unsigned in
 	mpf_init (one);
 	mpf_set_ui (one, 1);
 	mpf_mul_2exp (maxterm, one, imax);
-	
+
 	int n;
 	for (n=1; n<1000000000; n++)
 	{
 		mpf_set_ui (en, n);
 		mpf_pow_ui (enp, en, k);
 		mpf_pow_ui (epip, e_pi, 2*n);
-		
+
 		mpf_add_ui (eppos, epip, 1);
 		mpf_sub_ui (epneg, epip, 1);
 
@@ -273,8 +273,8 @@ static void fp_ess (mpf_t ess_plus, mpf_t ess_minus, unsigned int k, unsigned in
 }
 
 /* Implement Simon Plouffe odd-zeta sums */
-static void fp_zeta_odd_helper (mpf_t zeta, unsigned int n, 
-					 char *sdiv, char * spi, char * sminus, char * splus,  
+static void fp_zeta_odd_helper (mpf_t zeta, unsigned int n,
+					 char *sdiv, char * spi, char * sminus, char * splus,
 					 unsigned int prec)
 {
 	mpf_t pi, pip, piterm, spos, sneg, spos_term, sneg_term, tmp;
@@ -292,16 +292,16 @@ static void fp_zeta_odd_helper (mpf_t zeta, unsigned int n,
 	mpf_init (c_pi);
 	mpf_init (c_plus);
 	mpf_init (c_minus);
-	
+
 	mpf_set_str (div, sdiv, 10);
 	mpf_set_str (c_pi, spi, 10);
 	mpf_set_str (c_plus, splus, 10);
 	mpf_set_str (c_minus, sminus, 10);
-	
+
 	fp_ess (spos, sneg, n, prec);
 	mpf_mul (spos_term, spos, c_plus);
 	mpf_mul (sneg_term, sneg, c_minus);
-			  
+
 	fp_pi (pi, prec);
 	mpf_pow_ui (pip, pi, n);
 	mpf_mul (piterm, pip, c_pi);
@@ -310,7 +310,7 @@ static void fp_zeta_odd_helper (mpf_t zeta, unsigned int n,
 	mpf_sub (zeta, tmp, spos_term);
 	mpf_sub (tmp, zeta, sneg_term);
 	mpf_div (zeta, tmp, div);
-	
+
 	mpf_clear (pi);
 	mpf_clear (pip);
 	mpf_clear (piterm);
@@ -319,7 +319,7 @@ static void fp_zeta_odd_helper (mpf_t zeta, unsigned int n,
 	mpf_clear (spos_term);
 	mpf_clear (sneg_term);
 	mpf_clear (tmp);
-	
+
 	mpf_clear (div);
 	mpf_clear (c_pi);
 	mpf_clear (c_plus);
@@ -332,23 +332,23 @@ int fp_zeta_odd_plouffe (mpf_t zeta, unsigned int n, unsigned int prec)
 	switch (n)
 	{
 #ifdef PLOUFFE_ORIGINALS
-		case 11: 
-			fp_zeta_odd_helper (zeta, 11, "425675250", "1453", "851350500", "0", prec); 
+		case 11:
+			fp_zeta_odd_helper (zeta, 11, "425675250", "1453", "851350500", "0", prec);
 			break;
-		case 13: 
-			fp_zeta_odd_helper (zeta, 13, "257432175", "89", "514926720", "62370", prec); 
+		case 13:
+			fp_zeta_odd_helper (zeta, 13, "257432175", "89", "514926720", "62370", prec);
 			break;
-		case 15: 
-			fp_zeta_odd_helper (zeta, 15, "390769879500", "13687", "781539759000", "0", prec); 
+		case 15:
+			fp_zeta_odd_helper (zeta, 15, "390769879500", "13687", "781539759000", "0", prec);
 			break;
-		case 17: 
-			fp_zeta_odd_helper (zeta, 17, "1904417007743250", "6758333", "3808863131673600", "29116187100", prec); 
+		case 17:
+			fp_zeta_odd_helper (zeta, 17, "1904417007743250", "6758333", "3808863131673600", "29116187100", prec);
 			break;
-		case 19: 
-			fp_zeta_odd_helper (zeta, 19, "21438612514068750", "7708537", "42877225028137500", "0", prec); 
+		case 19:
+			fp_zeta_odd_helper (zeta, 19, "21438612514068750", "7708537", "42877225028137500", "0", prec);
 			break;
-		case 21: 
-			fp_zeta_odd_helper (zeta, 21, "1881063815762259253125", "68529640373", "3762129424572110592000", "1793047592085750", prec); 
+		case 21:
+			fp_zeta_odd_helper (zeta, 21, "1881063815762259253125", "68529640373", "3762129424572110592000", "1793047592085750", prec);
 			break;
 #endif
 
@@ -588,7 +588,7 @@ int fp_zeta_odd_plouffe (mpf_t zeta, unsigned int n, unsigned int prec)
 		case 119:
 			fp_zeta_odd_helper (zeta, 119, "181961744064274353998732174876458083192401580310810970658317353559398594886909058323836349301639835028493133397370199672540329374986916978202036009397671930491924285888671875", "1261151562313641703816834464893880014977525934624571730625687371825311625760783202572888567761894854518812674014678", "363923488128548707997464349752916166384803160621621941316634707118797189773818116647672698603279670056986266794740399345080658749973833956404072018795343860983848571777343750", "0", prec);
 			break;
-			
+
 		default:
 			have_val = 0;
 	}
@@ -614,7 +614,7 @@ void fp_zeta_brute (mpf_t zeta, unsigned int s, int prec)
 		zeta_cache = (mpf_t *) realloc (zeta_cache, newsize*sizeof (mpf_t));
 		zprec = (int *) realloc (zprec, newsize*sizeof (int));
 		last_term = (unsigned int *) realloc (last_term, newsize*sizeof (unsigned int));
-		
+
 		int i;
 		for (i=cache_size; i<newsize; i++)
 		{
@@ -624,7 +624,7 @@ void fp_zeta_brute (mpf_t zeta, unsigned int s, int prec)
 	}
 
 	if (s<2) return;
-	
+
 	/* Lets see if we can get lucky with the cache. */
 	if (prec < zprec[s])
 	{
@@ -646,16 +646,16 @@ void fp_zeta_brute (mpf_t zeta, unsigned int s, int prec)
 	mpf_t term;
 	mpf_t en;
 	mpf_t inv;
-	
+
 	mpf_init (acc);
 	mpf_init (term);
 	mpf_init (en);
 	mpf_init (inv);
-	
+
 	mpf_set_ui (zeta, 1);
 
 	/* Compute number of terms to be carried out.
-	 * If we want error t be less than epsilon, 
+	 * If we want error t be less than epsilon,
 	 * then must sum to epsilon=N^{1-s} or
 	 * N = exp (ln(espilon) / (1-s))
 	 * But epsilon = 10^{-prec} so
@@ -674,11 +674,11 @@ void fp_zeta_brute (mpf_t zeta, unsigned int s, int prec)
 	}
 	int nmax = (int) (fnmax+3.0); // Add 3 just to be safe
 	// printf ("zeta(%d) to precision %d will require %d terms\n", s, prec, nmax);
-	
+
 	/* Start computations where we last left off. */
 	mpf_set (zeta, zeta_cache[s]);
 	int nstart = last_term[s];
-	
+
 	int n;
 	for (n=nstart; n< nmax; n++)
 	{
@@ -692,7 +692,7 @@ void fp_zeta_brute (mpf_t zeta, unsigned int s, int prec)
 	/* cache the results */
 	mpf_set (zeta_cache[s], zeta);
 	last_term[s] = nmax;
-	
+
 	mpf_clear (acc);
 	mpf_clear (term);
 	mpf_clear (en);
@@ -719,7 +719,7 @@ static void fp_borwein_tchebysheff (mpf_t d_k, int n, int k, unsigned int prec)
 	}
 	if ((0 == k) || (0 == n))
 	{
-		mpf_set_ui (d_k, 1); 
+		mpf_set_ui (d_k, 1);
 		return;
 	}
 	int cision = fp_one_d_cache_check (&cache, k);
@@ -795,7 +795,7 @@ void fp_borwein_zeta (mpf_t zeta, unsigned int s, int prec)
 	for (k=0; k<n; k++)
 	{
 		fp_borwein_tchebysheff (term, n, k, prec);
-		mpf_sub (term, term, d_n); 
+		mpf_sub (term, term, d_n);
 
 		// i_pow (ip, k+1, s);
 		mpz_ui_pow_ui (ip, k+1, s);
@@ -816,10 +816,10 @@ void fp_borwein_zeta (mpf_t zeta, unsigned int s, int prec)
 
 	mpf_set_ui (twon, 1);
 	mpf_div_2exp (twon, twon, s-1);
-	
+
 	mpf_set_ui (term, 1);
 	mpf_sub (term, term, twon);
-	
+
 	mpf_div (zeta, zeta, term);
 
 	mpz_clear (ip);
@@ -835,13 +835,13 @@ static inline int bor_zeta_terms_est (const cpx_t s, int prec)
 
 	// This is a real sleazy way of estimating the number
 	// of terms needed for complex values far from the real axis.
-	// works OK for s=1/2+itau, should be cleaned up to be better.
-	// what we want is an estimate for size of gamma
+	// Works OK for s = 1/2 + i tau, should be cleaned up to be better.
+	// What we want is an estimate for size of gamma
 	// nterms -=  s * log(s) -s;  -- Stirling approx for gamma ...
 	double sim = mpf_get_d (s[0].im);
 	sim = fabs(sim);
 	nterms += 0.5*M_PI*sim;
-	
+
 	nterms *= 0.567296329;
 	return (int) (nterms+1.0);
 }
@@ -870,7 +870,7 @@ void cpx_borwein_zeta (cpx_t zeta, const cpx_t s, int prec)
 	{
 		mpf_set_ui (term[0].im, 0);
 		fp_borwein_tchebysheff (term[0].re, n, k, prec);
-		mpf_sub (term[0].re, term[0].re, d_n); 
+		mpf_sub (term[0].re, term[0].re, d_n);
 
 		// po = pow (k+1, s);
 		fp_pow_rc (po, k, one, ess, prec);
@@ -896,12 +896,12 @@ void cpx_borwein_zeta (cpx_t zeta, const cpx_t s, int prec)
 	cpx_recip (po, po);
 	cpx_neg (po, po);
 	mpf_add_ui (po[0].re, po[0].re, 1);
-	
+
 	cpx_div (zeta, zeta, po);
 
 	mpf_clear (d_n);
 	mpf_clear (one);
-	
+
 	cpx_clear (po);
 	cpx_clear (term);
 	cpx_clear (ess);
@@ -930,7 +930,7 @@ void cpx_borwein_zeta_cache (cpx_t zeta, const cpx_t s, unsigned int n, int prec
 		cpx_one_d_cache_clear (&cache);
 		cpx_set (cache_s, s);
 	}
-	
+
 	/* Check the local cache */
 	int have_prec = cpx_one_d_cache_check (&cache, n);
 	if (have_prec >= prec)
@@ -948,33 +948,37 @@ void cpx_borwein_zeta_cache (cpx_t zeta, const cpx_t s, unsigned int n, int prec
 }
 
 /* ======================================================================= */
-/* fp_zeta
- * Floating-point-valued Riemann zeta for positive integer arguments 
+/**
+ * fp_zeta
+ * Floating-point-valued Riemann zeta for positive integer arguments
  * return value placed in the arg "zeta".
  *
  * Carries out the math to "prec" decimal digits. Uses a combined
- * algorithm: 
- * 
+ * algorithm:
+ *
  * First, it searches the local memory cache for a value that
- * satisfies the precision requirements; if found, it returns 
- * that. 
+ * satisfies the precision requirements; if found, it returns
+ * that.
  *
  * Next, it searches the disk cache for a suitable value.
- * 
- * For large "s", specifically, when prec < 3*s, it performs the 
- * brute-force sum. This works, and works quite well, since the 
- * sum converges decently when "s" is large. Basically, brute force 
- * is used whenever less than several thousand terms are required 
+ *
+ * For large `n`, specifically, when prec < 3*n, it performs the
+ * brute-force sum. This works, and works quite well, since the
+ * sum converges decently when `n` is large. Basically, brute force
+ * is used whenever less than several thousand terms are required
  * to perform the evaluation.
- * 
- * For even "n", computes an "exact" result be using recursion
+ *
+ * For even `n`, computes an "exact" result be using recursion
  * to get the Bernoulli numbers, and then working off of those.
+ * The result is "exact" in that its just a finite product of
+ * Bernoulli and powers of Pi. You still need to specify how many
+ * decimal digits of precision are desired.
  *
- * For odd "n", this uses a fast convergent sum based on a rapidly
+ * For odd `n`, this uses a fast convergent sum based on a rapidly
  * converging polynomial series (in terms of Chebyshev polynomials)
- * given by Borwein. 
+ * given by Borwein.
  *
- * All computed values are stored in the disk cache for later 
+ * All computed values are stored in the disk cache for later
  * reference.
  */
 
@@ -1006,9 +1010,9 @@ void fp_zeta (mpf_t zeta, unsigned int s, int prec)
 		fp_one_d_cache_fetch (&cache, zeta, s);
 		return;
 	}
-	
+
 	/* Check the disk cache next */
-	if (fp_cache_get (ZETA_DB_NAME, zeta, s, prec)) 
+	if (fp_cache_get (ZETA_DB_NAME, zeta, s, prec))
 	{
 		mpf_add_ui (zeta, zeta, 1);
 		/* Save disk value to the ram cache. */
@@ -1017,7 +1021,7 @@ void fp_zeta (mpf_t zeta, unsigned int s, int prec)
 	}
 
 	/* If a high order is requested, but only a relatively low
-	 * number of digits of precision, then a brute force summation 
+	 * number of digits of precision, then a brute force summation
 	 * is appropriate.
 	 */
 	double marge = ((double) prec) / ((double) s-1);
@@ -1029,7 +1033,7 @@ void fp_zeta (mpf_t zeta, unsigned int s, int prec)
 		fp_zeta_file_cache_put (zeta, s, prec);
 		return;
 	}
-	
+
 	/* We've got exact results for even numbers */
 	if (0 == s%2)
 	{
@@ -1038,7 +1042,7 @@ void fp_zeta (mpf_t zeta, unsigned int s, int prec)
 		fp_zeta_file_cache_put (zeta, s, prec);
 		return;
 	}
-	
+
 	/* Use the Plouffe algo for low values -- or not. */
 	int plo = 0;
 	// plo = fp_zeta_odd_plouffe (zeta, s, prec);
@@ -1055,12 +1059,12 @@ void fp_zeta (mpf_t zeta, unsigned int s, int prec)
 }
 
 /* ======================================================================= */
-/* rough count of number of digits in a number */
+/* Rough count of number of digits in a number. */
 
 static inline unsigned int num_digits (mpz_t num, mpz_t tmpa, mpz_t tmpb)
 {
 	unsigned int n=0;
-	
+
 	mpz_set (tmpb, num);
 	while (1)
 	{
@@ -1073,9 +1077,9 @@ static inline unsigned int num_digits (mpz_t num, mpz_t tmpa, mpz_t tmpb)
 }
 
 /* ======================================================================= */
-/* 
+/*
  * Compute a_sub_n
- * the w argument is for the power bit -- 
+ * the w argument is for the power bit --
  */
 void a_sub_n (mpf_t a_n, mpf_t w, unsigned int n, unsigned int prec)
 {
@@ -1093,11 +1097,11 @@ void a_sub_n (mpf_t a_n, mpf_t w, unsigned int n, unsigned int prec)
 	mpf_init (gam);
 	mpf_init (wneg);
 	mpf_init (wn);
-	
+
 	mpz_t tmpa, tmpb;
 	mpz_init (tmpa);
 	mpz_init (tmpb);
-	
+
 	mpf_set_ui (one, 1);
 
 	mpz_t ibin;
@@ -1110,15 +1114,15 @@ void a_sub_n (mpf_t a_n, mpf_t w, unsigned int n, unsigned int prec)
 	int maxbump = 0;
 	for (k=1; k<= n; k++)
 	{
-		/* Commpute the binomial */
+		/* Compute the binomial */
 		i_binomial (ibin, n, k);
 		mpf_set_z (fbin, ibin);
 
 		/* The terms will have alternating signs, and
-		 * will mostly cancel one-another. Thus, we need 
-		 * to increase precision for those terms with the 
+		 * will mostly cancel one-another. Thus, we need
+		 * to increase precision for those terms with the
 		 * largest binomial coefficients. This is will
-		 * increase precision for the killer terms, 
+		 * increase precision for the killer terms,
 		 * while keeping the others in bearable range,
 		 * in terms to cpu time consumed.
 		 */
@@ -1139,12 +1143,12 @@ void a_sub_n (mpf_t a_n, mpf_t w, unsigned int n, unsigned int prec)
 #if W_IS_EQUAL_TO_ONE
 		if (k%2) mpf_neg (term, zeta);
 		else mpf_set (term, zeta);
-#else 
+#else
 		mpf_mul (term, wn, zeta);
 		mpf_mul (zt, wn, wneg);
 		mpf_set (wn, zt);
 #endif
-		
+
 		mpf_add (acc, a_n, term);
 		mpf_set (a_n, acc);
 	}
@@ -1163,7 +1167,7 @@ void a_sub_n (mpf_t a_n, mpf_t w, unsigned int n, unsigned int prec)
 #endif
 	mpf_sub (term, a_n, ok);
 	mpf_set (a_n, term);
-	
+
 	mpf_clear (term);
 	mpf_clear (acc);
 	mpf_clear (zeta);
@@ -1197,7 +1201,7 @@ void a_bound_n (mpf_t b_n, unsigned int n)
 }
 
 /* ======================================================================= */
-/* 
+/*
  * Compute b_sub_n
  */
 void b_sub_n (mpf_t b_n, unsigned int n, unsigned int prec)
@@ -1229,10 +1233,10 @@ void b_sub_n (mpf_t b_n, unsigned int n, unsigned int prec)
 		fp_one_d_cache_store (&cache, b_n, n, prec);
 		return;
 	}
-	
+
 	mpz_t ibin;
 	mpz_init (ibin);
-	
+
 	mpf_t bin, zeta;
 	mpf_init (bin);
 	mpf_init (zeta);
@@ -1304,11 +1308,11 @@ void a_sub_s (mpf_t re_a, mpf_t im_a, double re_s, double im_s, unsigned int pre
 	mpf_init (rebin);
 	mpf_init (imbin);
 	mpf_init (gam);
-	
+
 	mpz_t tmpa, tmpb;
 	mpz_init (tmpa);
 	mpz_init (tmpb);
-	
+
 	mpf_set_ui (one, 1);
 	mpf_set_ui (re_a, 0);
 	mpf_set_ui (im_a, 0);
@@ -1330,16 +1334,16 @@ void a_sub_s (mpf_t re_a, mpf_t im_a, double re_s, double im_s, unsigned int pre
 		mpf_mul (izeta, term, imbin);
 
 		if (k%2)
-		{ 
+		{
 			mpf_sub (racc, re_a, rzeta);
 			mpf_sub (iacc, im_a, izeta);
 		}
-		else 
+		else
 		{
 			mpf_add (racc, re_a, rzeta);
 			mpf_add (iacc, im_a, izeta);
 		}
-		
+
 		mpf_set (re_a, racc);
 		mpf_set (im_a, iacc);
 	}
@@ -1359,11 +1363,11 @@ void a_sub_s (mpf_t re_a, mpf_t im_a, double re_s, double im_s, unsigned int pre
 	mpf_set_d (ok, rex);
 	mpf_sub (term, re_a, ok);
 	mpf_set (re_a, term);
-	
+
 	mpf_set_d (ok, imx);
 	mpf_sub (term, im_a, ok);
 	mpf_set (im_a, term);
-	
+
 	mpf_clear (term);
 	mpf_clear (racc);
 	mpf_clear (iacc);
@@ -1384,7 +1388,7 @@ void a_sub_s (mpf_t re_a, mpf_t im_a, double re_s, double im_s, unsigned int pre
 /* ======================================================================= */
 /**
  * b_sub_s - compute b_sub_s for complex-valued s
- * @prec: compute using this many places of decimal point precision in 
+ * @prec: compute using this many places of decimal point precision in
  *        the intermediate terms.
  * @nterm: sum up the binomial to this many terms
  * @eps: if positive, break out of the term summation loop
@@ -1405,7 +1409,7 @@ static void c_binomial (mpf_t rebin, mpf_t imbin, mpf_t re_s, mpf_t im_s, int k)
 	cpx_clear (bin);
 }
 
-void b_sub_s (mpf_t re_b, mpf_t im_b, mpf_t re_s, mpf_t im_s, 
+void b_sub_s (mpf_t re_b, mpf_t im_b, mpf_t re_s, mpf_t im_s,
               unsigned int prec, int nterms, double eps)
 {
 	int k;
@@ -1422,7 +1426,7 @@ void b_sub_s (mpf_t re_b, mpf_t im_b, mpf_t re_s, mpf_t im_s,
 	mpf_init (rebin);
 	mpf_init (imbin);
 	mpf_init (gam);
-	
+
 	mpf_set_ui (one, 1);
 	mpf_set_ui (re_b, 0);
 	mpf_set_ui (im_b, 0);
@@ -1446,19 +1450,19 @@ void b_sub_s (mpf_t re_b, mpf_t im_b, mpf_t re_s, mpf_t im_s,
 		mpf_mul (izeta, term, imbin);
 
 		if (k%2)
-		{ 
+		{
 			mpf_sub (racc, re_b, rzeta);
 			mpf_sub (iacc, im_b, izeta);
 		}
-		else 
+		else
 		{
 			mpf_add (racc, re_b, rzeta);
 			mpf_add (iacc, im_b, izeta);
 		}
-		
+
 		mpf_set (re_b, racc);
 		mpf_set (im_b, iacc);
-		
+
 		if (eps > 0.0)
 		{
 			double rt = mpf_get_d (rzeta);
@@ -1483,7 +1487,7 @@ void b_sub_s (mpf_t re_b, mpf_t im_b, mpf_t re_s, mpf_t im_s,
 	/* subtract 1/2 */
 	mpf_div_ui (ok, one, 2);
 	mpf_add (re_b, re_b, ok);
-	
+
 	mpf_clear (term);
 	mpf_clear (racc);
 	mpf_clear (iacc);
@@ -1496,7 +1500,7 @@ void b_sub_s (mpf_t re_b, mpf_t im_b, mpf_t re_s, mpf_t im_s,
 	mpf_clear (gam);
 }
 
-void b_sub_s_d (mpf_t re_b, mpf_t im_b, double fre_s, double fim_s, 
+void b_sub_s_d (mpf_t re_b, mpf_t im_b, double fre_s, double fim_s,
               unsigned int prec, int nterms, double eps)
 {
 	mpf_t re_s, im_s;
