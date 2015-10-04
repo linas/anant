@@ -5,6 +5,7 @@ Changelog
 Version 0.3.0 (XXX)
 	* Add a 'make install' target.
 	* Add topologist's sine function series.
+	* Add generalized harmonic number.
 
 Version 0.2.1 (6 April 2012):
 	* Trite performance improvements of complex utilities.

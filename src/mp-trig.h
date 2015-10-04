@@ -134,6 +134,14 @@ void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec);
 void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec);
 
 /**
+ * cpx_harmonic -- return the generalized harmonic number
+ *                 H_n(s) = sum_k=1^n k^-s
+ *
+ * This is implemented as a brute-force summation, based on above.
+ */
+void cpx_harmonic(cpx_t hns, unsigned int n, const cpx_t ess, int prec);
+
+/**
  * fp_pow_rc-- return (k+q)^s for complex s, integer k, real q.
  *
  * If q is held fixed, and k varied, then the values are cached,
