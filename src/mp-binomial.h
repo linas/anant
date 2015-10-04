@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /* i_poch_rising
- * rising pochhammer symbol, for integer values.
+ * Rising pochhammer symbol, for integer values.
  *
  * Brute force, simple.
  */
@@ -48,7 +48,7 @@ void i_factorial (mpz_t fact, unsigned int n);
 
 /** 
  * fp_inv_factorial -- Return 1/n!
- * Returns a cached value to improve performance
+ * Returns a cached value to improve performance.
  */
 void fp_inv_factorial (mpf_t invfac, unsigned int n, unsigned int prec);
 
@@ -63,13 +63,14 @@ void i_binomial (mpz_t bin, unsigned int n, unsigned int k);
 #endif /* USE_LOCAL_BINOMIAL */
 
 /**
- * i_binomial_sequence -- returns binomial, assumes purely sequential access
+ * i_binomial_sequence -- returns binomial, assumes purely sequential access.
  * 
  * This routine assumes that the binomial coefficients will be 
  * accessed in an utterly sequential mode, with k running from 
  * zero to n, and n running from zero to k. For sequential access,
- * this routine is very very fast. Otherwise, random access is used
- * which is considerably slower.
+ * this routine is very, very fast. If the access is not sequential,
+ * the correct answer is still returned; just that a random access
+ * compute method is used, which is considerably slower.
  */
 void i_binomial_sequence (mpz_t bin, unsigned int n, unsigned int k);
 
@@ -92,7 +93,8 @@ void i_stirling_second (mpz_t s, unsigned int n, unsigned int k);
 void fp_bin_xform_pow (mpf_t bxp, unsigned int n, unsigned int s);
 
 /** 
- * fp_harmonic -- The harmonic number
+ * fp_harmonic -- The harmonic number,  H_n = sum_k=1^n 1/k
+ * Caches values, for speed.
  */
 void fp_harmonic (mpf_t harm, unsigned int n, unsigned int prec);
 
@@ -106,28 +108,31 @@ void fp_harmonic (mpf_t harm, unsigned int n, unsigned int prec);
 void fp_poch_rising (mpf_t poch, mpf_t x, unsigned int n);
 void fp_poch_rising_d (mpf_t poch, double x, unsigned int n);
 
-/* cpx_poch_rising
- * rising pochhammer symbol (s)_n, for complex s and integer n.
+/**
+ * cpx_poch_rising
+ * Rising pochhammer symbol (s)_n, for complex s and integer n.
  *
  * Brute force, simple.
  */
 void cpx_poch_rising_d (cpx_t poch, double re_s, double im_s, unsigned int n);
 
-/* cpx_poch_rising
- * rising pochhammer symbol (s)_n, for complex s and integer n.
+/**
+ * cpx_poch_rising
+ * Rising pochhammer symbol (s)_n, for complex s and integer n.
  *
  * Brute force, simple.
  */
 void cpx_poch_rising (cpx_t poch, const cpx_t s, unsigned int n);
 
-/* fp_binomial
- * Binomial coefficient 
+/**
+ * fp_binomial_d
+ * Binomial coefficient, for double-precision s.
  */
 void fp_binomial_d (mpf_t bin, double s, unsigned int k);
 
 /**
  * cpx_binomial-- Complex binomial coefficient
- * Compute the binomial coefficient (s, k)
+ * Compute the binomial coefficient (s, k) for complex s.
  */
 void cpx_binomial_d (cpx_t bin, double re_s, double im_s, unsigned int k);
 void cpx_binomial (cpx_t bin, const cpx_t s, unsigned int k);
