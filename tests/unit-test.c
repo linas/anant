@@ -704,7 +704,7 @@ int test_real_sine (int nterms, int prec)
 		mpf_set_d (ex, x);
 		fp_sine (ex, ex, prec);
 
-		/* On my system, glibc since and cosine are accurate to only 1.11e-16 
+		/* On my system, glibc since and cosine are accurate to only 1.11e-16
 		 * and sometimes only to 2.22e-16 */
 		nfaults = check_for_equality (nfaults, ex, sin(x), 5e-16, "real sine", x);
 
@@ -722,6 +722,50 @@ int test_real_sine (int nterms, int prec)
 	if (0 == nfaults)
 	{
 		fprintf(stderr, "Real sine test passed!\n");
+	}
+	return nfaults;
+}
+
+/* ==================================================================== */
+/* Test the complex-valued generalized harmonic number
+ */
+int test_complex_harmonic (int nterms, int prec)
+{
+	int nfaults = 0;
+	int k;
+
+	/* Set up max allowed error */
+	mpf_t epsi;
+	mpf_init (epsi);
+	fp_epsilon (epsi, prec-5);
+
+	mpf_t hn;
+	mpf_init (hn);
+
+	cpx_t hns, ess;
+	cpx_init (hns);
+	cpx_init (ess);
+
+	cpx_set_ui(ess, 1, 0);  // s==1
+
+	for (k=1; k<nterms; k++)
+	{
+		fp_harmonic(hn, k, prec);
+		cpx_harmonic(hns, k, ess, prec);
+
+		mpf_sub(hn, hn, hns[0].re);
+		nfaults = check_for_zero(nfaults, hn, epsi,
+		            "Real part harmonic number wrong", k);
+		nfaults = check_for_zero(nfaults, hns[0].im, epsi,
+		            "Imag part harmonic should be zero", k);
+	}
+
+	mpf_clear(hn);
+	cpx_clear (hns);
+	cpx_clear (ess);
+	if (0 == nfaults)
+	{
+		fprintf(stderr, "Complex generalized harmonic test passed!\n");
 	}
 	return nfaults;
 }
@@ -1099,7 +1143,7 @@ int test_polylog (int nterms, int prec, int which)
 		} else {
 			// rc = cpx_polylog (plog, ess, zee, prec);
 			// The above will crash since polylog_invert tries a divde-by-zero.
-			// XXX FIXME, we really should fix cpx_polylog so it works at 
+			// XXX FIXME, we really should fix cpx_polylog so it works at
 			// the positive integer values of s.
  			rc = 1;
 #if 0
@@ -1919,6 +1963,7 @@ int main (int argc, char * argv[])
 	nfaults += test_complex_gamma (nterms, prec);
 	nfaults += test_complex_pow (nterms, prec);
 	nfaults += test_real_gamma (nterms, prec);
+	nfaults += test_complex_harmonic (nterms, prec);
 	nfaults += test_complex_riemann_zeta (nterms, prec);
  	nfaults += test_hurwitz_zeta (nterms, prec);
 	nfaults += test_polylog (nterms, prec, 0);
@@ -1941,4 +1986,3 @@ int main (int argc, char * argv[])
 }
 
 /* =============================== END OF FILE =========================== */
-
