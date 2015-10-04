@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-// Return the matrix element for the matrix element G_mp of the GKW
+// Return the matrix element for the matrix G_mp of the GKW
 // operator, expanded at the x=1 location.
 void gkw(mpf_t elt, int m, int p, unsigned int prec);
 

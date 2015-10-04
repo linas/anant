@@ -1,20 +1,20 @@
 /**
  * mp-zerofind.h
  *
- * Locate zeros of a function. 
+ * Locate zeros of a function.
  *
  * Copyright (C) 2010 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -34,9 +34,9 @@ extern "C" {
 /**
  * cpx_find_zero.
  * Numerically locate the zero of a complex-valued function.
- * 
+ *
  * @func function whose zeros are to be found.
- *       func takes z as input, returns f as output. 
+ *       func takes z as input, returns f as output.
  *       'nprec' is the suggested decimal precisiton at which 'fun'
  *       should perform its calculations.
  * @initial_z initial suggestion for the location of the zero.
@@ -52,12 +52,12 @@ extern "C" {
  * @returns 0 if result is valid, else an error code.
  *
  * This implements Powell's method, slightly adapted; the adaptations
- * are meant to imporve convergence when 'func' is extremely noisy, 
+ * are meant to improve convergence when 'func' is extremely noisy,
  * i.e. when any sort of quardatic behaviour is obscured by
- * high-freqency noise.
+ * high-frequency noise.
  *
  * A description of Powell's method can be found in Press, Teukolsky,
- * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge 
+ * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge
  * U Press, 1999.
  */
 int cpx_find_zero(cpx_t result,
