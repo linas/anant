@@ -224,14 +224,14 @@ int main (int argc, char * argv[])
 }
 #endif
 
-// #define PRINT_OUT_AK
+#define PRINT_OUT_AK
 #ifdef PRINT_OUT_AK
 int main (int argc, char * argv[])
 {
 	mpf_t a_k;
 	int prec, nbits;
 
-	prec = 80;
+	prec = 120;
 
 	/* Set the precision (number of binary bits) */
 	/* We need more bits than what what is available, for intermediate calcs */
@@ -244,7 +244,7 @@ int main (int argc, char * argv[])
 
 	int k;
 	double akprev=0.0;
-	for (k=0; k<5001; k++)
+	for (k=0; k<95001; k++)
 	{
 		topsin_series(a_k, k, prec);
 		double ak = mpf_get_d(a_k);
