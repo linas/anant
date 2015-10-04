@@ -54,7 +54,7 @@ Arbitrary precision constants:
 * e, e^pi
 * pi, 2pi, pi/2, sqrt(2pi), log(2pi), 2/pi
 * Euler-Mascheroni const
-* Rieman zeta(1/2)
+* Riemann zeta(1/2)
 
 Combinatorial functions:
 ------------------------
