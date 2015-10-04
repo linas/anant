@@ -5,7 +5,9 @@
  * High-precison Riemann zeta function, using the
  * Gnu Multiple-precision library.
  *
- * Currently semi-automated, done partly by visual inspection
+ * Currently semi-automated, done partly by visual inspection.
+ * This is NOT idiot-proof; you have to look at it, and pick some
+ * reasonable parameters, as otherwise, it will report errors!
  *
  * Copyright (C) 2005, 2006 Linas Vepstas
  *
