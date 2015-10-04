@@ -1,7 +1,7 @@
 /*
  * mp-topsin.h
  *
- * High-precison Topolgists Sine function coeficients
+ * High-precison Topologists Sine function coefficients
  * using the Gnu Multiple-precision library.
  *
  * Copyright (C) 2014 Linas Vepstas
