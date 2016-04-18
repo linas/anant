@@ -45,7 +45,7 @@ static void test_parabola(cpx_t y, cpx_t s, int nprec)
  * Find bottom of parabola.  Given three points,
  * fit a parabola to that, then find the minimum.
  *
- * return the bottom in "loc"
+ * Return the bottom in "loc"
  */
 static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
               mpf_t fa, mpf_t fb, mpf_t fc)
@@ -71,16 +71,26 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
 	/* denominator */
 	mpf_sub(deno, fbc, fba);
 
-	/* cross again */
-	mpf_mul(fbc, fbc, ba);
-	mpf_mul(fba, fba, bc);
+	/* Avoid divide by zero when denominator is exactly zero. */
+	/* You'd think that this can never happen, but it does. */
+	/* It would be good to throw an exception here. */
+	if (mpf_sgn(deno))
+	{
+		/* cross again */
+		mpf_mul(fbc, fbc, ba);
+		mpf_mul(fba, fba, bc);
 
-	/* numerator */
-	mpf_sub(numer, fbc, fba);
-	mpf_div (numer, numer, deno);
-	mpf_div_ui(numer, numer, 2);
+		/* numerator */
+		mpf_sub(numer, fbc, fba);
+		mpf_div (numer, numer, deno);
+		mpf_div_ui(numer, numer, 2);
 
-	mpf_sub(loc, b, numer);
+		mpf_sub(loc, b, numer);
+	}
+	else
+	{
+		mpf_set(loc, b);
+	}
 
 	mpf_clear (ba);
 	mpf_clear (bc);
