@@ -112,9 +112,9 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
  * @returns 0 if result is valid, else an error code.
  *
  * This implements Powell's method, slightly adapted; the adaptations
- * are meant to imporve convergence when 'func' is extremely noisy,
- * i.e. when any sort of quardatic behaviour is obscured by
- * high-freqency noise.
+ * are meant to improve convergence when 'func' is extremely noisy,
+ * i.e. when any sort of quadratic behaviour is obscured by
+ * high-frequency noise.
  *
  * A description of Powell's method can be found in Press, Teukolsky,
  * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge
@@ -359,7 +359,7 @@ fflush (stdout);
 		/* bound results away from zero */
 		mpf_set_ui(f3, 1);
 		mpf_div_ui(f3, f3, 20);
-		if (0 > mpf_cmp(s0[0].im, f3)) break;	
+		if (0 > mpf_cmp(s0[0].im, f3)) break;
 	}
 
 	/* The returned value */
@@ -396,4 +396,3 @@ fflush (stdout);
 
 	return rc;
 }
-
