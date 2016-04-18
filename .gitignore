@@ -1,0 +1,10 @@
+*.o
+*.tar.gz
+
+# build directory stuff.
+src/db-merge
+src/db-prt
+src/db-zeta.db
+src/libanant.a
+src/mp-quest
+src/mp-topsin
