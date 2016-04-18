@@ -53,7 +53,7 @@ extern "C" {
  *
  * This implements Powell's method, slightly adapted; the adaptations
  * are meant to improve convergence when 'func' is extremely noisy,
- * i.e. when any sort of quardatic behaviour is obscured by
+ * i.e. when any sort of quadratic behaviour is obscured by
  * high-frequency noise.
  *
  * A description of Powell's method can be found in Press, Teukolsky,
