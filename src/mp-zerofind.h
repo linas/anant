@@ -59,6 +59,10 @@ extern "C" {
  * A description of Powell's method can be found in Press, Teukolsky,
  * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge
  * U Press, 1999.
+ *
+ * Note that there are superior algos for finding roots of analytic
+ * functions. This is rather a quick and easy hack that fits my current
+ * needs.
  */
 int cpx_find_zero(cpx_t result,
               void (*func)(cpx_t f, cpx_t z, int nprec),

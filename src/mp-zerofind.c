@@ -129,6 +129,16 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
  * A description of Powell's method can be found in Press, Teukolsky,
  * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge
  * U Press, 1999.
+ *
+ * This is a rather sloppy way of doing this. We really could/should
+ * do something better, e.g. this:
+ *    LM Delves, JN Lyness "A Numerical Method for Locating the Zeros
+ *    of an Analytic Function" (1967)
+ *    http://www.ams.org/journals/mcom/1967-21-100/S0025-5718-1967-0228165-4/S0025-5718-1967-0228165-4.pdf
+ * or maybe this:
+ *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
+ *    Algorithm for Complex Root Isolation" (2011)
+ * except I'm lazy and the below mostly works.
  */
 
 int cpx_find_zero(cpx_t result,
@@ -184,7 +194,21 @@ int cpx_find_zero(cpx_t result,
 	/* Initial guess for the zero. */
 	cpx_set (s0, initial_z);
 	func (y0, s0, nprec);
-	cpx_abs(f0, y0);
+
+	/* OK, so this is important, so listen-up!  The shape of the
+	 * absolute value of a complex function near a zero is a 2D
+	 * cone.  The sides of the cone tend to be almost straight, and
+	 * so trying to fit a parabola to that ends in numerical disaster.
+	 * We really want a parabola, not a cone, so that the parabolic
+	 * zero finder can navigate to the bottom.
+	 *
+	 * Of course, this is just stupid: we should take advantage of
+	 * the cone-shape, and fit to that, instead.  However, I'm lazy,
+	 * and this is sufficient to get us out of the woods. For now.
+	 */
+// #define ABSVAL cpx_abs
+#define ABSVAL cpx_mod_sq
+	ABSVAL(f0, y0);
 
 	/* Initial directions */
 	cpx_set (na, e1);
@@ -197,7 +221,7 @@ int cpx_find_zero(cpx_t result,
 		int done1 = 0;
 		int done2 = 0;
 
-		cpx_abs (zero, na);
+		ABSVAL (zero, na);
 		if (0 > mpf_cmp(zero, epsi))
 		{
 			cpx_set (sa, s0);
@@ -213,9 +237,9 @@ int cpx_find_zero(cpx_t result,
 			func (y1, s1, nprec);
 			func (y2, s2, nprec);
 
-			// cpx_abs(f0, y0);
-			cpx_abs(f1, y1);
-			cpx_abs(f2, y2);
+			// ABSVAL(f0, y0);
+			ABSVAL(f1, y1);
+			ABSVAL(f2, y2);
 
 			/* loc provides new minimum, along direction a */
 			quad_min (loc, lam0, lam1, lam2, f0, f1, f2);
@@ -224,7 +248,7 @@ int cpx_find_zero(cpx_t result,
 			cpx_times_mpf (nc, na, loc);
 			cpx_add (s3, s0, nc);
 			func (y3, s3, nprec);
-			cpx_abs(f3, y3);
+			ABSVAL(f3, y3);
 
 			/* Does f3 actually improve on f0 ? */
 			if (0 < mpf_cmp(f0, f3))
@@ -272,7 +296,7 @@ int cpx_find_zero(cpx_t result,
 		}
 
 		/* Repeat for direction b */
-		cpx_abs (zero, nb);
+		ABSVAL (zero, nb);
 		if (0 > mpf_cmp(zero, epsi))
 		{
 			cpx_set (sb, sa);
@@ -287,9 +311,9 @@ int cpx_find_zero(cpx_t result,
 			func (y1, s1, nprec);
 			func (y2, s2, nprec);
 
-			// cpx_abs(f0, y0);
-			cpx_abs(f1, y1);
-			cpx_abs(f2, y2);
+			// ABSVAL(f0, y0);
+			ABSVAL(f1, y1);
+			ABSVAL(f2, y2);
 
 			/* loc provides new minimum, along direction a */
 			quad_min (loc, lam0, lam1, lam2, f0, f1, f2);
@@ -298,7 +322,7 @@ int cpx_find_zero(cpx_t result,
 			cpx_times_mpf (nc, nb, loc);
 			cpx_add (s3, sa, nc);
 			func (y3, s3, nprec);
-			cpx_abs(f3, y3);
+			ABSVAL(f3, y3);
 
 			/* Does f3 actually improve on f0 ? */
 			if (0 < mpf_cmp(f0, f3))
