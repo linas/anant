@@ -147,7 +147,10 @@ typedef struct
 
 
 #define DECLARE_FP_CACHE(name)         \
-	static fp_cache name = {.nmax=0, .cache=NULL, .precision=NULL, .lock=0 }
+	static fp_cache name = {.nmax=0, .cache=NULL, .precision=NULL, }; \
+	__attribute__((constructor)) \
+	void fp_cache_ctor##name () { \
+		pthread_spin_init(&name.lock, 0); }
 
 /** fp_one_d_cache_check() -- check if mpf_t value is in the cache
  *  If there is a cached value, this returns the precision of the 
