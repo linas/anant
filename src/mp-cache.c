@@ -22,6 +22,7 @@
  * 02110-1301  USA
  */
 
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -138,6 +139,8 @@ int q_one_d_cache_check (q_cache *c, unsigned int n)
 /* Cache management */
 /* Almost a cut-n-paste of above, but using fp instead */
 
+static pthread_mutex_t fp_one_d_mtx = PTHREAD_MUTEX_INITIALIZER;
+
 /** fp_one_d_cache_check() -- check if mpf_t value is in the cache
  *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
@@ -145,25 +148,26 @@ int q_one_d_cache_check (q_cache *c, unsigned int n)
  */
 int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 {
-	if ((n > c->nmax) || 0==c->nmax )
+	if ((n <= c->nmax) && 0 != c->nmax)
+		return c->precision[n];
+
+	pthread_mutex_lock(&fp_one_d_mtx);
+
+	unsigned int newsize = 1.5*n+2;
+	c->cache = (mpf_t *) realloc (c->cache, newsize * sizeof (mpf_t));
+	c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
+
+	unsigned int en;
+	unsigned int nstart = c->nmax+1;
+	if (0 == c->nmax) nstart = 0;
+	for (en = nstart; en < newsize; en++)
 	{
-		unsigned int newsize = 1.5*n+2;
-		c->cache = (mpf_t *) realloc (c->cache, newsize * sizeof (mpf_t));
-		c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
-
-		unsigned int en;
-		unsigned int nstart = c->nmax+1;
-		if (0 == c->nmax) nstart = 0;
-		for (en = nstart; en < newsize; en++)
-		{
-			mpf_init (c->cache[en]);
-			c->precision[en] = 0;
-		}
-		c->nmax = newsize-1;
-		return 0;
+		mpf_init (c->cache[en]);
+		c->precision[en] = 0;
 	}
-
-	return (c->precision[n]);
+	c->nmax = newsize-1;
+	pthread_mutex_unlock(&fp_one_d_mtx);
+	return 0;
 }
 
 void fp_one_d_cache_clear (fp_cache *c)
