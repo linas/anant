@@ -177,7 +177,7 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 	}
 
 	/* Now swap out the old and new */
-	pthread_spin_unlock(&c->lock);
+	pthread_spin_lock(&c->lock);
 	mpf_t* old_cache = c->cache;
 	c->cache = new_cache;
 	int* old_prec = c->precision;
@@ -195,10 +195,12 @@ void fp_one_d_cache_clear (fp_cache *c)
 {
 	unsigned int i;
 	pthread_mutex_lock(&fp_one_d_mtx);
+	pthread_spin_lock(&c->lock);
 	for (i=0; i<c->nmax; i++)
 	{
 		c->precision[i] = 0;
 	}
+	pthread_spin_unlock(&c->lock);
 	pthread_mutex_unlock(&fp_one_d_mtx);
 }
 
