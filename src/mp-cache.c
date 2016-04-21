@@ -151,7 +151,11 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 {
 	pthread_spin_lock(&c->lock);
 	if ((n <= c->nmax) && 0 != c->nmax)
-		return c->precision[n];
+	{
+		int prec = c->precision[n];
+		pthread_spin_unlock(&c->lock);
+		return prec;
+	}
 	pthread_spin_unlock(&c->lock);
 
 	pthread_mutex_lock(&fp_one_d_mtx);
