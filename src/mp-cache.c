@@ -25,6 +25,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <gmp.h>
 #include "mp-cache.h"
@@ -148,35 +149,59 @@ static pthread_mutex_t fp_one_d_mtx = PTHREAD_MUTEX_INITIALIZER;
  */
 int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 {
+	while (c->lock) {}   /* spinlock */
 	if ((n <= c->nmax) && 0 != c->nmax)
 		return c->precision[n];
 
 	pthread_mutex_lock(&fp_one_d_mtx);
 
+	// Check again, this time under teh lock.
+	if ((n <= c->nmax) && 0 != c->nmax)
+	{
+		pthread_mutex_unlock(&fp_one_d_mtx);
+		return c->precision[n];
+	}
+
 	unsigned int newsize = 1.5*n+2;
-	c->cache = (mpf_t *) realloc (c->cache, newsize * sizeof (mpf_t));
-	c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
+	mpf_t* new_cache = (mpf_t *) malloc (newsize * sizeof(mpf_t));
+	if (c->nmax) memcpy(new_cache, c->cache, (c->nmax+1) * sizeof(mpf_t));
+
+	int* new_prec = (int *) malloc (newsize * sizeof(int));
+	if (c->nmax) memcpy(new_prec, c->precision, (c->nmax+1) * sizeof(int));
 
 	unsigned int en;
 	unsigned int nstart = c->nmax+1;
 	if (0 == c->nmax) nstart = 0;
 	for (en = nstart; en < newsize; en++)
 	{
-		mpf_init (c->cache[en]);
-		c->precision[en] = 0;
+		mpf_init (new_cache[en]);
+		new_prec[en] = 0;
 	}
+
+	/* Now swap out the old and new */
+	c->lock = 1;
+	mpf_t* old_cache = c->cache;
+	c->cache = new_cache;
+	int* old_prec = c->precision;
+	c->precision = new_prec;
 	c->nmax = newsize-1;
+	c->lock = 0;
 	pthread_mutex_unlock(&fp_one_d_mtx);
+
+	if (old_cache) free(old_cache);
+	if (old_prec) free(old_prec);
 	return 0;
 }
 
 void fp_one_d_cache_clear (fp_cache *c)
 {
 	unsigned int i;
+	pthread_mutex_lock(&fp_one_d_mtx);
 	for (i=0; i<c->nmax; i++)
 	{
 		c->precision[i] = 0;
 	}
+	pthread_mutex_unlock(&fp_one_d_mtx);
 }
 
 /* ======================================================================= */

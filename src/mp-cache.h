@@ -140,11 +140,12 @@ typedef struct
 	unsigned int nmax;
 	mpf_t *cache;
 	int *precision; /* base-10 precision of cached value */
+	char lock;
 } fp_cache;
 
 
 #define DECLARE_FP_CACHE(name)         \
-	static fp_cache name = {.nmax=0, .cache=NULL, .precision=NULL}
+	static fp_cache name = {.nmax=0, .cache=NULL, .precision=NULL, .lock=0 }
 
 /** fp_one_d_cache_check() -- check if mpf_t value is in the cache
  *  If there is a cached value, this returns the precision of the 
@@ -158,6 +159,7 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n);
  */
 static inline void fp_one_d_cache_fetch (fp_cache *c, mpf_t val, unsigned int n)
 {
+	while (c->lock) {} /* spinlock */
 	mpf_set(val, c->cache[n]);
 }
 
@@ -166,6 +168,7 @@ static inline void fp_one_d_cache_fetch (fp_cache *c, mpf_t val, unsigned int n)
  */
 static inline void fp_one_d_cache_store (fp_cache *c, const mpf_t val, unsigned int n, int prec)
 {
+	while (c->lock) {} /* spinlock */
 	mpf_set_prec (c->cache[n], 3.22*prec+50);
 	mpf_set (c->cache[n], val);
 	c->precision[n] = prec;
