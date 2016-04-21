@@ -96,9 +96,10 @@ static inline void i_triangle_cache_store (i_cache *c, const mpz_t val, unsigned
 
 /* ======================================================================= */
 /* Cache management */
-/* pure cut-n-paste of he integer variant */
+/* pure cut-n-paste of the integer variant */
 
-typedef struct {
+typedef struct
+{
 	unsigned int nmax;
 	mpq_t *cache;
 	char *ticky;
@@ -134,7 +135,8 @@ static inline void q_one_d_cache_store (q_cache *c, const mpq_t val, unsigned in
 /* Cache management */
 /* Almost a cut-n-paste of above, but using fp instead */
 
-typedef struct {
+typedef struct
+{
 	unsigned int nmax;
 	mpf_t *cache;
 	int *precision; /* base-10 precision of cached value */
@@ -156,7 +158,7 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n);
  */
 static inline void fp_one_d_cache_fetch (fp_cache *c, mpf_t val, unsigned int n)
 {
-	mpf_set (val, c->cache[n]);
+	mpf_set(val, c->cache[n]);
 }
 
 /**
@@ -205,7 +207,8 @@ static inline void fp_triangle_cache_store (fp_cache *c, const mpf_t val,
 /* Cache management */
 /* A cut-n-paste of above, but using cpx instead */
 
-typedef struct {
+typedef struct
+{
 	unsigned int nmax;
 	cpx_t *cache;
 	int *precision; /* base-10 precision of cached value */
