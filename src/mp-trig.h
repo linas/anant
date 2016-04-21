@@ -128,7 +128,7 @@ void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec);
  * cpx_ui_pow_cache -- return k^s for complex s, integer k.
  *
  * If s is held fixed, and k varied, then the values are cached,
- * allowing improved algorithm speeds. If is is changed from call
+ * allowing improved algorithm speeds. If s is changed from call
  * to call, then the cache is cleared.
  */
 void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec);
