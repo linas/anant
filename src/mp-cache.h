@@ -23,12 +23,14 @@
  */
 
 #include <gmp.h>
+#include <pthread.h>
 #include "mp-complex.h"
 
 /* ======================================================================= */
 /* Cache management */
 
-typedef struct {
+typedef struct
+{
 	unsigned int nmax;
 	mpz_t *cache;
 	char *ticky;
@@ -140,7 +142,7 @@ typedef struct
 	unsigned int nmax;
 	mpf_t *cache;
 	int *precision; /* base-10 precision of cached value */
-	char lock;
+	pthread_spinlock_t lock;
 } fp_cache;
 
 
@@ -159,8 +161,9 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n);
  */
 static inline void fp_one_d_cache_fetch (fp_cache *c, mpf_t val, unsigned int n)
 {
-	while (c->lock) {} /* spinlock */
+	pthread_spin_lock(&c->lock);
 	mpf_set(val, c->cache[n]);
+	pthread_spin_unlock(&c->lock);
 }
 
 /**
@@ -168,10 +171,11 @@ static inline void fp_one_d_cache_fetch (fp_cache *c, mpf_t val, unsigned int n)
  */
 static inline void fp_one_d_cache_store (fp_cache *c, const mpf_t val, unsigned int n, int prec)
 {
-	while (c->lock) {} /* spinlock */
+	pthread_spin_lock(&c->lock);
 	mpf_set_prec (c->cache[n], 3.22*prec+50);
 	mpf_set (c->cache[n], val);
 	c->precision[n] = prec;
+	pthread_spin_unlock(&c->lock);
 }
 
 void fp_one_d_cache_clear (fp_cache *c);

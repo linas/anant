@@ -149,18 +149,12 @@ static pthread_mutex_t fp_one_d_mtx = PTHREAD_MUTEX_INITIALIZER;
  */
 int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 {
-	while (c->lock) {}   /* spinlock */
+	pthread_spin_lock(&c->lock);
 	if ((n <= c->nmax) && 0 != c->nmax)
 		return c->precision[n];
+	pthread_spin_unlock(&c->lock);
 
 	pthread_mutex_lock(&fp_one_d_mtx);
-
-	// Check again, this time under teh lock.
-	if ((n <= c->nmax) && 0 != c->nmax)
-	{
-		pthread_mutex_unlock(&fp_one_d_mtx);
-		return c->precision[n];
-	}
 
 	unsigned int newsize = 1.5*n+2;
 	mpf_t* new_cache = (mpf_t *) malloc (newsize * sizeof(mpf_t));
@@ -179,13 +173,13 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 	}
 
 	/* Now swap out the old and new */
-	c->lock = 1;
+	pthread_spin_unlock(&c->lock);
 	mpf_t* old_cache = c->cache;
 	c->cache = new_cache;
 	int* old_prec = c->precision;
 	c->precision = new_prec;
 	c->nmax = newsize-1;
-	c->lock = 0;
+	pthread_spin_unlock(&c->lock);
 	pthread_mutex_unlock(&fp_one_d_mtx);
 
 	if (old_cache) free(old_cache);

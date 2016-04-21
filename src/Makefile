@@ -58,4 +58,4 @@ install:
 	$(CC) -c -g -O2 -Wall -I. $<
 
 .o:
-	$(CC) -g -o $* $^ $(MPLIB) -lgmp -ldb -lm
+	$(CC) -g -o $* $^ $(MPLIB) -lgmp -ldb -lpthread -lm
