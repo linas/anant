@@ -1,28 +1,30 @@
 /*
  * mp-consts.c
  *
- * High-precison constants, using the 
+ * High-precison constants, using the
  * Gnu Multiple-precision library.
  *
  * Copyright (C) 2005, 2006 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
 
+#include <pthread.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -41,7 +43,7 @@
 
 void fp_half_sqrt_three (mpf_t sqt)
 {
-	static unsigned int init=0;
+	static bool init=0;
 	static mpf_t cached_sqt;
 
 	if (init)
@@ -69,14 +71,22 @@ void fp_half_sqrt_three (mpf_t sqt)
 
 extern void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec);
 
+static pthread_spinlock_t mp_const_lock;
+__attribute__((constructor)) void fp_e_ctor(void)
+{
+	pthread_spin_init(&mp_const_lock, 0);
+}
+
 void fp_e (mpf_t e, unsigned int prec)
 {
 	static unsigned int precision=0;
 	static mpf_t cached_e;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (e, cached_e);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -95,11 +105,12 @@ void fp_e (mpf_t e, unsigned int prec)
 
 	mpf_clear (one);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_pi - return pi=3.14159... 
+ * fp_pi - return pi=3.14159...
  * @prec - number of decimal places of precision
  *
  * Uses simple, brute-force Machin formula
@@ -109,9 +120,11 @@ void fp_pi (mpf_t pi, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_pi;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (pi, cached_pi);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -140,11 +153,12 @@ void fp_pi (mpf_t pi, unsigned int prec)
 
 	mpf_set (cached_pi, pi);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_two_pi - return 2pi = 2 * 3.14159... 
+ * fp_two_pi - return 2pi = 2 * 3.14159...
  * @prec - number of decimal places of precision
  *
  * The idea is that it caches the value to avoid recomputation
@@ -154,9 +168,11 @@ void fp_two_pi (mpf_t two_pi, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_two_pi;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (two_pi, cached_two_pi);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -170,11 +186,12 @@ void fp_two_pi (mpf_t two_pi, unsigned int prec)
 	mpf_mul_ui (two_pi, two_pi, 2);
 	mpf_set (cached_two_pi, two_pi);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_two_over_pi - return 2/pi = 2 / 3.14159... 
+ * fp_two_over_pi - return 2/pi = 2 / 3.14159...
  * @prec - number of decimal places of precision
  *
  * The idea is that it caches the value to avoid recomputation
@@ -184,9 +201,11 @@ void fp_two_over_pi (mpf_t two_over_pi, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_two_over_pi;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (two_over_pi, cached_two_over_pi);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -200,11 +219,12 @@ void fp_two_over_pi (mpf_t two_over_pi, unsigned int prec)
 	mpf_ui_div (two_over_pi, 2, two_over_pi);
 	mpf_set (cached_two_over_pi, two_over_pi);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_pi_half - return pi/2 = 0.5 * 3.14159... 
+ * fp_pi_half - return pi/2 = 0.5 * 3.14159...
  * @prec - number of decimal places of precision
  *
  * The idea is that it caches the value to avoid recomputation
@@ -214,8 +234,10 @@ void fp_pi_half (mpf_t pih, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_pih;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
+		pthread_spin_unlock(&mp_const_lock);
 		mpf_set (pih, cached_pih);
 		return;
 	}
@@ -230,11 +252,12 @@ void fp_pi_half (mpf_t pih, unsigned int prec)
 	mpf_div_ui (pih, pih, 2);
 	mpf_set (cached_pih, pih);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_sqrt_two_pi - return sqrt(2pi) = sqrt (2 * 3.14159...) 
+ * fp_sqrt_two_pi - return sqrt(2pi) = sqrt (2 * 3.14159...)
  * @prec - number of decimal places of precision
  *
  * The idea is that it caches the value to avoid recomputation
@@ -244,8 +267,10 @@ void fp_sqrt_two_pi (mpf_t sqtpi, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_sqtpi;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
+		pthread_spin_unlock(&mp_const_lock);
 		mpf_set (sqtpi, cached_sqtpi);
 		return;
 	}
@@ -260,11 +285,12 @@ void fp_sqrt_two_pi (mpf_t sqtpi, unsigned int prec)
 	mpf_sqrt (sqtpi, sqtpi);
 	mpf_set (cached_sqtpi, sqtpi);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_log_two_pi - return log(2pi) = log(2 * 3.14159...) 
+ * fp_log_two_pi - return log(2pi) = log(2 * 3.14159...)
  * @prec - number of decimal places of precision
  *
  * The idea is that it caches the value to avoid recomputation
@@ -274,8 +300,10 @@ void fp_log_two_pi (mpf_t ltp, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_ltp;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
+		pthread_spin_unlock(&mp_const_lock);
 		mpf_set (ltp, cached_ltp);
 		return;
 	}
@@ -290,6 +318,7 @@ void fp_log_two_pi (mpf_t ltp, unsigned int prec)
 	fp_log (ltp, ltp, prec);
 	mpf_set (cached_ltp, ltp);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
@@ -305,9 +334,11 @@ void fp_log2 (mpf_t l2, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_log2;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (l2, cached_log2);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -325,11 +356,12 @@ void fp_log2 (mpf_t l2, unsigned int prec)
 
 	mpf_clear (two);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
 /**
- * fp_e_pi - return e^pi 
+ * fp_e_pi - return e^pi
  * @prec - number of decimal places of precision
  *
  * Uses simple, low-brow formula
@@ -339,9 +371,11 @@ void fp_e_pi (mpf_t e_pi, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_e_pi;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (e_pi, cached_e_pi);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -356,11 +390,12 @@ void fp_e_pi (mpf_t e_pi, unsigned int prec)
 
 	mpf_set (cached_e_pi, e_pi);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 
 /* ======================================================================= */
-/** 
+/**
  * fp_euler - return Euler-Mascheroni const
  * @prec - number of decimal places of precision
  *
@@ -437,9 +472,11 @@ void fp_euler_mascheroni (mpf_t gam, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_gam;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (gam, cached_gam);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -452,10 +489,11 @@ void fp_euler_mascheroni (mpf_t gam, unsigned int prec)
 	fp_euler_mascheroni_compute (gam, prec);
 	mpf_set (cached_gam, gam);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
-/** 
+/**
  * fp_zeta_half - return zeta (1/2)
  * @prec - number of decimal places of precision
  *
@@ -481,9 +519,11 @@ void fp_zeta_half (mpf_t gam, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_gam;
 
+	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
 		mpf_set (gam, cached_gam);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -496,7 +536,7 @@ void fp_zeta_half (mpf_t gam, unsigned int prec)
 	fp_zeta_half_compute (gam, prec);
 	mpf_set (cached_gam, gam);
 	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* =============================== END OF FILE =========================== */
-
