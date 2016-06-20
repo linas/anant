@@ -161,7 +161,6 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 
 	int* new_prec = (int *) malloc (newsize * sizeof(int));
 	if (c->nmax) memcpy(new_prec, c->precision, (c->nmax+1) * sizeof(int));
-	pthread_spin_unlock(&c->lock);
 
 	unsigned int en;
 	unsigned int nstart = c->nmax+1;
@@ -173,7 +172,6 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 	}
 
 	/* Now swap out the old and new */
-	pthread_spin_lock(&c->lock);
 	mpf_t* old_cache = c->cache;
 	c->cache = new_cache;
 	int* old_prec = c->precision;
@@ -258,7 +256,6 @@ int cpx_one_d_cache_check (cpx_cache *c, unsigned int n)
 
 	int* new_prec = (int *) malloc (newsize * sizeof(int));
 	if (c->nmax) memcpy(new_prec, c->precision, (c->nmax+1) * sizeof(int));
-	pthread_spin_unlock(&c->lock);
 
 	unsigned int en;
 	unsigned int nstart = c->nmax+1;
@@ -270,7 +267,6 @@ int cpx_one_d_cache_check (cpx_cache *c, unsigned int n)
 	}
 
 	/* Now swap out the old and new */
-	pthread_spin_lock(&c->lock);
 	cpx_t* old_cache = c->cache;
 	c->cache = new_cache;
 	int* old_prec = c->precision;
