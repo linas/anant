@@ -72,9 +72,11 @@ void fp_half_sqrt_three (mpf_t sqt)
 extern void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec);
 
 static pthread_spinlock_t mp_const_lock;
+static pthread_spinlock_t mp_pi_lock;
 __attribute__((constructor)) void fp_e_ctor(void)
 {
 	pthread_spin_init(&mp_const_lock, 0);
+	pthread_spin_init(&mp_pi_lock, 0);
 }
 
 void fp_e (mpf_t e, unsigned int prec)
@@ -120,11 +122,11 @@ void fp_pi (mpf_t pi, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_pi;
 
-	pthread_spin_lock(&mp_const_lock);
+	pthread_spin_lock(&mp_pi_lock);
 	if (precision >= prec)
 	{
 		mpf_set (pi, cached_pi);
-		pthread_spin_unlock(&mp_const_lock);
+		pthread_spin_unlock(&mp_pi_lock);
 		return;
 	}
 
@@ -153,7 +155,7 @@ void fp_pi (mpf_t pi, unsigned int prec)
 
 	mpf_set (cached_pi, pi);
 	precision = prec;
-	pthread_spin_unlock(&mp_const_lock);
+	pthread_spin_unlock(&mp_pi_lock);
 }
 
 /* ======================================================================= */
