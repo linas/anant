@@ -244,6 +244,8 @@ int fp_triangle_cache_check (fp_cache *c, unsigned int n, unsigned int k)
 /* Cache management */
 /* A cut-n-paste of above, but using cpx instead */
 
+static pthread_mutex_t cpx_one_d_mtx = PTHREAD_MUTEX_INITIALIZER;
+
 /** cpx_one_d_cache_check() -- check if cpx_t value is in the cache
  *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
@@ -251,34 +253,59 @@ int fp_triangle_cache_check (fp_cache *c, unsigned int n, unsigned int k)
  */
 int cpx_one_d_cache_check (cpx_cache *c, unsigned int n)
 {
-	if ((n > c->nmax) || 0==c->nmax )
+	pthread_spin_lock(&c->lock);
+	if ((n <= c->nmax) && 0 != c->nmax)
 	{
-		unsigned int newsize = 1.5*n+2;
-		c->cache = (cpx_t *) realloc (c->cache, newsize * sizeof (cpx_t));
-		c->precision = (int *) realloc (c->precision, newsize * sizeof (int));
+		int prec = c->precision[n];
+		pthread_spin_unlock(&c->lock);
+		return prec;
+	}
+	pthread_spin_unlock(&c->lock);
 
-		unsigned int en;
-		unsigned int nstart = c->nmax+1;
-		if (0 == c->nmax) nstart = 0;
-		for (en = nstart; en < newsize; en++)
-		{
-			cpx_init (c->cache[en]);
-			c->precision[en] = 0;
-		}
-		c->nmax = newsize-1;
-		return 0;
+	pthread_mutex_lock(&cpx_one_d_mtx);
+
+	unsigned int newsize = 1.5*n+2;
+	cpx_t* new_cache = (cpx_t *) malloc (newsize * sizeof(cpx_t));
+	if (c->nmax) memcpy(new_cache, c->cache, (c->nmax+1) * sizeof(cpx_t));
+
+	int* new_prec = (int *) malloc (newsize * sizeof(int));
+	if (c->nmax) memcpy(new_prec, c->precision, (c->nmax+1) * sizeof(int));
+
+	unsigned int en;
+	unsigned int nstart = c->nmax+1;
+	if (0 == c->nmax) nstart = 0;
+	for (en = nstart; en < newsize; en++)
+	{
+		cpx_init (new_cache[en]);
+		new_prec[en] = 0;
 	}
 
-	return (c->precision[n]);
+	/* Now swap out the old and new */
+	pthread_spin_lock(&c->lock);
+	cpx_t* old_cache = c->cache;
+	c->cache = new_cache;
+	int* old_prec = c->precision;
+	c->precision = new_prec;
+	c->nmax = newsize-1;
+	pthread_spin_unlock(&c->lock);
+	pthread_mutex_unlock(&cpx_one_d_mtx);
+
+	if (old_cache) free(old_cache);
+	if (old_prec) free(old_prec);
+	return 0;
 }
 
 void cpx_one_d_cache_clear (cpx_cache *c)
 {
 	unsigned int i;
+	pthread_mutex_lock(&cpx_one_d_mtx);
+	pthread_spin_lock(&c->lock);
 	for (i=0; i<c->nmax; i++)
 	{
 		c->precision[i] = 0;
 	}
+	pthread_spin_unlock(&c->lock);
+	pthread_mutex_unlock(&cpx_one_d_mtx);
 }
 
 /* =============================== END OF FILE =========================== */

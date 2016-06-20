@@ -5,17 +5,17 @@
  * Gnu Multiple-precision library.
  *
  * Copyright (C) 2005 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -47,7 +47,7 @@ typedef struct
  */
 int i_one_d_cache_check (i_cache *c, unsigned int n);
 
-/** 
+/**
  * i_one_d_cache_fetch - fetch value from cache
  */
 static inline void i_one_d_cache_fetch (i_cache *c, mpz_t val, unsigned int n)
@@ -76,7 +76,7 @@ void i_one_d_cache_clear (i_cache *c);
  */
 int i_triangle_cache_check (i_cache *c, unsigned int n, unsigned int k);
 
-/** 
+/**
  * i_triangle_cache_fetch - fetch value from cache
  */
 static inline void i_triangle_cache_fetch (i_cache *c, mpz_t val, unsigned int n, unsigned int k)
@@ -116,7 +116,7 @@ typedef struct
  */
 int q_one_d_cache_check (q_cache *c, unsigned int n);
 
-/** 
+/**
  * q_one_d_cache_fetch - fetch value from cache
  */
 static inline void q_one_d_cache_fetch (q_cache *c, mpq_t val, unsigned int n)
@@ -153,13 +153,13 @@ typedef struct
 		pthread_spin_init(&name.lock, 0); }
 
 /** fp_one_d_cache_check() -- check if mpf_t value is in the cache
- *  If there is a cached value, this returns the precision of the 
+ *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
  *  This assumes a 1-dimensional cache layout (simple array)
  */
 int fp_one_d_cache_check (fp_cache *c, unsigned int n);
 
-/** 
+/**
  * fp_one_d_cache_fetch - fetch value from cache
  */
 static inline void fp_one_d_cache_fetch (fp_cache *c, mpf_t val, unsigned int n)
@@ -185,14 +185,14 @@ void fp_one_d_cache_clear (fp_cache *c);
 
 /* ======================================================================= */
 /** fp_triangle_cache_check() -- check if mpf_t value is in the cache
- *  If there is a cached value, this returns the precision of the 
+ *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
  *  This assumes a trianglular cache layout (two indecies)
  *  with 0 <= k <=n
  */
 int fp_triangle_cache_check (fp_cache *c, unsigned int n, unsigned int k);
 
-/** 
+/**
  * fp_triangle_cache_fetch - fetch value from cache
  */
 static inline void fp_triangle_cache_fetch (fp_cache *c, mpf_t val, unsigned int n, unsigned int k)
@@ -204,7 +204,7 @@ static inline void fp_triangle_cache_fetch (fp_cache *c, mpf_t val, unsigned int
 /**
  * fp_triangle_cache_store - store value in cache
  */
-static inline void fp_triangle_cache_store (fp_cache *c, const mpf_t val, 
+static inline void fp_triangle_cache_store (fp_cache *c, const mpf_t val,
 					 unsigned int n, unsigned int k, int prec)
 {
 	unsigned int idx = n * (n+1) /2 ;
@@ -222,25 +222,31 @@ typedef struct
 	unsigned int nmax;
 	cpx_t *cache;
 	int *precision; /* base-10 precision of cached value */
+	pthread_spinlock_t lock;
 } cpx_cache;
 
 
 #define DECLARE_CPX_CACHE(name)         \
-	static cpx_cache name = {.nmax=0, .cache=NULL, .precision=NULL}
+	static cpx_cache name = {.nmax=0, .cache=NULL, .precision=NULL, }; \
+	__attribute__((constructor)) \
+	void cpx_cache_ctor##name () { \
+		pthread_spin_init(&name.lock, 0); }
 
 /** cpx_one_d_cache_check() -- check if cpx_t value is in the cache
- *  If there is a cached value, this returns the precision of the 
+ *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
  *  This assumes a 1-dimensional cache layout (simple array)
  */
 int cpx_one_d_cache_check (cpx_cache *c, unsigned int n);
 
-/** 
+/**
  * cpx_one_d_cache_fetch - fetch value from cache
  */
 static inline void cpx_one_d_cache_fetch (cpx_cache *c, cpx_t val, unsigned int n)
 {
-	cpx_set (val, c->cache[n]);
+	pthread_spin_lock(&c->lock);
+	cpx_set(val, c->cache[n]);
+	pthread_spin_unlock(&c->lock);
 }
 
 /**
@@ -248,12 +254,13 @@ static inline void cpx_one_d_cache_fetch (cpx_cache *c, cpx_t val, unsigned int 
  */
 static inline void cpx_one_d_cache_store (cpx_cache *c, const cpx_t val, unsigned int n, int prec)
 {
+	pthread_spin_lock(&c->lock);
 	cpx_set_prec (c->cache[n], 3.22*prec+50);
 	cpx_set (c->cache[n], val);
 	c->precision[n] = prec;
+	pthread_spin_unlock(&c->lock);
 }
 
 void cpx_one_d_cache_clear (cpx_cache *c);
 
 /* =============================== END OF FILE =========================== */
-
