@@ -140,8 +140,6 @@ int q_one_d_cache_check (q_cache *c, unsigned int n)
 /* Cache management */
 /* Almost a cut-n-paste of above, but using fp instead */
 
-static pthread_mutex_t fp_one_d_mtx = PTHREAD_MUTEX_INITIALIZER;
-
 /** fp_one_d_cache_check() -- check if mpf_t value is in the cache
  *  If there is a cached value, this returns the precision of the
  *  value in the cache; else it returns zero.
@@ -156,9 +154,6 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 		pthread_spin_unlock(&c->lock);
 		return prec;
 	}
-	pthread_spin_unlock(&c->lock);
-
-	pthread_mutex_lock(&fp_one_d_mtx);
 
 	unsigned int newsize = 1.5*n+2;
 	mpf_t* new_cache = (mpf_t *) malloc (newsize * sizeof(mpf_t));
@@ -166,6 +161,7 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 
 	int* new_prec = (int *) malloc (newsize * sizeof(int));
 	if (c->nmax) memcpy(new_prec, c->precision, (c->nmax+1) * sizeof(int));
+	pthread_spin_unlock(&c->lock);
 
 	unsigned int en;
 	unsigned int nstart = c->nmax+1;
@@ -184,7 +180,6 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 	c->precision = new_prec;
 	c->nmax = newsize-1;
 	pthread_spin_unlock(&c->lock);
-	pthread_mutex_unlock(&fp_one_d_mtx);
 
 	if (old_cache) free(old_cache);
 	if (old_prec) free(old_prec);
@@ -194,14 +189,12 @@ int fp_one_d_cache_check (fp_cache *c, unsigned int n)
 void fp_one_d_cache_clear (fp_cache *c)
 {
 	unsigned int i;
-	pthread_mutex_lock(&fp_one_d_mtx);
 	pthread_spin_lock(&c->lock);
 	for (i=0; i<c->nmax; i++)
 	{
 		c->precision[i] = 0;
 	}
 	pthread_spin_unlock(&c->lock);
-	pthread_mutex_unlock(&fp_one_d_mtx);
 }
 
 /* ======================================================================= */
