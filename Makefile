@@ -1,4 +1,6 @@
 
+all:
+	cd src; make
 
 VERSION=0.2.1
 VERDIR=anant-${VERSION}
