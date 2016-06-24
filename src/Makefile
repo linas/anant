@@ -51,7 +51,7 @@ realclean:  clean
 
 install:
 	cp -p $(MPLIB) /usr/local/lib
-	mkdir /usr/local/include/anant
+	mkdir -p /usr/local/include/anant
 	cp -p mp-*.h /usr/local/include/anant
 
 .c.o:
