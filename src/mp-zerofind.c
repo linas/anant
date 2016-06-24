@@ -21,6 +21,7 @@
  * 02110-1301  USA
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -218,14 +219,14 @@ int cpx_find_zero(cpx_t result,
 	int i;
 	for (i=0; i<100; i++)
 	{
-		int done1 = 0;
-		int done2 = 0;
+		bool done1 = false;
+		bool done2 = false;
 
 		ABSVAL (zero, na);
 		if (0 > mpf_cmp(zero, epsi))
 		{
 			cpx_set (sa, s0);
-			done1 = 1;
+			done1 = true;
 		}
 		else
 		{
@@ -257,6 +258,7 @@ int cpx_find_zero(cpx_t result,
 				mpf_abs (zero, loc);
 				if (0 < mpf_cmp(zero, epsi))
 				{
+					/* Not converged yet */
 					cpx_times_mpf (na, na, loc);
 					cpx_add (sa, s0, na);
 					cpx_times_d (na, na, 0.5);
@@ -264,7 +266,7 @@ int cpx_find_zero(cpx_t result,
 				else
 				{
 					cpx_set(sa, s0);
-					done1 = 1;
+					done1 = true;
 				}
 
 				/* Save last result for the next step */
@@ -272,21 +274,21 @@ int cpx_find_zero(cpx_t result,
 			}
 			else
 			{
-				int better = 0;
+				bool better = false;
 				/* The new point is not an improvement on f0! */
 				if (0 < mpf_cmp(f0, f1))
 				{
 					/* ... But f1 is better */
 					cpx_set (sa, s1);
 					mpf_set (f0, f1);
-					better = 1;
+					better = true;
 				}
 				if (0 < mpf_cmp(f0, f2))
 				{
 					/* ... But f2 is better */
 					cpx_set (sa, s2);
 					mpf_set (f0, f2);
-					better = 1;
+					better = true;
 				}
 				if (better)
 					cpx_times_d (na, na, 1.618);
@@ -300,7 +302,7 @@ int cpx_find_zero(cpx_t result,
 		if (0 > mpf_cmp(zero, epsi))
 		{
 			cpx_set (sb, sa);
-			done2 = 1;
+			done2 = true;
 		}
 		else
 		{
@@ -338,7 +340,7 @@ int cpx_find_zero(cpx_t result,
 				else
 				{
 					cpx_set(sb, sa);
-					done2 = 1;
+					done2 = true;
 				}
 
 				/* Save last result for the next step */
@@ -376,7 +378,7 @@ int cpx_find_zero(cpx_t result,
 		cpx_set(s0, sb);
 
 #if 0
-printf("#\n# %d  ", i);
+printf("#\n# %d  done=%d %d  ", i, done1, done2);
 cpx_prt("s0 = ", s0); printf("\n");
 cpx_prt("# na = ", na); printf("\n");
 cpx_prt("# nb = ", nb); printf("\n");
@@ -390,10 +392,11 @@ fflush (stdout);
 			break;
 		}
 
-		/* bound results away from zero */
-		mpf_set_ui(f3, 1);
-		mpf_div_ui(f3, f3, 20);
+#if 0
+		/* Bound results away from zero.  Huh??? */
+		mpf_set_d(f3, 0.05);
 		if (0 > mpf_cmp(s0[0].im, f3)) break;
+#endif
 	}
 
 	/* The returned value */
