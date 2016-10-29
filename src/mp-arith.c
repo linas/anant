@@ -61,6 +61,7 @@ void sigma_one_z (mpz_t sum, unsigned int n)
 	{
 		mpz_init (sum);
 		i_one_d_cache_fetch(&sigone, sum, n);
+		return;
 	}
 
 	sigma_one_z_nocache(sum, n);
@@ -80,10 +81,18 @@ void sigma_one_z (mpz_t sum, unsigned int n)
  */
 void partition_z (mpz_t sum, unsigned int n)
 {
+	DECLARE_I_CACHE(parti);
+
 	mpz_init (sum);
 	if (0 == n)
 	{
 		mpz_set_ui(sum, 1);
+		return;
+	}
+
+	if (i_one_d_cache_check(&parti, n))
+	{
+		i_one_d_cache_fetch(&parti, sum, n);
 		return;
 	}
 
@@ -103,6 +112,8 @@ void partition_z (mpz_t sum, unsigned int n)
 	mpz_div_ui(sum, sum, n);
 	mpz_clear(sig);
 	mpz_clear(part);
+
+	i_one_d_cache_store(&parti, sum, n);
 }
 
 // ===========================================================
