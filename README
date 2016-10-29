@@ -59,6 +59,7 @@ Arbitrary precision constants:
 Combinatorial functions:
 ------------------------
 * Rising pochhammer symbol (integer)
+* Partition function (integer)
 * Reciprocal factorial
 * Sequential binomial coefficient
 * Stirling Numbers of the First kind
