@@ -112,6 +112,7 @@ void partition_z (mpz_t sum, unsigned int n)
 	mpz_div_ui(sum, sum, n);
 	mpz_clear(sig);
 	mpz_clear(part);
+	mpz_clear(term);
 
 	i_one_d_cache_store(&parti, sum, n);
 }
