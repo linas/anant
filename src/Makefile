@@ -41,7 +41,7 @@ cache-fill.o: db-cache.h mp-zeta.h mp-misc.h
 db-merge.o: db-cache.h mp-misc.h
 
 $(MPLIB): $(MPOBJS)
-	ar cru $(MPLIB) $^
+	ar crU $(MPLIB) $^
 
 clean:
 	rm -f core tmp junk glop a.out *.o
