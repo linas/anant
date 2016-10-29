@@ -188,7 +188,7 @@ static inline void cpx_times_mpf (cpx_t prod, const cpx_t a, const mpf_t b)
 /**
  * cpx_times_ui -- prod = a * b
  */
-static inline void cpx_times_ui (cpx_t prod, const cpx_t a, unsigned int b)
+static inline void cpx_times_ui (cpx_t prod, const cpx_t a, unsigned long int b)
 {
 	mpf_mul_ui (prod[0].re, a[0].re, b);
 	mpf_mul_ui (prod[0].im, a[0].im, b);
