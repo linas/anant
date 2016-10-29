@@ -66,6 +66,7 @@ void sigma_one_z (mpz_t sum, unsigned int n)
  */
 void partition_z (mpz_t sum, unsigned int n)
 {
+	mpz_init (sum);
 	if (0 == n)
 	{
 		mpz_set_ui(sum, 1);
@@ -75,9 +76,8 @@ void partition_z (mpz_t sum, unsigned int n)
 	mpz_t sig; mpz_init (sig);
 	mpz_t part; mpz_init(part);
 	mpz_t term; mpz_init(term);
-	mpz_init (sum);
 
-	mpz_set_ui (sum, n);
+	mpz_set_ui (sum, 0);
 	unsigned int k;
 	for (k=0; k<n; k++)
 	{
