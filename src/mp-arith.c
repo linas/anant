@@ -67,13 +67,13 @@ void sigma_one_z (mpz_t sum, unsigned int n)
 }
 
 // ===========================================================
-/**
+/*
  * partition function.
  * See https://en.wikipedia.org/wiki/Partition_(number_theory)
  * Uses cached values.
  *
  * The problem here is that the partition function overflows
- * a 64-bit int around n=400, and a 128-bit int around n=1600.
+ * a 64-bit int around n=400, and a 128-bit int around n=1400.
  *
  * Brute force, simple.
  */

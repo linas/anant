@@ -44,7 +44,7 @@ void sigma_one_z (mpz_t poch, unsigned int n);
  * Uses cached values.
  *
  * The problem here is that the partition function overflows
- * a 64-bit int around n=400, and a 128-bit int around n=1600.
+ * a 64-bit int around n=400, and a 128-bit int around n=1400.
  *
  * Brute force, simple.
  */
