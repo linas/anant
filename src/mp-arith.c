@@ -117,7 +117,7 @@ void partition_z (mpz_t sum, unsigned int n)
 }
 
 // ===========================================================
-#define RUN_TEST
+// #define RUN_TEST
 #ifdef RUN_TEST
 
 int main()
