@@ -39,7 +39,7 @@
  *
  * Brute force, simple.
  */
-void sigma_one_z (mpz_t sum, unsigned int n)
+static void sigma_one_z_nocache (mpz_t sum, unsigned int n)
 {
 	mpz_init (sum);
 
@@ -51,6 +51,20 @@ void sigma_one_z (mpz_t sum, unsigned int n)
 		if (n%d) continue;
 		mpz_add_ui (sum, sum, d);
 	}
+}
+
+void sigma_one_z (mpz_t sum, unsigned int n)
+{
+	DECLARE_I_CACHE(sigone);
+
+	if (i_one_d_cache_check(&sigone, n))
+	{
+		mpz_init (sum);
+		i_one_d_cache_fetch(&sigone, sum, n);
+	}
+
+	sigma_one_z_nocache(sum, n);
+	i_one_d_cache_store(&sigone, sum, n);
 }
 
 // ===========================================================
