@@ -46,13 +46,14 @@ void sigma_one_z (mpz_t sum, unsigned int n)
 	mpz_set_ui (sum, n);
 	unsigned int d;
 	unsigned int ns = n / 2;
-	for (d=0; d<=ns; d++)
+	for (d=1; d<=ns; d++)
 	{
 		if (n%d) continue;
 		mpz_add_ui (sum, sum, d);
 	}
 }
 
+// ===========================================================
 /**
  * partition function.
  * See https://en.wikipedia.org/wiki/Partition_(number_theory)
@@ -65,6 +66,12 @@ void sigma_one_z (mpz_t sum, unsigned int n)
  */
 void partition_z (mpz_t sum, unsigned int n)
 {
+	if (0 == n)
+	{
+		mpz_set_ui(sum, 1);
+		return;
+	}
+
 	mpz_t sig; mpz_init (sig);
 	mpz_t part; mpz_init(part);
 	mpz_t term; mpz_init(term);
@@ -74,8 +81,8 @@ void partition_z (mpz_t sum, unsigned int n)
 	unsigned int k;
 	for (k=0; k<n; k++)
 	{
-		sigma_one_z(sig, n);
-		partition_z(part, n);
+		sigma_one_z(sig, n-k);
+		partition_z(part, k);
 		mpz_mul(term, sig, part);
 		mpz_add (sum, sum, term);
 	}
@@ -84,5 +91,22 @@ void partition_z (mpz_t sum, unsigned int n)
 	mpz_clear(part);
 }
 
+// ===========================================================
+#define RUN_TEST
+#ifdef RUN_TEST
+
+int main()
+{
+	mpz_t part; mpz_init (part);
+
+	for (int n=1; n< 20; n++)
+	{
+		partition_z(part, n);
+		unsigned long p = mpz_get_ui(part);
+		printf("n=%d p=%ld\n", n, p);
+	}
+}
+
+#endif
 
 /* =============================== END OF FILE =========================== */
