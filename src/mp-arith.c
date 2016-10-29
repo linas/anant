@@ -41,8 +41,6 @@
  */
 static void sigma_one_z_nocache (mpz_t sum, unsigned int n)
 {
-	mpz_init (sum);
-
 	mpz_set_ui (sum, n);
 	unsigned int d;
 	unsigned int ns = n / 2;
@@ -83,7 +81,6 @@ void partition_z (mpz_t sum, unsigned int n)
 {
 	DECLARE_I_CACHE(parti);
 
-	mpz_init (sum);
 	if (0 == n)
 	{
 		mpz_set_ui(sum, 1);
