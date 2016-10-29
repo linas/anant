@@ -40,25 +40,42 @@
 int i_one_d_cache_check (i_cache *c, unsigned int n)
 {
 	if (c->disabled) return 0;
-	if ((n > c->nmax) || 0==c->nmax )
-	{
-		unsigned int newsize = 1.5*n+2;
-		c->cache = (mpz_t *) realloc (c->cache, newsize * sizeof (mpz_t));
-		c->ticky = (char *) realloc (c->ticky, newsize * sizeof (char));
+	pthread_spin_lock(&c->lock);
 
-		unsigned int en;
-		unsigned int nstart = c->nmax+1;
-		if (0 == c->nmax) nstart = 0;
-		for (en = nstart; en < newsize; en++)
-		{
-			mpz_init (c->cache[en]);
-			c->ticky[en] = 0;
-		}
-		c->nmax = newsize-1;
-		return 0;
+	if ((n <= c->nmax) && 0 != c->nmax)
+	{
+		int gotit = c->ticky[n];
+		pthread_spin_unlock(&c->lock);
+		return gotit;
 	}
 
-	return (c->ticky[n]);
+	unsigned int newsize = 1.5*n+2;
+	mpz_t* new_cache = (mpz_t *) malloc (newsize * sizeof (mpz_t));
+	if (c->nmax) memcpy(new_cache, c->cache, (c->nmax+1) * sizeof(mpz_t));
+
+	char* new_ticky = (char *) malloc (newsize * sizeof(char));
+	if (c->nmax) memcpy(new_ticky, c->ticky, (c->nmax+1) * sizeof(char));
+
+	unsigned int en;
+	unsigned int nstart = c->nmax+1;
+	if (0 == c->nmax) nstart = 0;
+	for (en = nstart; en < newsize; en++)
+	{
+		mpz_init (new_cache[en]);
+		new_ticky[en] = 0;
+	}
+
+	/* Now swap out the old and new */
+	mpz_t* old_cache = c->cache;
+	c->cache = new_cache;
+	char* old_ticky = c->ticky;
+	c->ticky = new_ticky;
+	c->nmax = newsize-1;
+	pthread_spin_unlock(&c->lock);
+
+	if (old_cache) free(old_cache);
+	if (old_ticky) free(old_ticky);
+	return 0;
 }
 
 /* ======================================================================= */
@@ -69,40 +86,61 @@ int i_one_d_cache_check (i_cache *c, unsigned int n)
  */
 int i_triangle_cache_check (i_cache *c, unsigned int n, unsigned int k)
 {
-	if ((n > c->nmax) || 0==c->nmax )
-	{
-		if (0 == n) n = 1;
-		unsigned int newsize = (n+1)*(n+2)/2;
-		c->cache = (mpz_t *) realloc (c->cache, newsize * sizeof (mpz_t));
-		c->ticky = (char *) realloc (c->ticky, newsize * sizeof (char));
+	if (c->disabled) return 0;
+	pthread_spin_lock(&c->lock);
 
-		unsigned int en;
-      unsigned int nstart = c->nmax + 1;
-      if (0 == c->nmax) nstart = 0;
-		for (en = nstart; en <= n; en++)
-		{
-			unsigned int j;
-			unsigned int idx = en * (en+1) /2;
-			for (j=0; j<=en; j++)
-			{
-				mpz_init (c->cache[idx+j]);
-				c->ticky[idx+j]=0;
-			}
-		}
-		c->nmax = n;
-		return 0;
+	if ((n <= c->nmax) && 0 != c->nmax)
+	{
+		unsigned int idx = n * (n+1) /2 ;
+		int gotit = c->ticky[idx+k];
+		pthread_spin_unlock(&c->lock);
+		return gotit;
 	}
-	unsigned int idx = n * (n+1) /2 ;
-	return c->ticky[idx+k];
+
+	if (0 == n) n = 1;
+	unsigned int newsize = (n+1)*(n+2)/2;
+	mpz_t* new_cache = (mpz_t *) malloc (newsize * sizeof (mpz_t));
+	if (c->nmax) memcpy(new_cache, c->cache, (c->nmax+1) * sizeof(mpz_t));
+
+	char* new_ticky = (char *) malloc (newsize * sizeof(char));
+	if (c->nmax) memcpy(new_ticky, c->ticky, (c->nmax+1) * sizeof(char));
+
+	unsigned int en;
+	unsigned int nstart = c->nmax + 1;
+	if (0 == c->nmax) nstart = 0;
+	for (en = nstart; en <= n; en++)
+	{
+		unsigned int j;
+		unsigned int idx = en * (en+1) /2;
+		for (j=0; j<=en; j++)
+		{
+			mpz_init (new_cache[idx+j]);
+			new_ticky[idx+j] = 0;
+		}
+	}
+
+	/* Now swap out the old and new */
+	mpz_t* old_cache = c->cache;
+	c->cache = new_cache;
+	char* old_ticky = c->ticky;
+	c->ticky = new_ticky;
+	c->nmax = n;
+	pthread_spin_unlock(&c->lock);
+
+	if (old_cache) free(old_cache);
+	if (old_ticky) free(old_ticky);
+	return 0;
 }
 
 void i_one_d_cache_clear (i_cache *c)
 {
+	pthread_spin_lock(&c->lock);
 	unsigned int i;
 	for (i=0; i<c->nmax; i++)
 	{
 		c->ticky[i] = 0;
 	}
+	pthread_spin_unlock(&c->lock);
 }
 
 /* ======================================================================= */

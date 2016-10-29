@@ -35,11 +35,15 @@ typedef struct
 	mpz_t *cache;
 	char *ticky;
 	short disabled;
+	pthread_spinlock_t lock;
 } i_cache;
 
 
 #define DECLARE_I_CACHE(name)         \
-	static i_cache name = {.nmax=0, .cache=NULL, .ticky=NULL, .disabled = 0}
+	static i_cache name = {.nmax=0, .cache=NULL, .ticky=NULL, .disabled = 0}; \
+	__attribute__((constructor)) \
+	void i_cache_ctor##name () { \
+		pthread_spin_init(&name.lock, 0); }
 
 /** i_one_d_cache_check() -- check if mpz_t value is in the cache
  *  Returns true if the value is in the cache, else returns false.
@@ -53,7 +57,9 @@ int i_one_d_cache_check (i_cache *c, unsigned int n);
 static inline void i_one_d_cache_fetch (i_cache *c, mpz_t val, unsigned int n)
 {
 	if (c->disabled) return;
-	mpz_set (val, c->cache[n]);
+	pthread_spin_lock(&c->lock);
+	mpz_set(val, c->cache[n]);
+	pthread_spin_unlock(&c->lock);
 }
 
 /**
@@ -62,8 +68,10 @@ static inline void i_one_d_cache_fetch (i_cache *c, mpz_t val, unsigned int n)
 static inline void i_one_d_cache_store (i_cache *c, const mpz_t val, unsigned int n)
 {
 	if (c->disabled) return;
+	pthread_spin_lock(&c->lock);
 	mpz_set (c->cache[n], val);
 	c->ticky[n] = 1;
+	pthread_spin_unlock(&c->lock);
 }
 
 void i_one_d_cache_clear (i_cache *c);
@@ -81,8 +89,10 @@ int i_triangle_cache_check (i_cache *c, unsigned int n, unsigned int k);
  */
 static inline void i_triangle_cache_fetch (i_cache *c, mpz_t val, unsigned int n, unsigned int k)
 {
+	pthread_spin_lock(&c->lock);
 	unsigned int idx = n * (n+1) /2 ;
 	mpz_set (val, c->cache[idx+k]);
+	pthread_spin_unlock(&c->lock);
 }
 
 
@@ -91,9 +101,11 @@ static inline void i_triangle_cache_fetch (i_cache *c, mpz_t val, unsigned int n
  */
 static inline void i_triangle_cache_store (i_cache *c, const mpz_t val, unsigned int n, unsigned int k)
 {
+	pthread_spin_lock(&c->lock);
 	unsigned int idx = n * (n+1) /2 ;
 	mpz_set (c->cache[idx+k], val);
 	c->ticky[idx+k] = 1;
+	pthread_spin_unlock(&c->lock);
 }
 
 /* ======================================================================= */
