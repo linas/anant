@@ -61,7 +61,7 @@ static inline void cpx_set (cpx_t z, const cpx_t y)
 	mpf_set (z[0].im, y[0].im);
 }
 
-static inline void cpx_set_ui (cpx_t z, unsigned int x, unsigned int y)
+static inline void cpx_set_ui (cpx_t z, unsigned long x, unsigned long y)
 {
 	mpf_set_ui (z[0].re, x);
 	mpf_set_ui (z[0].im, y);
@@ -96,7 +96,7 @@ static inline void cpx_add_d (cpx_t sum, const cpx_t a, double rb, double ib)
 	mpf_clear (tmp);
 }
 
-static inline void cpx_add_ui (cpx_t sum, const cpx_t a, unsigned int rb, unsigned int ib)
+static inline void cpx_add_ui (cpx_t sum, const cpx_t a, unsigned long rb, unsigned long ib)
 {
 	if (rb) mpf_add_ui (sum[0].re, a[0].re, rb);
 	if (ib) mpf_add_ui (sum[0].im, a[0].im, ib);
@@ -114,13 +114,13 @@ static inline void cpx_sub (cpx_t dif, const cpx_t a, const cpx_t b)
 	mpf_sub (dif[0].im, a[0].im, b[0].im);
 }
 
-static inline void cpx_sub_ui (cpx_t sum, const cpx_t a, unsigned int rb, unsigned int ib)
+static inline void cpx_sub_ui (cpx_t sum, const cpx_t a, unsigned long rb, unsigned long ib)
 {
 	if (rb) mpf_sub_ui (sum[0].re, a[0].re, rb);
 	if (ib) mpf_sub_ui (sum[0].im, a[0].im, ib);
 }
 
-static inline void cpx_ui_sub (cpx_t sum, unsigned int ra, unsigned int ia, const cpx_t b)
+static inline void cpx_ui_sub (cpx_t sum, unsigned long ra, unsigned long ia, const cpx_t b)
 {
 	if (ra) mpf_ui_sub (sum[0].re, ra, b[0].re);
 	if (ia) mpf_ui_sub (sum[0].im, ia, b[0].im);
@@ -194,7 +194,7 @@ static inline void cpx_times_mpf (cpx_t prod, const cpx_t a, const mpf_t b)
 /**
  * cpx_times_ui -- prod = a * b
  */
-static inline void cpx_times_ui (cpx_t prod, const cpx_t a, unsigned long int b)
+static inline void cpx_times_ui (cpx_t prod, const cpx_t a, unsigned long b)
 {
 	mpf_mul_ui (prod[0].re, a[0].re, b);
 	mpf_mul_ui (prod[0].im, a[0].im, b);
@@ -254,7 +254,7 @@ static inline void cpx_div_mpf (cpx_t ratio, const cpx_t a, const mpf_t b)
 	mpf_div (ratio[0].im, a[0].im, b);
 }
 
-static inline void cpx_div_ui (cpx_t ratio, const cpx_t a, unsigned int b)
+static inline void cpx_div_ui (cpx_t ratio, const cpx_t a, unsigned long b)
 {
 	mpf_div_ui (ratio[0].re, a[0].re, b);
 	mpf_div_ui (ratio[0].im, a[0].im, b);
