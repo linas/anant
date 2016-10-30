@@ -104,33 +104,6 @@ static void quad_min(mpf_t loc,
 	mpf_clear (numer);
 }
 
-/* ---------------------------------------------- */
-// Try to fit a conic section.
-//
-// Assume that the the points fa, fb, fc sit on the surface of a cone,
-// and that the tip of the cone is the zero. Just fit the conic section
-// and use that to estimate the location of the tip of the cone.
-
-static void conic(cpx_t loc,
-                  cpx_t za, cpx_t zb, cpx_t zc,
-                  cpx_t fa, cpx_t fb, cpx_t fc,
-                  mp_bitcnt_t bits)
-{
-	cpx_t zcb, fcb;
-	cpx_init2(zcb, bits);
-	cpx_init2(fcb, bits);
-
-	cpx_sub(zcb, zc, zb);
-	cpx_sub(fcb, fc, fb);
-	cpx_div(loc, zcb, fcb);
-
-	cpx_mul(loc, loc, fa);
-	cpx_sub(loc, za, loc);
-
-	cpx_clear(zcb);
-	cpx_clear(fcb);
-}
-
 /* =============================================== */
 /**
  * cpx_find_zero.
@@ -138,7 +111,7 @@ static void conic(cpx_t loc,
  *
  * @func function whose zeros are to be found.
  *       func takes z as input, returns f as output.
- *       'nprec' is the suggested decimal precisiton at which 'fun'
+ *       'nprec' is the suggested decimal precision at which 'fun'
  *       should perform its calculations.
  * @initial_z initial suggestion for the location of the zero.
  * @e1, @e2 initial suggestions for a bounding ellipse. These are
@@ -171,12 +144,12 @@ static void conic(cpx_t loc,
  *    Algorithm for Complex Root Isolation" (2011)
  * except I'm lazy and the below mostly works.
  *
- * The below also gets used to find zeros of noisey functions: functions
+ * The below also gets used to find zeros of noisy functions: functions
  * that are not very smooth near the zero, and thus violate
  * simple-minded assumptions about analyticity.
  */
 
-int cpx_find_zero(cpx_t result,
+int cpx_find_zero_quad(cpx_t result,
               void (*func)(cpx_t f, cpx_t z, int nprec),
               cpx_t initial_z,
               cpx_t e1, cpx_t e2,
@@ -236,12 +209,13 @@ int cpx_find_zero(cpx_t result,
 	 * absolute value of a complex function near a zero is a 2D
 	 * cone.  The sides of the cone tend to be almost straight, and
 	 * so trying to fit a parabola to that ends in numerical disaster.
-	 * We really want a parabola, not a cone, so that the parabolic
-	 * zero finder can navigate to the bottom.
+	 * For the quadratic minimum-finder, we really want to fit a
+	 * parabola, not a cone, so that the quadratic zero finder can
+	 * navigate to the bottom. Thus, squares of absolute values get
+	 * used. Ugh.
 	 *
 	 * Of course, this is just stupid: we should take advantage of
-	 * the cone-shape, and fit to that, instead.  However, I'm lazy,
-	 * and this is sufficient to get us out of the woods. For now.
+	 * the cone-shape, and fit to that, instead.
 	 */
 // #define ABSVAL cpx_abs
 #define ABSVAL cpx_mod_sq
@@ -463,6 +437,216 @@ fflush (stdout);
 	mpf_clear (lam0);
 	mpf_clear (lam1);
 	mpf_clear (lam2);
+
+	mpf_clear (zero);
+	mpf_clear (epsi);
+
+	return rc;
+}
+
+/* =============================================== */
+// Try to fit a conic section.
+//
+// Assume that the the points fa, fb, fc sit on the surface of a cone,
+// and that the tip of the cone is the zero. Just fit the conic section
+// and use that to estimate the location of the tip of the cone.
+
+static void conic(cpx_t loc,
+                  cpx_t za, cpx_t zb, cpx_t zc,
+                  cpx_t fa, cpx_t fb, cpx_t fc,
+                  mp_bitcnt_t bits)
+{
+	cpx_t zcb, fcb;
+	cpx_init2(zcb, bits);
+	cpx_init2(fcb, bits);
+
+	cpx_sub(zcb, zc, zb);
+	cpx_sub(fcb, fc, fb);
+	cpx_div(loc, zcb, fcb);
+
+	cpx_mul(loc, loc, fa);
+	cpx_sub(loc, za, loc);
+
+	cpx_clear(zcb);
+	cpx_clear(fcb);
+}
+
+/* =============================================== */
+/**
+ * cpx_find_zero.
+ * Numerically locate the zero of a complex-valued function.
+ *
+ * @func function whose zeros are to be found.
+ *       func takes z as input, returns f as output.
+ *       'nprec' is the suggested decimal precision at which 'fun'
+ *       should perform its calculations.
+ * @initial_z initial suggestion for the location of the zero.
+ * @e1, @e2 initial suggestions for a bounding ellipse. These are
+ *       taken to be two vectors, specifying the major and minor axes of
+ *       an ellipse, centered at 'initial_z'. The true zero is presumed
+ *       to lie inside of, or at least, close to, this initial ellipse.
+ * @ndigits number of decimal digits of accuracy to which the zero
+ *       should be searched for.
+ * @nprec number of digits of decimal precision to which intermediate
+ *       terms will be maintained.
+ *
+ * @returns 0 if result is valid, else an error code.
+ *
+ * This implements a brute-force conic-section fit.
+ *
+ * This is a rather sloppy way of doing this. We really could/should
+ * do something better, e.g. this:
+ *    LM Delves, JN Lyness "A Numerical Method for Locating the Zeros
+ *    of an Analytic Function" (1967)
+ *    http://www.ams.org/journals/mcom/1967-21-100/S0025-5718-1967-0228165-4/S0025-5718-1967-0228165-4.pdf
+ * or maybe this:
+ *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
+ *    Algorithm for Complex Root Isolation" (2011)
+ * except I'm lazy and the below mostly works.
+ */
+
+int cpx_find_zero(cpx_t result,
+              void (*func)(cpx_t f, cpx_t z, int nprec),
+              cpx_t initial_z,
+              cpx_t e1, cpx_t e2,
+              int ndigits, int nprec)
+{
+	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
+
+	int rc = 1;
+	mpf_t zero, epsi;
+	mpf_init2 (zero, bits);
+
+	/* Compute the tolerance */
+	mpf_init (epsi);
+	mpf_set_ui(epsi, 1);
+	mpf_div_2exp(epsi, epsi, (int)(3.322*ndigits));
+
+	cpx_t s0, s1, s2, s3;
+	cpx_init2 (s0, bits);
+	cpx_init2 (s1, bits);
+	cpx_init2 (s2, bits);
+	cpx_init2 (s3, bits);
+
+	cpx_t y0, y1, y2, y3;
+	cpx_init2 (y0, bits);
+	cpx_init2 (y1, bits);
+	cpx_init2 (y2, bits);
+	cpx_init2 (y3, bits);
+
+	mpf_t f0, f1, f2, f3;
+	mpf_init2 (f0, bits);
+	mpf_init2 (f1, bits);
+	mpf_init2 (f2, bits);
+	mpf_init2 (f3, bits);
+
+	/* Initial guess for the zero. */
+	cpx_set (s0, initial_z);
+	cpx_add (s1, initial_z, e1);
+	cpx_add (s2, initial_z, e2);
+
+	func (y0, s0, nprec);
+	func (y1, s1, nprec);
+	func (y2, s2, nprec);
+
+	cpx_abs(f0, y0);
+	cpx_abs(f1, y1);
+	cpx_abs(f2, y2);
+
+	// Place into sorted order.
+	if (0 < mpf_cmp(f0, f1))
+	{
+		cpx_set(y3, y0); cpx_set(y0, y1); cpx_set(y1, y3);
+		cpx_set(s3, s0); cpx_set(s0, s1); cpx_set(s1, s3);
+		mpf_set(f3, f0); mpf_set(f0, f1); mpf_set(f1, f3);
+	}
+	if (0 < mpf_cmp(f0, f2))
+	{
+		cpx_set(y3, y0); cpx_set(y0, y2); cpx_set(y2, y3);
+		cpx_set(s3, s0); cpx_set(s0, s2); cpx_set(s2, s3);
+		mpf_set(f3, f0); mpf_set(f0, f2); mpf_set(f2, f3);
+	}
+	if (0 < mpf_cmp(f1, f2))
+	{
+		cpx_set(y3, y1); cpx_set(y1, y2); cpx_set(y2, y3);
+		cpx_set(s3, s1); cpx_set(s1, s2); cpx_set(s2, s3);
+		mpf_set(f3, f1); mpf_set(f1, f2); mpf_set(f2, f3);
+	}
+
+	/* Iterate */
+	int i;
+	for (i=0; i<100; i++)
+	{
+		cpx_sub(s3, s1, s0);
+		cpx_abs (zero, s3);
+		if (0 > mpf_cmp(zero, epsi))
+		{
+			rc = 0;
+			cpx_set (result, s0);
+			break;
+		}
+
+		conic(s3, s0, s1, s2, y0, y1, y2, bits);
+		func (y3, s2, nprec);
+		cpx_abs(f3, y3);
+
+		if (0 < mpf_cmp(f3, f2))
+		{
+			// Oh no Mr bill!  Its not an improvement!
+			rc = 1;
+			break;
+		}
+		else
+		{
+			// Copy over
+			cpx_set(s2, s3);
+			cpx_set(y2, y3);
+			mpf_set(f2, f3);
+
+			// Place into sorted order.
+			if (0 < mpf_cmp(f0, f1))
+			{
+				cpx_set(y3, y0); cpx_set(y0, y1); cpx_set(y1, y3);
+				cpx_set(s3, s0); cpx_set(s0, s1); cpx_set(s1, s3);
+				mpf_set(f3, f0); mpf_set(f0, f1); mpf_set(f1, f3);
+			}
+			if (0 < mpf_cmp(f0, f2))
+			{
+				cpx_set(y3, y0); cpx_set(y0, y2); cpx_set(y2, y3);
+				cpx_set(s3, s0); cpx_set(s0, s2); cpx_set(s2, s3);
+				mpf_set(f3, f0); mpf_set(f0, f2); mpf_set(f2, f3);
+			}
+			if (0 < mpf_cmp(f1, f2))
+			{
+				cpx_set(y3, y1); cpx_set(y1, y2); cpx_set(y2, y3);
+				cpx_set(s3, s1); cpx_set(s1, s2); cpx_set(s2, s3);
+				mpf_set(f3, f1); mpf_set(f1, f2); mpf_set(f2, f3);
+			}
+		}
+
+#if 1
+printf("#\n# %d ", i);
+cpx_prt("s0 = ", s0); printf("\n");
+fp_prt("# min= ", f0); printf("\n");
+fflush (stdout);
+#endif
+
+	}
+
+	cpx_clear (s0);
+	cpx_clear (s1);
+	cpx_clear (s2);
+	cpx_clear (s3);
+
+	cpx_clear (y0);
+	cpx_clear (y1);
+	cpx_clear (y2);
+	cpx_clear (y3);
+
+	mpf_clear (f0);
+	mpf_clear (f1);
+	mpf_clear (f2);
+	mpf_clear (f3);
 
 	mpf_clear (zero);
 	mpf_clear (epsi);
