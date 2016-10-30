@@ -101,15 +101,16 @@ void fp_inv_pow (mpf_t p, unsigned int n, unsigned int m)
  * precomputed constants.
  */
 
-/* exp_helpter is not static, because its sneakily used by fp_e to return e */
+/* exp_helper is not static, because its sneakily used by fp_e to return e */
 void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec)
 {
 	mpf_t zee, z_n, fact, term;
 
-	mpf_init (zee);
-	mpf_init (z_n);
-	mpf_init (fact);
-	mpf_init (term);
+	mp_bitcnt_t bits = ((double) prec) * 3.3219281 + 10;
+	mpf_init2 (zee, bits);
+	mpf_init2 (z_n, bits);
+	mpf_init2 (fact, bits);
+	mpf_init2 (term, bits);
 
 	/* Make copy of argument now! */
 	mpf_set (zee, z);
@@ -120,17 +121,17 @@ void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec)
 
 	/* Use 10^{-prec} for smallest term in sum */
 	mpf_t maxterm;
-	mpf_init (maxterm);
+	mpf_init2 (maxterm, bits);
 	fp_epsilon (maxterm, prec);
 
 	unsigned int n=1;
-	while(1)
+	while (1)
 	{
 		fp_inv_factorial (fact, n, prec);
 		mpf_mul (term, z_n, fact);
 		mpf_add (ex, ex, term);
 
-		/* don't go no farther than this */
+		/* Don't go no farther than this. */
 		mpf_abs (term, term);
 		if (mpf_cmp (term, maxterm) < 0) break;
 
