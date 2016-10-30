@@ -1,7 +1,7 @@
 /**
  * mp-zerofind.c
  *
- * Locate zeros of a function.
+ * Locate complex zeros of a function.
  *
  * Copyright (C) 2010 Linas Vepstas
  *
@@ -27,6 +27,7 @@
 #include <math.h>
 
 #include "mp-complex.h"
+#include "mp-misc.h"
 #include "mp-zerofind.h"
 
 #ifdef TEST
@@ -140,6 +141,10 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
  *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
  *    Algorithm for Complex Root Isolation" (2011)
  * except I'm lazy and the below mostly works.
+ *
+ * The below also gets used to find zeros of noisey functions: functions
+ * that are not very smooth near the zero, and thus violate
+ * simple-minded assumptions about analyticity.
  */
 
 int cpx_find_zero(cpx_t result,
@@ -148,45 +153,47 @@ int cpx_find_zero(cpx_t result,
               cpx_t e1, cpx_t e2,
               int ndigits, int nprec)
 {
+	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
+
 	int rc = 1;
 	mpf_t zero, epsi;
-	mpf_init (zero);
+	mpf_init2 (zero, bits);
 
-	/* compute the tolerance */
+	/* Compute the tolerance */
 	mpf_init (epsi);
 	mpf_set_ui(epsi, 1);
-	mpf_div_2exp(epsi, epsi, (int)(3.321*ndigits));
+	mpf_div_2exp(epsi, epsi, (int)(3.322*ndigits));
 
 	cpx_t s0, s1, s2, s3, sa, sb;
-	cpx_init (s0);
-	cpx_init (s1);
-	cpx_init (s2);
-	cpx_init (s3);
-	cpx_init (sa);
-	cpx_init (sb);
+	cpx_init2 (s0, bits);
+	cpx_init2 (s1, bits);
+	cpx_init2 (s2, bits);
+	cpx_init2 (s3, bits);
+	cpx_init2 (sa, bits);
+	cpx_init2 (sb, bits);
 
 	cpx_t na, nb, nc;
-	cpx_init (na);
-	cpx_init (nb);
-	cpx_init (nc);
+	cpx_init2 (na, bits);
+	cpx_init2 (nb, bits);
+	cpx_init2 (nc, bits);
 
 	cpx_t y0, y1, y2, y3;
-	cpx_init (y0);
-	cpx_init (y1);
-	cpx_init (y2);
-	cpx_init (y3);
+	cpx_init2 (y0, bits);
+	cpx_init2 (y1, bits);
+	cpx_init2 (y2, bits);
+	cpx_init2 (y3, bits);
 
 	mpf_t f0, f1, f2, f3;
-	mpf_init (f0);
-	mpf_init (f1);
-	mpf_init (f2);
-	mpf_init (f3);
+	mpf_init2 (f0, bits);
+	mpf_init2 (f1, bits);
+	mpf_init2 (f2, bits);
+	mpf_init2 (f3, bits);
 
 	mpf_t loc, lam0, lam1, lam2;
-	mpf_init (loc);
-	mpf_init (lam0);
-	mpf_init (lam1);
-	mpf_init (lam2);
+	mpf_init2 (loc, bits);
+	mpf_init2 (lam0, bits);
+	mpf_init2 (lam1, bits);
+	mpf_init2 (lam2, bits);
 
 	mpf_set_ui (lam0, 0);
 	mpf_set_ui (lam1, 1);

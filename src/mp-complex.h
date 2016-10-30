@@ -43,6 +43,12 @@ static inline void cpx_init (cpx_t z)
 	mpf_init (z[0].im);
 }
 
+static inline void cpx_init2 (cpx_t z, mp_bitcnt_t bits)
+{
+	mpf_init2 (z[0].re, bits);
+	mpf_init2 (z[0].im, bits);
+}
+
 static inline void cpx_clear (cpx_t z)
 {
 	mpf_clear (z[0].re);

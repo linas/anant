@@ -1,7 +1,7 @@
 /**
  * mp-zerofind.h
  *
- * Locate zeros of a function.
+ * Locate complex zeros of a function.
  *
  * Copyright (C) 2010 Linas Vepstas
  *
