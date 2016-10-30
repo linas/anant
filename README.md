@@ -1,5 +1,6 @@
 
-= Anant  -- Algorithmic 'n Analytic Number Theory
+Anant  -- Algorithmic 'n Analytic Number Theory
+===============================================
 
 <center><b>
 <i>Version 0.2.2</i><br>
