@@ -51,14 +51,8 @@ extern "C" {
  *
  * @returns 0 if result is valid, else an error code.
  *
- * This implements Powell's method, slightly adapted; the adaptations
- * are meant to improve convergence when 'func' is extremely noisy,
- * i.e. when any sort of quadratic behaviour is obscured by
- * high-frequency noise.
- *
- * A description of Powell's method can be found in Press, Teukolsky,
- * Vetterling, Flannery, "Numerical Recipes in C, 2nd ed.", Cambridge
- * U Press, 1999.
+ * This implements a search by fitting to a conic sections -- i.e. assumes
+ * a simple zero.
  *
  * Note that there are superior algos for finding roots of analytic
  * functions. This is rather a quick and easy hack that fits my current
