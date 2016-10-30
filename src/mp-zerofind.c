@@ -447,40 +447,40 @@ static void conic(cpx_t loc,
 	cpx_t df;
 	cpx_init2(df, bits);
 
-	cpx_t zca, zcb;
+	cpx_t zba, zca;
+	cpx_init2(zba, bits);
 	cpx_init2(zca, bits);
-	cpx_init2(zcb, bits);
 
+	cpx_sub(zba, zb, za);
 	cpx_sub(zca, zc, za);
-	cpx_sub(zcb, zc, zb);
 
-	mpf_t la, lb;
-	mpf_init2(la, bits);
+	mpf_t lb, lc;
 	mpf_init2(lb, bits);
+	mpf_init2(lc, bits);
 
-	cpx_abs(la, zca);
-	cpx_abs(lb, zcb);
+	cpx_abs(lb, zba);
+	cpx_abs(lc, zca);
 
-	// This is true, if la is longer than lb
+	// This is true, if lb is longer than lc
 	// Always use the longer arm of extrapolation.
-	if (0 < mpf_cmp(la, lb))
+	if (0 < mpf_cmp(lb, lc))
 	{
-		cpx_sub(df, fc, fa);
-		cpx_div(loc, zca, df);
+		cpx_sub(df, fb, fa);
+		cpx_div(loc, zba, df);
 	}
 	else
 	{
-		cpx_sub(df, fb, fa);
-		cpx_div(loc, zcb, df);
+		cpx_sub(df, fc, fa);
+		cpx_div(loc, zca, df);
 	}
 
 	cpx_mul(loc, loc, fa);
 	cpx_sub(loc, za, loc);
 
-	mpf_clear(la);
 	mpf_clear(lb);
+	mpf_clear(lc);
+	cpx_clear(zba);
 	cpx_clear(zca);
-	cpx_clear(zcb);
 	cpx_clear(df);
 }
 
