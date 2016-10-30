@@ -30,18 +30,6 @@
 #include "mp-misc.h"
 #include "mp-zerofind.h"
 
-#ifdef TEST
-static void test_parabola(cpx_t y, cpx_t s, int nprec)
-{
-	cpx_t cent;
-	cpx_init (cent);
-	cpx_set_d(cent, 0.4980812345, 18.313412345);
-	cpx_sub(cent, cent, s);
-	cpx_mul(y, cent, cent);
-	cpx_clear (cent);
-}
-#endif
-
 /* ---------------------------------------------- */
 /*
  * Find bottom of parabola.  Given three points,
@@ -624,9 +612,12 @@ int cpx_find_zero(cpx_t result,
 			}
 		}
 
-#if 1
+#if 0
+cpx_sub(s3, s1, s0);
+cpx_abs (zero, s3);
 printf("#\n# %d ", i);
 cpx_prt("s0 = ", s0); printf("\n");
+fp_prt("# err= ", zero); printf("\n");
 fp_prt("# min= ", f0); printf("\n");
 fflush (stdout);
 #endif
@@ -653,3 +644,43 @@ fflush (stdout);
 
 	return rc;
 }
+
+/* =============================================== */
+
+#define TEST
+#ifdef TEST
+static void foo(cpx_t y, cpx_t s, int nprec)
+{
+cpx_prt("called with= ", s); printf("\n");
+	cpx_t cent;
+	cpx_init (cent);
+	cpx_set_d(cent, 0.4980812345, 18.313412345);
+	cpx_sub(cent, s, cent);
+	cpx_times_d(cent, cent, 5.11);
+	cpx_set(y, cent);
+cpx_prt("returning ", y); printf("\n");
+	cpx_clear (cent);
+}
+
+int main()
+{
+	cpx_t z0, zg, e1, e2;
+	cpx_init (z0);
+	cpx_init (zg);
+	cpx_init (e1);
+	cpx_init (e2);
+
+	cpx_set_d(zg, 0.5, 18.0);
+	cpx_set_d(e1, 1.0, 0.0);
+	cpx_set_d(e2, 0.0, 1.0);
+
+	int rc = cpx_find_zero(z0, foo, zg, e1, e2, 16, 20);
+
+	printf ("got rc=%d\n", rc);
+	cpx_prt("z0 = ", z0);
+	printf("\n");
+}
+
+#endif
+
+/* =============================================== */
