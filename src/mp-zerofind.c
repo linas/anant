@@ -575,7 +575,7 @@ int cpx_find_zero(cpx_t result,
 		}
 
 		conic(s3, s0, s1, s2, y0, y1, y2, bits);
-		func (y3, s2, nprec);
+		func (y3, s3, nprec);
 		cpx_abs(f3, y3);
 
 		if (0 < mpf_cmp(f3, f2))
