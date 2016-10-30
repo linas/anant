@@ -581,6 +581,7 @@ int cpx_find_zero(cpx_t result,
 		if (0 < mpf_cmp(f3, f2))
 		{
 			// Oh no Mr bill!  Its not an improvement!
+			cpx_set (result, s0);
 			rc = 1;
 			break;
 		}
@@ -647,8 +648,9 @@ fflush (stdout);
 
 /* =============================================== */
 
-#define TEST
+// #define TEST
 #ifdef TEST
+int iter = 0;
 static void foo(cpx_t y, cpx_t s, int nprec)
 {
 cpx_prt("called with= ", s); printf("\n");
@@ -656,10 +658,13 @@ cpx_prt("called with= ", s); printf("\n");
 	cpx_init (cent);
 	cpx_set_d(cent, 0.4980812345, 18.313412345);
 	cpx_sub(cent, s, cent);
-	cpx_times_d(cent, cent, 5.11);
-	cpx_set(y, cent);
+	cpx_times_d(y, cent, 5.11);
+	cpx_mul(cent, cent, cent);
+	cpx_times_d(cent, cent, 35.11);
+	cpx_add(y, y, cent);
 cpx_prt("returning ", y); printf("\n");
 	cpx_clear (cent);
+	iter ++;
 }
 
 int main()
@@ -674,10 +679,21 @@ int main()
 	cpx_set_d(e1, 1.0, 0.0);
 	cpx_set_d(e2, 0.0, 1.0);
 
+	iter = 0;
 	int rc = cpx_find_zero(z0, foo, zg, e1, e2, 16, 20);
 
-	printf ("got rc=%d\n", rc);
+	printf ("conic got rc=%d after %d iter\n", rc, iter);
 	cpx_prt("z0 = ", z0);
+	printf("\n\n\n\n");
+
+#if 1
+	iter = 0;
+	rc = cpx_find_zero_quad(z0, foo, zg, e1, e2, 16, 20);
+
+	printf ("quad got rc=%d after %d iter\n", rc, iter);
+	cpx_prt("z0 = ", z0);
+#endif
+
 	printf("\n");
 }
 
