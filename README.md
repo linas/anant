@@ -1,9 +1,9 @@
 
-           Anant  -- Algorithmic 'n Analytic Number Theory
-           -----------------------------------------------
-                           Version 0.2.1
-                      Linas Vepstas April 2012
-                       linasvepstas@gmail.com
+=Anant  -- Algorithmic 'n Analytic Number Theory
+
+-> Version 0.2.2 <-
+-> Linas Vepstas October 2016 <-
+-> linasvepstas@gmail.com <-
 
 
 This project contains ad-hoc implementations of assorted analytic
@@ -14,11 +14,11 @@ library (GMP) to perform all low-level operations.  The code herein
 is licensed under the terms of the Gnu GPLv3 license.
 
 This project is *NOT* meant to be a replacement for other, more
-established multi-precision systems, such as PARI/GP.  It is meant to
-be a staging area for implementations of functions that have not (yet)
-received much attention in the more established packages. Users are
-strongly encouraged to port the contents of this package to other
-systems.
+established multi-precision systems, such as MPFR or PARI/GP.  It is
+meant to be a staging area for implementations of functions that have
+not (yet) received much attention in the more established packages.
+Users are strongly encouraged to port the contents of this package
+to other systems.
 
 A note about floating-point exceptions: many of the special functions
 computed here have poles at various values.  These will show up as
@@ -44,12 +44,19 @@ Supported functions
 -------------------
 Many of the functions below are not "difficult"; what makes the code
 here unique is that many of these using caching and partial computation
-to avoid repeated computations. In some cases, the functions are
-particularly fast when called in "sequential" order, as would naturally
-occur in summations.
+to avoid repeated computations. In some cases, this caching allows the
+functions to be particularly fast when called in "sequential" order,
+as would naturally occur in summations.
 
-Arbitrary precision constants:
-------------------------------
+Another, apparently "unique" feature, as compared to established
+libraries, is that most of the functions are handled on the complex
+plane.  Thus, the system comes with bsic complex-number support.
+
+Some, but not all of the code is protected by spinlocks, and so can be
+used in parallel.
+
+Arbitrary precision constants
+-----------------------------
 * sqrt(3)/2, log(2)
 * e, e^pi
 * pi, 2pi, pi/2, sqrt(2pi), log(2pi), 2/pi
@@ -199,10 +206,10 @@ library.
 
 Current repository:
 -------------------
-in Bazaar, on Launchpad:
-   https://launchpad.net/anant
-
 in Git, on Github:
    https://github.com/linas/anant
+
+Older versions (2005 through 2012) can be found in Bazaar, on Launchpad:
+   https://launchpad.net/anant
 
 Source tarballs are available there too.
