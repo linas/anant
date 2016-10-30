@@ -37,11 +37,11 @@ test cases, or even a robust build system.  Caveat Emptor!
 There are several publications that describe this code, or make use of
 it. The most notable is this:
 
-Vepstas, L. (2008) "An efficient algorithm for accelerating
+Vepstas, L. (2008) ["An efficient algorithm for accelerating
 the convergence of oscillatory series, useful for computing the
-polylogarithm and Hurwitz zeta functions".
-[Numerical Algorithms vol. 47 issue 3: pp. 211-252]
+polylogarithm and Hurwitz zeta functions"]
 (http://link.springer.com/article/10.1007/s11075-007-9153-8).
+*Numerical Algorithms* vol. **47** issue 3: pp. 211-252.
 [arXiv:math.CA/0702243](https://arxiv.org/abs/math/0702243).
 doi:10.1007/s11075-007-9153-8.
 
