@@ -83,6 +83,7 @@ void fp_inv_pow (mpf_t p, unsigned int n, unsigned int m)
 	}
 	else
 	{
+		// XXX Need to set precision!
 		mpz_t ip;
 		mpz_init (ip);
 		i_pow (ip, n, m);
@@ -205,12 +206,13 @@ void fp_exp (mpf_t ex, const mpf_t z, unsigned int prec)
 
 static void fp_sine_series (mpf_t si, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zsq, z_n, fact, term;
 
-	mpf_init (zsq);
-	mpf_init (z_n);
-	mpf_init (fact);
-	mpf_init (term);
+	mpf_init2 (zsq, bits);
+	mpf_init2 (z_n, bits);
+	mpf_init2 (fact, bits);
+	mpf_init2 (term, bits);
 
 	/* Make copy of argument now! */
 	mpf_set (z_n, z);
@@ -220,7 +222,7 @@ static void fp_sine_series (mpf_t si, const mpf_t z, unsigned int prec)
 	/* Use 10^{-prec} for smallest term in sum */
 	prec += 2;
 	mpf_t maxterm;
-	mpf_init (maxterm);
+	mpf_init2 (maxterm, bits);
 	fp_epsilon (maxterm, prec);
 
 	unsigned int n=1;
@@ -267,12 +269,13 @@ static void fp_sine_series (mpf_t si, const mpf_t z, unsigned int prec)
 
 void fp_sine (mpf_t si, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zee, pih, per, top;
 
-	mpf_init (zee);
-	mpf_init (pih);
-	mpf_init (per);
-	mpf_init (top);
+	mpf_init2 (zee, bits);
+	mpf_init2 (pih, bits);
+	mpf_init2 (per, bits);
+	mpf_init2 (top, bits);
 
 	/* Make copy of argument now! */
 	mpf_set (zee, z);
@@ -321,12 +324,13 @@ void fp_sine (mpf_t si, const mpf_t z, unsigned int prec)
 
 static void fp_cosine_series (mpf_t co, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zee, z_n, fact, term;
 
-	mpf_init (zee);
-	mpf_init (z_n);
-	mpf_init (fact);
-	mpf_init (term);
+	mpf_init2 (zee, bits);
+	mpf_init2 (z_n, bits);
+	mpf_init2 (fact, bits);
+	mpf_init2 (term, bits);
 
 	/* Make copy of argument now! */
 	mpf_set (zee, z);
@@ -337,7 +341,7 @@ static void fp_cosine_series (mpf_t co, const mpf_t z, unsigned int prec)
 	/* Use 10^{-prec} for smallest term in sum */
 	prec +=2;
 	mpf_t maxterm;
-	mpf_init (maxterm);
+	mpf_init2 (maxterm, bits);
 	fp_epsilon (maxterm, prec);
 
 	unsigned int n=2;
@@ -385,10 +389,11 @@ static void fp_cosine_series (mpf_t co, const mpf_t z, unsigned int prec)
  */
 void fp_cosine (mpf_t si, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zee, pih;
 
-	mpf_init (zee);
-	mpf_init (pih);
+	mpf_init2 (zee, bits);
+	mpf_init2 (pih, bits);
 
 	/* Make copy of argument now! */
 	mpf_set (zee, z);
@@ -409,11 +414,12 @@ void fp_cosine (mpf_t si, const mpf_t z, unsigned int prec)
 
 void cpx_exp (cpx_t ex, const cpx_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t mag, si, co;
 
-	mpf_init (mag);
-	mpf_init (si);
-	mpf_init (co);
+	mpf_init2 (mag, bits);
+	mpf_init2 (si, bits);
+	mpf_init2 (co, bits);
 
 	fp_exp (mag, z->re, prec);
 	fp_cosine (co, z->im, prec);
@@ -429,8 +435,9 @@ void cpx_exp (cpx_t ex, const cpx_t z, unsigned int prec)
 
 void cpx_sine (cpx_t sn, const cpx_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t zee;
-	cpx_init (zee);
+	cpx_init2 (zee, bits);
 	cpx_times_i (zee, z);
 
 	cpx_exp (sn, zee, prec);
@@ -450,8 +457,9 @@ void cpx_sine (cpx_t sn, const cpx_t z, unsigned int prec)
 
 void cpx_cosine (cpx_t cs, const cpx_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t zee;
-	cpx_init (zee);
+	cpx_init2 (zee, bits);
 	cpx_times_i (zee, z);
 
 	cpx_exp (cs, zee, prec);
@@ -465,10 +473,11 @@ void cpx_cosine (cpx_t cs, const cpx_t z, unsigned int prec)
 
 void cpx_tangent (cpx_t tn, const cpx_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t zee, cn, sn;
-	cpx_init (zee);
-	cpx_init (cn);
-	cpx_init (sn);
+	cpx_init2 (zee, bits);
+	cpx_init2 (cn, bits);
+	cpx_init2 (sn, bits);
 
 	cpx_times_i (zee, z);
 	cpx_exp (tn, zee, prec);
@@ -501,11 +510,12 @@ void cpx_tangent (cpx_t tn, const cpx_t z, unsigned int prec)
 
 void fp_log_m1 (mpf_t lg, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zee, z_n, term;
 
-	mpf_init (zee);
-	mpf_init (z_n);
-	mpf_init (term);
+	mpf_init2 (zee, bits);
+	mpf_init2 (z_n, bits);
+	mpf_init2 (term, bits);
 
 	/* Make copy of argument now! */
 	mpf_set (zee, z);
@@ -514,7 +524,7 @@ void fp_log_m1 (mpf_t lg, const mpf_t z, unsigned int prec)
 
 	/* Use 10^{-prec} for smallest term in sum */
 	mpf_t maxterm;
-	mpf_init (maxterm);
+	mpf_init2 (maxterm, bits);
 	fp_epsilon (maxterm, prec);
 
 	unsigned int n=2;
@@ -540,8 +550,9 @@ void fp_log_m1 (mpf_t lg, const mpf_t z, unsigned int prec)
 
 static inline void fp_log_simple (mpf_t lg, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zee;
-	mpf_init (zee);
+	mpf_init2 (zee, bits);
 	if (mpf_cmp_d(z, 1.618) > 0)
 	{
 		mpf_ui_div (zee, 1, z);
@@ -583,11 +594,13 @@ void fp_log_2exp (mpf_t lg, unsigned int k, unsigned int prec)
  */
 static void fp_log_shiftadd (mpf_t lg, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+
 	mpf_t zee, ex, tp, su;
-	mpf_init (zee);
-	mpf_init (tp);
-	mpf_init (ex);
-	mpf_init (su);
+	mpf_init2 (zee, bits);
+	mpf_init2 (tp, bits);
+	mpf_init2 (ex, bits);
+	mpf_init2 (su, bits);
 
 	/* Make a copy of the input arguments now! */
 	mpf_set (zee, z);
@@ -620,8 +633,9 @@ static void fp_log_shiftadd (mpf_t lg, const mpf_t z, unsigned int prec)
 
 void fp_log (mpf_t lg, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t zee;
-	mpf_init (zee);
+	mpf_init2 (zee, bits);
 	mpf_set (zee, z);
 	int nexp = 0;
 
@@ -720,11 +734,12 @@ void fp_log_ui (mpf_t lg, unsigned int k, unsigned int prec)
 
 void cpx_log_m1 (cpx_t lg, const cpx_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t zee, z_n, term;
 
-	cpx_init (zee);
-	cpx_init (z_n);
-	cpx_init (term);
+	cpx_init2 (zee, bits);
+	cpx_init2 (z_n, bits);
+	cpx_init2 (term, bits);
 
 	/* Make copy of argument now! */
 	cpx_set (zee, z);
@@ -733,17 +748,17 @@ void cpx_log_m1 (cpx_t lg, const cpx_t z, unsigned int prec)
 
 	/* Use 10^{-prec} for smallest term in sum */
 	mpf_t sqterm, maxterm;
-	mpf_init (maxterm);
-	mpf_init (sqterm);
-	fp_epsilon (maxterm, 2*prec);
+	mpf_init2 (maxterm, bits);
+	mpf_init2 (sqterm, bits);
+	fp_epsilon (maxterm, 2*prec);  // XXX wtf ??
 
 	unsigned int n=2;
-	while(1)
+	while (1)
 	{
 		cpx_div_ui (term, z_n, n);
 		cpx_add (lg, lg, term);
 
-		/* don't go no farther than this */
+		/* Don't go no farther than this */
 		cpx_mod_sq (sqterm, term);
 		if (mpf_cmp (sqterm, maxterm) < 0) break;
 
@@ -761,8 +776,9 @@ void cpx_log_m1 (cpx_t lg, const cpx_t z, unsigned int prec)
 
 void cpx_log (cpx_t lg, const cpx_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t r;
-	mpf_init (r);
+	mpf_init2 (r, bits);
 
 	/* log (re^{itheta}) = log(r) +  itheta)
 	 * theta = arctan (y/x)
@@ -789,15 +805,16 @@ void cpx_log (cpx_t lg, const cpx_t z, unsigned int prec)
 
 static void atan_series (mpf_t atn, const mpf_t zee, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t z_n, zsq, term;
 
-	mpf_init (z_n);
-	mpf_init (zsq);
-	mpf_init (term);
+	mpf_init2 (z_n, bits);
+	mpf_init2 (zsq, bits);
+	mpf_init2 (term, bits);
 
 	/* Use 10^{-prec} for smallest term in sum */
 	mpf_t maxterm;
-	mpf_init (maxterm);
+	mpf_init2 (maxterm, bits);
 	fp_epsilon (maxterm, prec);
 
 	mpf_mul (zsq, zee, zee);
@@ -805,7 +822,7 @@ static void atan_series (mpf_t atn, const mpf_t zee, unsigned int prec)
 	mpf_set (atn, zee);
 
 	unsigned int n=1;
-	while(1)
+	while (1)
 	{
 		mpf_div_ui (term, z_n, 2*n+1);
 		if (n%2)
@@ -846,12 +863,14 @@ static void atan_series (mpf_t atn, const mpf_t zee, unsigned int prec)
  */
 static void atan2_reduce (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+
 	double fy = fabs (mpf_get_d (y));
 	double fx = fabs (mpf_get_d (x));
 	if (fy > fx)
 	{
 		mpf_t pih;
-		mpf_init (pih);
+		mpf_init2 (pih, bits);
 		fp_pi_half (pih, prec);
 		atan2_reduce (atn, x, y, prec);
 		mpf_sub (atn, pih, atn);
@@ -860,8 +879,8 @@ static void atan2_reduce (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int 
 	if (fy > 0.3*fx)
 	{
 		mpf_t newx, ysq;
-		mpf_init (newx);
-		mpf_init (ysq);
+		mpf_init2 (newx, bits);
+		mpf_init2 (ysq, bits);
 		mpf_mul (ysq, y, y);
 		mpf_mul (newx, x, x);
 		mpf_add (newx, newx, ysq);
@@ -877,7 +896,7 @@ static void atan2_reduce (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int 
 	else
 	{
 		mpf_t zee;
-		mpf_init (zee);
+		mpf_init2 (zee, bits);
 
 		mpf_div (zee, y, x);
 		atan_series (atn, zee, prec);
@@ -905,9 +924,10 @@ void fp_arctan2 (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec)
 		}
 		else if (0 > sgn_x)
 		{
+			mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 			mpf_t pi, negx;
-			mpf_init (pi);
-			mpf_init (negx);
+			mpf_init2 (pi, bits);
+			mpf_init2 (negx, bits);
 			fp_pi (pi, prec);
 			mpf_neg (negx, x);
 
@@ -930,9 +950,10 @@ void fp_arctan2 (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec)
 		}
 		else if (0 > sgn_x)
 		{
+			mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 			mpf_t negpi, negx;
-			mpf_init (negpi);
-			mpf_init (negx);
+			mpf_init2 (negpi, bits);
+			mpf_init2 (negx, bits);
 			fp_pi (negpi, prec);
 			mpf_neg (negpi, negpi);
 			mpf_neg (negx, x);
@@ -953,9 +974,10 @@ void fp_arctan2 (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec)
 
 void fp_arctan (mpf_t atn, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t one;
-	mpf_init (one);
-	mpf_set_ui (one,1);
+	mpf_init2 (one, bits);
+	mpf_set_ui (one, 1);
 	fp_arctan2 (atn, z, one, prec);
 	mpf_clear (one);
 }
@@ -964,15 +986,16 @@ void fp_arctan (mpf_t atn, const mpf_t z, unsigned int prec)
 
 void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t modulus;
-	mpf_init (modulus);
+	mpf_init2 (modulus, bits);
 
 	cpx_mod_sq (modulus, z);
 	mpf_sqrt (modulus, modulus);
 
 #ifdef GET_HALF_ANGLE_ARCTAN_STYLE
 	mptf_t phase;
-	mpf_init (phase);
+	mpf_init2 (phase, bits);
 	fp_arctan2 (phase, z[0].im, z[0].re, prec);
 	mpf_div_ui (phase, phase, 2);
 
@@ -1025,10 +1048,11 @@ void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
  */
 void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t logkq, mag, pha;
-	mpf_init (logkq);
-	mpf_init (mag);
-	mpf_init (pha);
+	mpf_init2 (logkq, bits);
+	mpf_init2 (mag, bits);
+	mpf_init2 (pha, bits);
 
 	/* Domain error is kq is not positive
 	 * We could define this to be exp (i pi s) times result, but I'm lazy */
@@ -1071,8 +1095,9 @@ void cpx_mpf_pow (cpx_t powc, const mpf_t kq, const cpx_t ess, int prec)
  */
 void cpx_pow (cpx_t powc, const cpx_t que, const cpx_t ess, int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t logq;
-	cpx_init (logq);
+	cpx_init2 (logq, bits);
 
 	cpx_log (logq, que, prec);
 	cpx_mul (logq, logq, ess);
@@ -1128,10 +1153,12 @@ void cpx_pow_ui (cpx_t powc, const cpx_t q, unsigned int n)
  */
 void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+
 	mpf_t logkq, mag, pha;
-	mpf_init (logkq);
-	mpf_init (mag);
-	mpf_init (pha);
+	mpf_init2 (logkq, bits);
+	mpf_init2 (mag, bits);
+	mpf_init2 (pha, bits);
 
 	fp_log_ui (logkq, k, prec);
 
@@ -1204,16 +1231,17 @@ void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
  */
 void cpx_harmonic(cpx_t hns, unsigned int n, const cpx_t ess, int prec)
 {
-	unsigned int k;
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t powc;
 	cpx_t mess;
 
-	cpx_init(mess);
-	cpx_init(powc);
+	cpx_init2(mess, bits);
+	cpx_init2(powc, bits);
 
 	cpx_neg(mess, ess); // mess is -ess
 	cpx_set_ui(hns, 0, 0);
 
+	unsigned int k;
 	for (k=1; k<=n; k++)
 	{
 		cpx_ui_pow_cache(powc, k, mess, prec);
@@ -1247,6 +1275,7 @@ void fp_pow_rc (cpx_t powc, int k, const mpf_t q, const cpx_t ess, int prec)
 	static mpf_t *next_q;
 	static cpx_t *next_s;
 
+	// XXX FIXME not thread-safe!
 	if (!precision)
 	{
 		mpf_init (cache_q_one);
@@ -1307,8 +1336,9 @@ void fp_pow_rc (cpx_t powc, int k, const mpf_t q, const cpx_t ess, int prec)
 		cpx_set(*next_s, ess);
 	}
 
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t kq;
-	mpf_init (kq);
+	mpf_init2 (kq, bits);
 	mpf_add_ui (kq, q, k);
 	cpx_mpf_pow (powc, kq, ess, prec);
 	mpf_clear (kq);
@@ -1387,8 +1417,9 @@ void cpx_pow_rc (cpx_t powc, int k, const cpx_t q, const cpx_t ess, int prec)
 	}
 
 
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	cpx_t kq;
-	cpx_init (kq);
+	cpx_init2 (kq, bits);
 	mpf_add_ui (kq[0].re, q[0].re, k);
 	mpf_set (kq[0].im, q[0].im);
 	cpx_pow (powc, kq, ess, prec);
@@ -1398,4 +1429,3 @@ void cpx_pow_rc (cpx_t powc, int k, const cpx_t q, const cpx_t ess, int prec)
 }
 
 /* =============================== END OF FILE =========================== */
-
