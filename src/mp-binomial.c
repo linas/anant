@@ -86,7 +86,7 @@ void i_factorial (mpz_t fact, unsigned int n)
 
 /* ====================================================================== */
 
-/* compute and cache inverse factorial */
+/* Compute and cache inverse factorial. */
 void fp_inv_factorial (mpf_t inv, unsigned int k, unsigned int prec)
 {
 	DECLARE_FP_CACHE (infac);

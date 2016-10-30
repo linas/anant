@@ -239,8 +239,8 @@ void fp_pi_half (mpf_t pih, unsigned int prec)
 	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
-		pthread_spin_unlock(&mp_const_lock);
 		mpf_set (pih, cached_pih);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -272,8 +272,8 @@ void fp_sqrt_two_pi (mpf_t sqtpi, unsigned int prec)
 	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
-		pthread_spin_unlock(&mp_const_lock);
 		mpf_set (sqtpi, cached_sqtpi);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 
@@ -305,8 +305,8 @@ void fp_log_two_pi (mpf_t ltp, unsigned int prec)
 	pthread_spin_lock(&mp_const_lock);
 	if (precision >= prec)
 	{
-		pthread_spin_unlock(&mp_const_lock);
 		mpf_set (ltp, cached_ltp);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
 

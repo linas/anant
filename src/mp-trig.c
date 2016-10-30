@@ -106,7 +106,7 @@ void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec)
 {
 	mpf_t zee, z_n, fact, term;
 
-	mp_bitcnt_t bits = ((double) prec) * 3.3219281 + 10;
+	mp_bitcnt_t bits = ((double) prec) * 3.3219281 + 50;
 	mpf_init2 (zee, bits);
 	mpf_init2 (z_n, bits);
 	mpf_init2 (fact, bits);
@@ -158,9 +158,11 @@ void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec)
  */
 void fp_exp (mpf_t ex, const mpf_t z, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.3219281 + 50;
+
 	mpf_t zee, zf;
-	mpf_init (zee);
-	mpf_init (zf);
+	mpf_init2 (zee, bits);
+	mpf_init2 (zf, bits);
 
 	mpf_set (zee, z);
 	mpf_floor (zf, zee);
@@ -174,7 +176,7 @@ void fp_exp (mpf_t ex, const mpf_t z, unsigned int prec)
 	}
 	fp_exp_helper (ex, zee, prec);
 
-	/* If there's an integerpart, compute e^intpart */
+	/* If there's an integer part, compute e^intpart */
 	if (intpart)
 	{
 		fp_e (zee, prec);
