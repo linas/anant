@@ -49,16 +49,18 @@ static void test_parabola(cpx_t y, cpx_t s, int nprec)
  *
  * Return the bottom in "loc"
  */
-static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
-              mpf_t fa, mpf_t fb, mpf_t fc)
+static void quad_min(mpf_t loc,
+                     mpf_t a, mpf_t b, mpf_t c,
+                     mpf_t fa, mpf_t fb, mpf_t fc,
+                     mp_bitcnt_t bits)
 {
 	mpf_t ba, bc, fba, fbc, deno, numer;
-	mpf_init (ba);
-	mpf_init (bc);
-	mpf_init (fba);
-	mpf_init (fbc);
-	mpf_init (deno);
-	mpf_init (numer);
+	mpf_init2 (ba, bits);
+	mpf_init2 (bc, bits);
+	mpf_init2 (fba, bits);
+	mpf_init2 (fbc, bits);
+	mpf_init2 (deno, bits);
+	mpf_init2 (numer, bits);
 
 	/* differences */
 	mpf_sub (ba, b, a);
@@ -100,6 +102,33 @@ static void quad_min(mpf_t loc, mpf_t a, mpf_t b, mpf_t c,
 	mpf_clear (fbc);
 	mpf_clear (deno);
 	mpf_clear (numer);
+}
+
+/* ---------------------------------------------- */
+// Try to fit a conic section.
+//
+// Assume that the the points fa, fb, fc sit on the surface of a cone,
+// and that the tip of the cone is the zero. Just fit the conic section
+// and use that to estimate the location of the tip of the cone.
+
+static void conic(cpx_t loc,
+                  cpx_t za, cpx_t zb, cpx_t zc,
+                  cpx_t fa, cpx_t fb, cpx_t fc,
+                  mp_bitcnt_t bits)
+{
+	cpx_t zcb, fcb;
+	cpx_init2(zcb, bits);
+	cpx_init2(fcb, bits);
+
+	cpx_sub(zcb, zc, zb);
+	cpx_sub(fcb, fc, fb);
+	cpx_div(loc, zcb, fcb);
+
+	cpx_mul(loc, loc, fa);
+	cpx_sub(loc, za, loc);
+
+	cpx_clear(zcb);
+	cpx_clear(fcb);
 }
 
 /* =============================================== */
@@ -250,7 +279,7 @@ int cpx_find_zero(cpx_t result,
 			ABSVAL(f2, y2);
 
 			/* loc provides new minimum, along direction a */
-			quad_min (loc, lam0, lam1, lam2, f0, f1, f2);
+			quad_min (loc, lam0, lam1, lam2, f0, f1, f2, bits);
 
 			/* Move to that location */
 			cpx_times_mpf (nc, na, loc);
@@ -325,7 +354,7 @@ int cpx_find_zero(cpx_t result,
 			ABSVAL(f2, y2);
 
 			/* loc provides new minimum, along direction a */
-			quad_min (loc, lam0, lam1, lam2, f0, f1, f2);
+			quad_min (loc, lam0, lam1, lam2, f0, f1, f2, bits);
 
 			/* Move to that location */
 			cpx_times_mpf (nc, nb, loc);
