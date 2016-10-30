@@ -39,9 +39,20 @@ it. The most notable is this:
 
 Vepstas, L. (2008) "An efficient algorithm for accelerating
 the convergence of oscillatory series, useful for computing the
-polylogarithm and Hurwitz zeta functions". Numerical Algorithms
-vol. 47 issue 3: pp. 211-252. arXiv:math.CA/0702243.
+polylogarithm and Hurwitz zeta functions".
+[Numerical Algorithms vol. 47 issue 3: pp. 211-252]
+(http://link.springer.com/article/10.1007/s11075-007-9153-8).
+[arXiv:math.CA/0702243](https://arxiv.org/abs/math/0702243).
 doi:10.1007/s11075-007-9153-8.
+
+The most fun thing created with this code is this:
+[Linas' Art Gallery](https://linas.org/art-gallery).
+
+The most verbose thing created with this code is this:
+[The Modular Group and Fractals](https://linas.org/math/sl2z.html)
+<i>An exploration of the relationship between Fractals, the Riemann Zeta,
+the Modular Group Gamma, the Farey Fractions and the Minkowski Question
+Mark.</i>
 
 Supported functions
 -------------------
