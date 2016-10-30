@@ -32,7 +32,7 @@ extern "C" {
 /**
  * fp_half_sqrt_three - return sqrt(3)/2 = 0.86602...
  */
-void fp_half_sqrt_three (mpf_t sqt);
+void fp_half_sqrt_three (mpf_t sqt, unsigned int prec);
 
 /**
  * fp_e - return e=2.718281828...

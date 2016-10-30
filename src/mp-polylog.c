@@ -339,7 +339,7 @@ static inline int polylog_recurse_triple (cpx_t plog, const cpx_t ess, const cpx
 	mpf_set_ui (tr[0].re, 1);
 	mpf_div_ui (tr[0].re, tr[0].re, 2);
 	mpf_neg (tr[0].re, tr[0].re);
-	fp_half_sqrt_three (tr[0].im);
+	fp_half_sqrt_three (tr[0].im, prec);
 
 	cpx_mul (zcu, tr, zee);
 	rc = recurse_away_polylog (pu, s, zcu, prec, depth);

@@ -37,28 +37,49 @@
 #include "mp-zeta.h"
 
 /* ======================================================================= */
+// multi-threading locks.
+// All the constants share one lock, there should be no contention.
+
+static pthread_spinlock_t mp_const_lock;
+static pthread_spinlock_t mp_pi_lock;
+__attribute__((constructor)) void fp_e_ctor(void)
+{
+	pthread_spin_init(&mp_const_lock, 0);
+	pthread_spin_init(&mp_pi_lock, 0);
+}
+
+/* ======================================================================= */
 /**
  * fp_half_sqrt_three - return 0.5*sqrt(3)= 0.86602...
  */
-
-void fp_half_sqrt_three (mpf_t sqt)
+void fp_half_sqrt_three (mpf_t sqt, unsigned int prec)
 {
-	static bool init=0;
+	static unsigned int precision=0;
 	static mpf_t cached_sqt;
 
-	if (init)
+	pthread_spin_lock(&mp_const_lock);
+	if (precision >= prec)
 	{
 		mpf_set (sqt, cached_sqt);
+		pthread_spin_unlock(&mp_const_lock);
 		return;
 	}
-	mpf_init (cached_sqt);
+
+	if (0 == precision)
+	{
+		mpf_init (cached_sqt);
+	}
+
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+	mpf_set_prec (cached_sqt, bits);
 
 	mpf_set_ui (sqt, 3);
 	mpf_sqrt (sqt, sqt);
 	mpf_div_ui (sqt, sqt, 2);
 	mpf_set (cached_sqt, sqt);
 
-	init =1;
+	precision = prec;
+	pthread_spin_unlock(&mp_const_lock);
 }
 
 /* ======================================================================= */
@@ -70,14 +91,6 @@ void fp_half_sqrt_three (mpf_t sqt)
  */
 
 extern void fp_exp_helper (mpf_t ex, const mpf_t z, unsigned int prec);
-
-static pthread_spinlock_t mp_const_lock;
-static pthread_spinlock_t mp_pi_lock;
-__attribute__((constructor)) void fp_e_ctor(void)
-{
-	pthread_spin_init(&mp_const_lock, 0);
-	pthread_spin_init(&mp_pi_lock, 0);
-}
 
 void fp_e (mpf_t e, unsigned int prec)
 {
@@ -97,10 +110,11 @@ void fp_e (mpf_t e, unsigned int prec)
 		mpf_init (cached_e);
 	}
 
-	mpf_set_prec (cached_e, 3.322*prec +50);
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+	mpf_set_prec (cached_e, bits);
 
 	mpf_t one;
-	mpf_init (one);
+	mpf_init2 (one, bits);
 	mpf_set_ui (one, 1);
 	fp_exp_helper (cached_e, one, prec);
 	mpf_set (e, cached_e);
@@ -134,11 +148,12 @@ void fp_pi (mpf_t pi, unsigned int prec)
 	{
 		mpf_init (cached_pi);
 	}
-	mpf_set_prec (cached_pi, 3.322*prec +50);
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+	mpf_set_prec (cached_pi, bits);
 
 	/* Simple-minded Machin formula */
 	mpf_t tmp;
-	mpf_init(tmp);
+	mpf_init2 (tmp, bits);
 	mpf_set_ui (tmp, 1);
 	mpf_div_ui (tmp, tmp, 5);
 	fp_arctan (pi, tmp, prec);
@@ -348,10 +363,11 @@ void fp_log2 (mpf_t l2, unsigned int prec)
 	{
 		mpf_init (cached_log2);
 	}
-	mpf_set_prec (cached_log2, 3.322*prec +50);
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
+	mpf_set_prec (cached_log2, bits);
 
 	mpf_t two;
-	mpf_init (two);
+	mpf_init2 (two, bits);
 	mpf_set_ui (two, 2);
 	fp_log (cached_log2, two, prec);
 	mpf_set (l2, cached_log2);
@@ -404,16 +420,17 @@ void fp_e_pi (mpf_t e_pi, unsigned int prec)
  */
 static void fp_euler_mascheroni_limit (mpf_t gam, unsigned int n, unsigned int prec)
 {
+	mp_bitcnt_t bits = ((double) prec) * 3.322 + 50;
 	mpf_t maxterm;
-	mpf_init (maxterm);
+	mpf_init2 (maxterm, bits);
 	mpf_set_ui (maxterm, 1);
 
 	mpf_t z_n, twon, term, tmp, fact;
-	mpf_init (z_n);
-	mpf_init (twon);
-	mpf_init (term);
-	mpf_init (tmp);
-	mpf_init (fact);
+	mpf_init2 (z_n, bits);
+	mpf_init2 (twon, bits);
+	mpf_init2 (term, bits);
+	mpf_init2 (tmp, bits);
+	mpf_init2 (fact, bits);
 	mpf_set_ui (twon, 1);
 	mpf_mul_2exp(twon, twon, n);
 	mpf_mul (z_n, twon, twon);
@@ -423,7 +440,7 @@ static void fp_euler_mascheroni_limit (mpf_t gam, unsigned int n, unsigned int p
 
 	/* The k=1 term is handled above in init */
 	unsigned int k=2;
-	while(1)
+	while (1)
 	{
 		fp_harmonic (tmp, k, prec);
 		mpf_mul (term, z_n, tmp);
