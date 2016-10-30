@@ -444,19 +444,44 @@ static void conic(cpx_t loc,
                   cpx_t fa, cpx_t fb, cpx_t fc,
                   mp_bitcnt_t bits)
 {
-	cpx_t zcb, fcb;
-	cpx_init2(zcb, bits);
-	cpx_init2(fcb, bits);
+	cpx_t df;
+	cpx_init2(df, bits);
 
+	cpx_t zca, zcb;
+	cpx_init2(zca, bits);
+	cpx_init2(zcb, bits);
+
+	cpx_sub(zca, zc, za);
 	cpx_sub(zcb, zc, zb);
-	cpx_sub(fcb, fc, fb);
-	cpx_div(loc, zcb, fcb);
+
+	mpf_t la, lb;
+	mpf_init2(la, bits);
+	mpf_init2(lb, bits);
+
+	cpx_abs(la, zca);
+	cpx_abs(lb, zcb);
+
+	// This is true, if la is longer than lb
+	// Always use the longer arm of extrapolation.
+	if (0 < mpf_cmp(la, lb))
+	{
+		cpx_sub(df, fc, fa);
+		cpx_div(loc, zca, df);
+	}
+	else
+	{
+		cpx_sub(df, fb, fa);
+		cpx_div(loc, zcb, df);
+	}
 
 	cpx_mul(loc, loc, fa);
 	cpx_sub(loc, za, loc);
 
+	mpf_clear(la);
+	mpf_clear(lb);
+	cpx_clear(zca);
 	cpx_clear(zcb);
-	cpx_clear(fcb);
+	cpx_clear(df);
 }
 
 /* =============================================== */
@@ -620,6 +645,7 @@ printf("#\n# %d ", i);
 cpx_prt("s0 = ", s0); printf("\n");
 fp_prt("# err= ", zero); printf("\n");
 fp_prt("# min= ", f0); printf("\n");
+printf("\n");
 fflush (stdout);
 #endif
 
