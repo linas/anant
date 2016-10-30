@@ -2,11 +2,11 @@
 Anant  -- Algorithmic 'n Analytic Number Theory
 ===============================================
 
-<center><b>
+<p style="text-align: center;"><b>
 <i>Version 0.2.2</i><br>
 Linas Vepstas October 2016<br>
 linasvepstas@gmail.com
-</b></center>
+</b></p>
 
 
 This project contains ad-hoc implementations of assorted analytic
