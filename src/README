@@ -1,0 +1,11 @@
+
+
+Development status:
+
+thread-safety:
+--------------
+    mp-consts.c: done
+
+precision management:
+---------------------
+All precision is ad-hoc.
