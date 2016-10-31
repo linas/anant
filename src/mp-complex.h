@@ -148,10 +148,11 @@ static inline void cpx_conj (cpx_t neg, const cpx_t a)
  */
 static inline void cpx_mul (cpx_t prod, const cpx_t a, const cpx_t b)
 {
+	mp_bitcnt_t bits = mpf_get_prec(prod[0].re) + 8;
 	mpf_t pre, pim, tmp;
-	mpf_init (pre);
-	mpf_init (pim);
-	mpf_init (tmp);
+	mpf_init2 (pre, bits);
+	mpf_init2 (pim, bits);
+	mpf_init2 (tmp, bits);
 	
 	mpf_mul (tmp, a[0].im, b[0].im);
 	mpf_mul (pre, a[0].re, b[0].re);
@@ -174,8 +175,9 @@ static inline void cpx_mul (cpx_t prod, const cpx_t a, const cpx_t b)
  */
 static inline void cpx_times_i (cpx_t z, const cpx_t a)
 {
+	mp_bitcnt_t bits = mpf_get_prec(z[0].re) + 8;
 	mpf_t tmp;
-	mpf_init (tmp);
+	mpf_init2 (tmp, bits);
 	mpf_set (tmp, a[0].re);
 	mpf_neg (z[0].re, a[0].im);
 	mpf_set (z[0].im, tmp);
@@ -217,9 +219,10 @@ static inline void cpx_times_d (cpx_t prod, const cpx_t a, double b)
  */
 static inline void cpx_recip (cpx_t recip, const cpx_t z)
 {
+	mp_bitcnt_t bits = mpf_get_prec(recip[0].re) + 8;
 	mpf_t mag,tmp;
-	mpf_init (mag);
-	mpf_init (tmp);
+	mpf_init2 (mag, bits);
+	mpf_init2 (tmp, bits);
 	mpf_mul (mag, z[0].re, z[0].re);
 	mpf_mul (tmp, z[0].im, z[0].im);
 	mpf_add (mag, mag, tmp);
@@ -237,8 +240,9 @@ static inline void cpx_recip (cpx_t recip, const cpx_t z)
  */
 static inline void cpx_div (cpx_t ratio, const cpx_t a, const cpx_t b)
 {
+	mp_bitcnt_t bits = mpf_get_prec(ratio[0].re) + 8;
 	cpx_t recip;
-	cpx_init (recip);
+	cpx_init2 (recip, bits);
 
 	cpx_recip (recip, b);
 	cpx_mul (ratio, a, recip);
@@ -265,8 +269,9 @@ static inline void cpx_div_ui (cpx_t ratio, const cpx_t a, unsigned long b)
  */
 static inline void cpx_mod_sq (mpf_t mod, const cpx_t z)
 {
+	mp_bitcnt_t bits = mpf_get_prec(mod) + 8;
 	mpf_t tmp;
-	mpf_init (tmp);
+	mpf_init2 (tmp, bits);
 	
 	mpf_mul (tmp, z[0].im, z[0].im);
 	mpf_mul (mod, z[0].re, z[0].re);
