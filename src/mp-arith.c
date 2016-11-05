@@ -37,7 +37,11 @@
  * See https://en.wikipedia.org/wiki/Divisor_function
  * Uses cached values.
  *
- * Brute force, simple.
+ * Brute force, very simple. There is a simple and much faster recursive
+ * algorithm for this, if we have a list of prime numbers on hand.
+ * However, the below is adequate for current purposes (mostly because
+ * practical work with the partition function below never gets past
+ * a value of about n=50K or 100K or so, so the brute-force sum is tenable).
  */
 static void sigma_one_z_nocache (mpz_t sum, unsigned int n)
 {
