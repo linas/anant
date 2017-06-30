@@ -3,8 +3,8 @@ Anant  -- Algorithmic 'n Analytic Number Theory
 ===============================================
 
 <p style="text-align: center;"><b>
-<i>Version 0.2.2</i><br>
-Linas Vepstas October 2016<br>
+<i>Version 0.2.3</i><br>
+Linas Vepstas June 2017<br>
 linasvepstas@gmail.com
 </b></p>
 
@@ -19,9 +19,13 @@ is licensed under the terms of the Gnu GPLv3 license.
 This project is *NOT* meant to be a replacement for other, more
 established multi-precision systems, such as MPFR or PARI/GP.  It is
 meant to be a staging area for implementations of functions that have
-not (yet) received much attention in the more established packages.
+not (yet!) received much attention in the more established packages.
 Users are strongly encouraged to port the contents of this package
-to other systems.
+to other systems. Please! 
+
+Seriously: the stuff here is still cutting-edge, fifteen years on.
+I really would like to see the "serious" math packages actually
+implement these functions!
 
 A note about floating-point exceptions: many of the special functions
 computed here have poles at various values.  These will show up as
@@ -32,7 +36,8 @@ This package has its origins as a collection of tools & utilities for
 the benefit of the author.  As such, it was never really intended for
 public consumption, and thus, will not have the usual amenities of
 established projects, such as clear documentation, a website, unit
-test cases, or even a robust build system.  Caveat Emptor!
+test cases, or even a robust build system.  Caveat Emptor! It works
+great for me, and I use it all the time; but I am me, and not you.
 
 There are several publications that describe this code, or make use of
 it. The most notable is this:
@@ -57,17 +62,20 @@ Mark.</i>
 Supported functions
 -------------------
 Many of the functions below are not "difficult"; what makes the code
-here unique is that many of these using caching and partial computation
+here unique is that many of these use caching and partial computation
 to avoid repeated computations. In some cases, this caching allows the
 functions to be particularly fast when called in "sequential" order,
-as would naturally occur in summations.
+as would naturally occur in summations. This can provide speedups of
+over a thousand-fold, when used correctly!
 
 Another, apparently "unique" feature, as compared to established
 libraries, is that most of the functions are handled on the complex
-plane.  Thus, the system comes with bsic complex-number support.
+plane.  Thus, the system comes with basic complex-number support.
 
 Some, but not all of the code is protected by spinlocks, and so can be
-used in parallel.
+used in parallel, i.e. in a multi-threaded setting. This can also give
+a big boost in performance.  This code is used regularly on a 24-core
+CPU. It works.
 
 Arbitrary precision constants
 -----------------------------
@@ -83,8 +91,8 @@ Combinatorial functions:
 * Partition function (integer)
 * Reciprocal factorial
 * Sequential binomial coefficient
-* Stirling Numbers of the First kind
-* Stirling Numbers of the Second kind
+* Stirling Numbers of the First Kind
+* Stirling Numbers of the Second Kind
 * Bernoulli Numbers
 * Binomial transform of power sum
 * Rising pochhammer symbol (real)    i.e. (s)_n for real s
@@ -119,6 +127,7 @@ Number-theoretic functions:
 Utilities:
 ----------
 * Powell's method for zero-finding on complex plane (noise-cancelling variant).
+* Ordinary and exponential generating functions for airthmetic functions.
 
 
 Pre-requisites, Compiling, Installing, Testing
