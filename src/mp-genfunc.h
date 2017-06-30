@@ -1,5 +1,5 @@
 /*
- * Generating functions for assorted number-theoretic functions
+ * Assorted generating functions for arithmetic functions.
  * Implementation in bignums.
  *
  * October 2016
@@ -12,15 +12,15 @@ extern "C" {
 #endif
 
 /*
- * Ordinary generating function for arithmetic series.
+ * Ordinary generating function for arithmetic functions.
  */
 void cpx_ordinary_genfunc(cpx_t sum, cpx_t z, int prec,
                           long (*func)(long));
 
 /*
- * Exponential generating function for arithmetic series.
- * The second form expects func to return a value in the reference
- * mpf_t*
+ * Exponential generating function for arithmetic functions.
+ * The second form expects func to return a value of type mpf_t
+ * in the first argument.
  */
 void cpx_exponential_genfunc(cpx_t sum, cpx_t z, int prec,
                              long (*func)(long));

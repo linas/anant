@@ -1,5 +1,5 @@
 /*
- * Generating functions for assorted number-theoretic functions
+ * Assorted generating functions for arithmetic functions.
  * Implementation in bignums.
  *
  * Linas Vepstas - April 2016, October 2016
@@ -14,7 +14,7 @@
 #include <mp-complex.h>
 #include <mp-consts.h>
 
-#include "genfunc.h"
+#include "mp-genfunc.h"
 
 /*
  * Ordinary generating function for function func.
@@ -22,7 +22,7 @@
  *
  * Assumes that func(n) is some arithmetic series.
  * Assumes that ogf(z) does not converge for |z|>=1
- * Assumes that ogf9z) converges poorly near |z|=1, so that
+ * Assumes that ogf(z) converges poorly near |z|=1, so that
  *    some termination measures are taken, so that the sum does
  *    not run forever. The termination measures assume that
  *    func(n) is bounded by n.  i.e. this is to gaurantee good
@@ -39,7 +39,7 @@ void cpx_ordinary_genfunc(cpx_t sum, cpx_t z, int prec, long (*func)(long))
 
 	cpx_set_ui(sum, 0, 0);
 
-	// falls apart if z is zero.
+	// Falls apart if z is zero.
 	cpx_abs(gabs, z);
 	if (0 > mpf_cmp(gabs, epsi)) return;
 
@@ -94,7 +94,8 @@ void cpx_ordinary_genfunc(cpx_t sum, cpx_t z, int prec, long (*func)(long))
  * Computes egf(z) = exp(-|z|) sum_{n=1}^infty func(n) z^n / n!
  *
  * Note the assumption about the leading asymptotic behavior of
- * the series.
+ * the series. This is a reasonable assumption in many cases, but
+ * not always. Your mileage may vary.
  */
 void cpx_exponential_genfunc(cpx_t sum, cpx_t z, int prec, long (*func)(long))
 {
@@ -227,15 +228,6 @@ void cpx_exponential_genfunc_mpf(cpx_t sum, cpx_t z, int prec,
 
 	cpx_times_mpf(sum, sum, gabs);
 
-#if 0
-double s = mpf_get_d(gabs);
-cpx_abs(gabs, z);
-double r = mpf_get_d(gabs);
-cpx_abs(gabs, sum);
-double g = mpf_get_d(gabs);
-double ph = 0.5 + 0.5 * atan2(cpx_get_im(z), cpx_get_re(z))/M_PI;
-printf("duuude r=%9.3f ph=%f n=%d g=%9.5e scale=%g\n", r, ph, n, g,s);
-#endif
 	mpf_clear (gabs);
 	mpf_clear (zabs);
 	mpf_clear (epsi);
