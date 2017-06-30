@@ -22,7 +22,6 @@ meant to be a staging area for implementations of functions that have
 not (yet!) received much attention in the more established packages.
 Users are strongly encouraged to port the contents of this package
 to other systems. Please! 
-
 Seriously: the stuff here is still cutting-edge, fifteen years on.
 I really would like to see the "serious" math packages actually
 implement these functions!
