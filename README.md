@@ -235,3 +235,10 @@ Older versions (2005 through 2012) can be found in Bazaar, on Launchpad:
    https://launchpad.net/anant
 
 Source tarballs are available there too.
+
+Related projects:
+-----------------
+* [C library for arbitrary-precision interval arithmetic](http://arblib.org/)
+  from Fredrik Johansson.  This library includes Airy and Bessel
+  functions, the error function, as well as the modular j-function and
+  others. [Github repo](https://github.com/fredrik-johansson/arb/)
