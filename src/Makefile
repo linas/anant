@@ -7,12 +7,15 @@
 CC = cc
 
 
-EXES= db-merge db-prt mp-multiplicative
-# EXES+= mp-topsin
+EXES= db-merge db-prt
+
+TESTS=
+# TESTS += mp-multiplicative
+# TESTS += mp-topsin
 
 MPLIB=libanant.a
 
-all:  $(MPLIB) $(EXES)
+all:  $(MPLIB) $(EXES) $(TESTS)
 
 MPOBJS= db-cache.o mp-arith.o mp-binomial.o mp-cache.o mp-consts.o \
 	mp-gamma.o mp-genfunc.o mp-gkw.o mp-hyper.o mp-misc.o \

@@ -98,11 +98,17 @@ void cpx_multiplicative_cached(cpx_t result,
 		cpx_one_d_cache_store(&primca, res, nn, pr);
 	}
 
+	if (cpx_one_d_cache_check(&prodca, n))
+	{
+		cpx_one_d_cache_fetch(&prodca, result, n);
+		return;
+	}
 	cpx_multiplicative(result, wrapper, n, nprec);
+	cpx_one_d_cache_store(&prodca, result, n, nprec);
 }
 
 // ============================================================
-#define TEST
+// #define TEST
 #ifdef TEST
 #include <stdio.h>
 
