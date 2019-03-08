@@ -134,7 +134,8 @@ void fp_binomial_d (mpf_t bin, double s, unsigned int k);
 
 /**
  * cpx_binomial-- Complex binomial coefficient
- * Compute the binomial coefficient (s, k) for complex s.
+ * Compute the binomial coefficient (s k) for complex s.
+ * That is, $ {s \choose k} $
  */
 void cpx_binomial_d (cpx_t bin, double re_s, double im_s, unsigned int k);
 void cpx_binomial (cpx_t bin, const cpx_t s, unsigned int k);

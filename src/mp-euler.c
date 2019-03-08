@@ -87,6 +87,8 @@ unsigned int cpx_euler_sum(cpx_t result,
 
 	mpz_clear(bin);
 	cpx_clear(term);
+	cpx_clear(fval);
+
 	mpf_clear(fbin);
 	return n;
 }
@@ -105,9 +107,14 @@ unsigned int cpx_newton_series(cpx_t result,
 	mpf_t fbin;
 	mpf_init2(fbin, bits);
 
-	cpx_t term, fval;
+	cpx_t term, fval, zeem1;
 	cpx_init2(term, bits);
 	cpx_init2(fval, bits);
+	cpx_init2(zeem1, bits);
+
+	// zeem1 = z-1
+	cpx_set(zeem1, zee);
+	cpx_sub_ui(zeem1, zeem1, 1, 0);
 
 	mpz_t bin;
 	mpz_init(bin);
@@ -137,9 +144,13 @@ unsigned int cpx_newton_series(cpx_t result,
 			i_binomial_sequence(bin, n, k);
 			mpf_set_z(fbin, bin);
 			cpx_times_mpf(fval, fval, fbin);
-			if (k%2 == 0) cpx_neg(fval, fval);
+			if (k%2 == 1) cpx_neg(fval, fval);
 			cpx_add(term, term, fval);
 		}
+
+		cpx_binomial(fval, zeem1, n);
+		cpx_mul(term, term, fval);
+		if (n%2 == 1) cpx_neg(term, term);
 
 		cpx_add(result, result, term);
 
@@ -155,7 +166,9 @@ unsigned int cpx_newton_series(cpx_t result,
 	mpf_clear(epsi);
 
 	mpz_clear(bin);
+	cpx_clear(zeem1);
 	cpx_clear(term);
+	cpx_clear(fval);
 	mpf_clear(fbin);
 	return n;
 }
