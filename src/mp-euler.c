@@ -91,8 +91,10 @@ unsigned int cpx_euler_sum(cpx_t result,
 }
 
 // ============================================================
-#define TEST
+// #define TEST
 #ifdef TEST
+
+// Quick-n-dirty sunit test. Just sum $ sum_{n=0}^\infty x^n $
 
 #include <stdio.h>
 
@@ -112,7 +114,7 @@ int main (int argc, char * argv[])
    nbits = 3.3*prec;
    mpf_set_default_prec (nbits+200);
 
-	double xx = 0.9;
+	double xx = 0.95;
 	mpf_init2(ex, nbits);
 	mpf_set_d(ex, xx);
 
@@ -120,7 +122,7 @@ int main (int argc, char * argv[])
 	cpx_init2(result, nbits);
 
 	unsigned int nterm;
-	nterm = cpx_euler_sum(result, test_func, 30, 30000000, prec);
+	nterm = cpx_euler_sum(result, test_func, 60, 30000000, prec);
 
 	printf("summed to %u terms\n", nterm);
 
