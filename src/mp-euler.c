@@ -174,15 +174,15 @@ unsigned int cpx_newton_series(cpx_t result,
 }
 
 // ============================================================
-// #define TEST
-#ifdef TEST
+// #define EULER_TEST
+#ifdef EULER_TEST
 
-// Quick-n-dirty sunit test. Just sum $ sum_{n=0}^\infty x^n $
+// Quick-n-dirty unit test. Just sum $ sum_{n=0}^\infty x^n $
 
 #include <stdio.h>
 
+// Return x^n
 mpf_t ex;
-
 void test_func(cpx_t f, unsigned long n, int nprec)
 {
 	mpf_pow_ui(f[0].re, ex, n-1);
@@ -213,5 +213,57 @@ int main (int argc, char * argv[])
 	mpf_init(sum);
 	cpx_abs(sum, result);
 	printf("got=%f expected=%f\n", mpf_get_d(sum), 1.0/(1.0-xx));
+}
+#endif
+
+// ============================================================
+
+#define NEWTON_TEST
+#ifdef NEWTON_TEST
+
+// Quick-n-dirty unit test. Verify interplants.
+
+#include <stdio.h>
+
+// Return x^n
+mpf_t ex;
+void test_func(cpx_t f, unsigned long n, int nprec)
+{
+	mpf_pow_ui(f[0].re, ex, n-1);
+	mpf_set_ui(f[0].im, 0);
+}
+
+
+int main (int argc, char * argv[])
+{
+   int prec, nbits;
+   prec = 120;
+   nbits = 3.3*prec;
+   mpf_set_default_prec (nbits+200);
+
+	double xx = 0.95;
+	mpf_init2(ex, nbits);
+	mpf_set_d(ex, xx);
+
+	cpx_t zee, result;
+	cpx_init2(zee, nbits);
+	cpx_init2(result, nbits);
+
+	mpf_t sum;
+	mpf_init(sum);
+
+	double xn = 1.0;
+	for (int n=1; n<20; n++)
+	{
+		cpx_set_ui(zee, n, 0);
+		unsigned int nterm;
+		nterm = cpx_newton_series(result, test_func, zee, 20, 30000000, prec);
+
+		printf("summed to %u terms\n", nterm);
+		cpx_abs(sum, result);
+		printf("n=%d got=%f expected=%f\n", n, mpf_get_d(sum), xn);
+
+		xn *= xx;
+	}
 }
 #endif
