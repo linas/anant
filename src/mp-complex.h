@@ -265,6 +265,15 @@ static inline void cpx_div_ui (cpx_t ratio, const cpx_t a, unsigned long b)
 }
 
 /**
+ * Divide a by 2^n place result in ratio
+ */
+static inline void cpx_div_2exp (cpx_t ratio, const cpx_t a, unsigned long n)
+{
+	mpf_div_2exp (ratio[0].re, a[0].re, n);
+	mpf_div_2exp (ratio[0].im, a[0].im, n);
+}
+
+/**
  * cpx_mod_sq -- modulus squared of z
  */
 static inline void cpx_mod_sq (mpf_t mod, const cpx_t z)

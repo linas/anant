@@ -31,10 +31,8 @@ unsigned int cpx_euler_sum(cpx_t result,
 {
 	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
 
-	mpf_t half;
-	mpf_init2(half, bits);
-	mpf_set_ui(half, 1);
-	mpf_div_ui(half, half, 2);
+	mpf_t fbin;
+	mpf_init2(fbin, bits);
 
 	cpx_t term, fval;
 	cpx_init2(term, bits);
@@ -46,16 +44,26 @@ unsigned int cpx_euler_sum(cpx_t result,
 	int n = 0;
 	for (; n<maxterms; n++)
 	{
+		// `term` accumulates the inner sum
+		//    $ \sum_{k=0}^n {n \choose k} f(k+1) $
 		cpx_set_ui(term, 0, 0);
 		for (int k=0; k<=n; k++)
 		{
 			func(fval, k+1, nprec);
 			i_binomial_sequence(bin, n, k);
+			mpf_set_z(fbin, bin);
+			cpx_times_mpf(fval, fval, fbin);
+			cpx_add(term, term, fval);
 		}
+		cpx_div_2exp(term, term, n+1);
+
+		cpx_add(result, result, term);
+
+		// Are we there yet?
 	}
 
 	mpz_clear(bin);
 	cpx_clear(term);
-	mpf_clear(half);
+	mpf_clear(fbin);
 	return n;
 }
