@@ -63,6 +63,13 @@ void cpx_multiplicative(cpx_t result,
               unsigned long n,
               int nprec);
 
+void cpx_multiplicative_cached(cpx_t result,
+              void (*func)(cpx_t f, unsigned long p, int nprec),
+              unsigned long n,
+              int nprec);
+void cpx_multiplicative_clear_cache(void);
+
+
 #ifdef  __cplusplus
 };
 #endif

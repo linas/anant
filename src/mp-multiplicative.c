@@ -21,6 +21,7 @@
  * 02110-1301  USA
  */
 
+#include <mp-cache.h>
 #include <mp-multiplicative.h>
 
 // Tail-recursive helper function
@@ -70,6 +71,37 @@ void cpx_multiplicative(cpx_t result,
 	plicplic(result, func, n, 2, nprec);
 }
 
+// ============================================================
+
+DECLARE_CPX_CACHE(primca)
+DECLARE_CPX_CACHE(prodca)
+
+void cpx_multiplicative_clear_cache(void)
+{
+	cpx_one_d_cache_clear(&primca);
+	cpx_one_d_cache_clear(&prodca);
+}
+
+void cpx_multiplicative_cached(cpx_t result,
+              void (*func)(cpx_t, unsigned long, int),
+              unsigned long  n,
+              int nprec)
+{
+	void wrapper(cpx_t res, unsigned long nn, int pr)
+	{
+		if (cpx_one_d_cache_check(&primca, nn))
+		{
+			cpx_one_d_cache_fetch(&primca, res, nn);
+			return;
+		}
+		func(res, nn, pr);
+		cpx_one_d_cache_store(&primca, res, nn, pr);
+	}
+
+	cpx_multiplicative(result, wrapper, n, nprec);
+}
+
+// ============================================================
 #define TEST
 #ifdef TEST
 #include <stdio.h>
@@ -77,6 +109,7 @@ void cpx_multiplicative(cpx_t result,
 void test_func(cpx_t f, unsigned long p, int nprec)
 {
 	// f(p) = p
+	printf("Called with %lu\n", p);
 	cpx_set_ui(f, p, 0);
 }
 
@@ -90,9 +123,10 @@ int main (int argc, char * argv[])
 	cpx_t result;
 	cpx_init2(result, nbits);
 
-	for (unsigned long n=1; n<30; n++)
+	for (unsigned long n=1; n<60; n++)
 	{
-		cpx_multiplicative(result, test_func, n, prec);
+		// cpx_multiplicative(result, test_func, n, prec);
+		cpx_multiplicative_cached(result, test_func, n, prec);
 		printf("N=%lu result=%f + i%f\n", n,
 			cpx_get_re(result), cpx_get_im(result));
 	}
