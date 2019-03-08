@@ -32,20 +32,40 @@ extern "C" {
 
 /* =============================================== */
 /**
- * cpx_euler.
+ * cpx_euler_sum
  *
- * Implement Euler summation for complex-valued arithmetic function.
- * That is, given f(n) defined on positive integers n, return
+ * Implement Euler (re-)summation (aka Euler transformation) for
+ * complex-valued arithmetic functions. That is, given f(n) defined
+ * on positive integers n, return
  *
  * $ sum_{n=0}^\infty 2^{-(n+1)} \sum_{k=0}^n {n \choose k} f(k+1) $
  *
+ * Note the sign convention used here: no minus signs; so that sign
+ * alternation (if any) is in the f(n).
+ *
  * See Wikipedia for more about Euler summation.
  *
- * This is an extremely simple kind of resummation. It usually works
- * marvels for conditionally convergent alternating series.
- * Far more powerful resummation techniques exist; see, for example,
- * the references to P. Borwein convergent algo given in the polylog
- * code.
+ * See also Jonathan Sondow, "Analytic continuation of Riemann's zeta
+ * function and values at negative integers via Euler's transformation
+ * of series" (1994) Proceedings of the American Mathematical Society,
+ * Vol. 120, pp 421-424.
+ * http://www.ams.org/journals/proc/1994-120-02/S0002-9939-1994-1172954-7/S0002-9939-1994-1172954-7.pdf
+ * for a particularly simple and direct statement, including a direct
+ * application.
+ *
+ * The Euler transformation is an extremely simple kind of resummation.
+ * In certain cases, it can work marvels for conditionally convergent
+ * alternating series. Far more powerful resummation techniques exist;
+ * see, for example, the references to P. Borwein convergent algo given
+ * in the polylog code.
+ *
+ * The Euler transformation can also completely fail to accelerate
+ * series convergence, if the series is not quite of the right form.
+ * I am not aware of any results indicating when it works, and when it
+ * fails, or why. Its a fairly serious question, having reprecussions
+ * in number theory. (Viz, why the Hasse/Sondow resummation converges
+ * rapidly and uniformly, while nearby sequences completely fail to do
+ * so.)
  *
  * @func function providing values to be resummed.
  *       It will only be called for positive integers.
@@ -65,6 +85,35 @@ extern "C" {
  */
 unsigned int cpx_euler_sum(cpx_t result,
               void (*func)(cpx_t f, unsigned long p, int nprec),
+              unsigned int ndigits,
+              unsigned int maxterms,
+              int nprec);
+
+/* =============================================== */
+/**
+ * cpx_newton_series
+ *
+ * Implement a Newton series interpolation for complex-valued arithmetic
+ * functions. That is, given f(n) defined on positive integers n, return
+ *
+ * $ f(z) = sum_{n=0}^\infty (-1)^{-n} {z-1 \choose n}
+ *       \sum_{k=0}^n (-1)^{-k} {n \choose k} f(k+1) $
+ *
+ * Note the sign convention above: there are two sources of alternating
+ * signs.
+ *
+ * See Wikipedia for more about finite differences and Newton series.
+ *
+ * See also Philippe Flajolet and Robert Sedgewick, "Mellin Transforms
+ * and Asymptotics: Finite Differences and Rice's Integrals" (1995)
+ * Theoretical Computer Science, vol. 144 pages 101-124.
+ * https://www.sciencedirect.com/science/article/pii/030439759400281M
+ * for general thoughts.
+ *
+ */
+unsigned int cpx_newton_series(cpx_t result,
+              void (*func)(cpx_t f, unsigned long p, int nprec),
+              cpx_t zee,
               unsigned int ndigits,
               unsigned int maxterms,
               int nprec);

@@ -21,6 +21,7 @@
  * 02110-1301  USA
  */
 
+#include <math.h>
 #include "mp-binomial.h"
 #include "mp-euler.h"
 
