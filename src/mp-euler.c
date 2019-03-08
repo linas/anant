@@ -92,6 +92,75 @@ unsigned int cpx_euler_sum(cpx_t result,
 }
 
 // ============================================================
+
+unsigned int cpx_newton_series(cpx_t result,
+              void (*func)(cpx_t, unsigned long, int),
+              cpx_t zee,
+              unsigned int ndigits,
+              unsigned int maxterms,
+              int nprec)
+{
+	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
+
+	mpf_t fbin;
+	mpf_init2(fbin, bits);
+
+	cpx_t term, fval;
+	cpx_init2(term, bits);
+	cpx_init2(fval, bits);
+
+	mpz_t bin;
+	mpz_init(bin);
+
+	/* Compute desired accuracy. This is used as a termination
+	 * condition. We ask for twice-as-many digits, since we
+	 * square the term.
+	 */
+	mpf_t epsi;
+	mpf_init(epsi);
+	mpf_set_ui(epsi, 1);
+	mpf_div_2exp(epsi, epsi, (int)(2 * 3.322*ndigits));
+
+	mpf_t asum, aterm;
+	mpf_init(asum);
+	mpf_init(aterm);
+
+	int n = 0;
+	for (; n<maxterms; n++)
+	{
+		// `term` accumulates the finite difference sum
+		//    $ \sum_{k=0}^n (-1)^k {n \choose k} f(k+1) $
+		cpx_set_ui(term, 0, 0);
+		for (int k=0; k<=n; k++)
+		{
+			func(fval, k+1, nprec);
+			i_binomial_sequence(bin, n, k);
+			mpf_set_z(fbin, bin);
+			cpx_times_mpf(fval, fval, fbin);
+			if (k%2 == 0) cpx_neg(fval, fval);
+			cpx_add(term, term, fval);
+		}
+
+		cpx_add(result, result, term);
+
+		// Are we there yet?
+		cpx_mod_sq(aterm, term);
+		cpx_mod_sq(asum, result);
+		mpf_div(aterm, aterm, asum);
+		if (0 > mpf_cmp(aterm, epsi)) break;
+	}
+
+	mpf_clear(asum);
+	mpf_clear(aterm);
+	mpf_clear(epsi);
+
+	mpz_clear(bin);
+	cpx_clear(term);
+	mpf_clear(fbin);
+	return n;
+}
+
+// ============================================================
 // #define TEST
 #ifdef TEST
 

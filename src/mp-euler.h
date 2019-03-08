@@ -96,8 +96,8 @@ unsigned int cpx_euler_sum(cpx_t result,
  * Implement a Newton series interpolation for complex-valued arithmetic
  * functions. That is, given f(n) defined on positive integers n, return
  *
- * $ f(z) = sum_{n=0}^\infty (-1)^{-n} {z-1 \choose n}
- *       \sum_{k=0}^n (-1)^{-k} {n \choose k} f(k+1) $
+ * $ f(z) = sum_{n=0}^\infty (-1)^n {z-1 \choose n}
+ *       \sum_{k=0}^n (-1)^k {n \choose k} f(k+1) $
  *
  * Note the sign convention above: there are two sources of alternating
  * signs.
