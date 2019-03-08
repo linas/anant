@@ -125,8 +125,9 @@ Number-theoretic functions:
 
 Utilities:
 ----------
+* Fill in values of completely multiplicative arithmetic function.
+* Ordinary and exponential generating functions for arithmetic functions.
 * Powell's method for zero-finding on complex plane (noise-cancelling variant).
-* Ordinary and exponential generating functions for airthmetic functions.
 
 
 Pre-requisites, Compiling, Installing, Testing
@@ -135,8 +136,8 @@ This package requires a copy of the Berkeley DB database to be
 available. The database is used to cache certain intermediate values, to
 improve performance of various internal algorithms.
 
-This package has minimal build support. cd to the src directory, and
-'make'.  If you want to install the files somewhere, you will have to do
+This package has minimal build support. `cd` to the src directory, and
+`make`.  If you want to install the files somewhere, you will have to do
 this by hand, or custom-tailor to suit your needs.
 
 There is a unit test, rather ad-hoc in nature, and it is not
@@ -149,6 +150,7 @@ in here that is horribly broken, as far as I know.  If quibbling over
 the last few decimal places is important to you, you might have a
 different opinion.)
 
+Patches to improve the build system, and other fixes are accepted.
 
 Precision
 ---------
@@ -165,6 +167,8 @@ you to figure out!  A reasonable rule-of-thumb seems to be to use
 mpf_set_default_prec(5*desired_decimal_places) -- noting that log_2(10)
 is 2.3.
 
+Again -- this may strike you as hacky; its good enough for what I need.
+Patches to improve the state of things are accepted.
 
 Example Usage
 -------------
