@@ -29,6 +29,31 @@ static void plicplic(cpx_t result,
               unsigned long  m, unsigned long n,
               int nprec)
 {
+	// m is prime
+	if (n+1 == m)
+	{
+		func(result, m, nprec);
+		return;
+	}
+
+	// m is not prime, and not divisible.
+	if (m%n != 0)
+	{
+		plicplic(result, func, m, n+1, nprec);
+		return;
+	}
+	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
+	cpx_t fq, fn;
+	cpx_init2(fq, bits);
+	cpx_init2(fn, bits);
+
+	unsigned long q = m/n;
+	cpx_multiplicative(fq, func, q, nprec);
+	cpx_multiplicative(fn, func, n, nprec);
+
+	cpx_mul(result, fq, fn);
+	cpx_clear(fq);
+	cpx_clear(fn);
 }
 
 void cpx_multiplicative(cpx_t result,
@@ -40,6 +65,7 @@ void cpx_multiplicative(cpx_t result,
 	if (n <= 3)
 	{
 		func(result, n, nprec);
+		return;
 	}
 	plicplic(result, func, n, 2, nprec);
 }
