@@ -14,7 +14,8 @@ MPLIB=libanant.a
 all:  $(MPLIB) $(EXES)
 
 MPOBJS= db-cache.o mp-arith.o mp-binomial.o mp-cache.o mp-consts.o \
-	mp-gamma.o mp-genfunc.o mp-gkw.o mp-hyper.o mp-misc.o mp-polylog.o \
+	mp-gamma.o mp-genfunc.o mp-gkw.o mp-hyper.o mp-misc.o \
+	mp-multiplicative.o mp-polylog.o \
 	mp-quest.o mp-topsin.o mp-trig.o mp-zerofind.o mp-zeta.o
 
 cache-fill:	cache-fill.o $(MPLIB)
@@ -32,6 +33,7 @@ mp-genfunc.o: mp-genfunc.h mp-complex.h mp-consts.h
 mp-gkw.o: mp-gkw.h
 mp-hyper.o: mp-hyper.h mp-complex.h mp-misc.h
 mp-misc.o: mp-misc.h mp-complex.h
+mp-multiplicative.o: mp-multiplicative.h mp-complex.h
 mp-polylog.o: mp-polylog.h mp-binomial.h mp-cache.h mp-complex.h mp-consts.h mp-gamma.h mp-misc.h mp-trig.h mp-zeta.h
 mp-quest.o: mp-quest.h
 mp-topsin.o: mp-topsin.h

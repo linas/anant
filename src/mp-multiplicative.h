@@ -54,11 +54,13 @@ extern "C" {
  *       It will only be called for a prime-number argument.
  *       'nprec' is the suggested decimal precisiton at which 'fun'
  *       should perform its calculations.
+ * @n    number at which results should be computed.
  * @nprec number of digits of decimal precision to which intermediate
  *       terms will be maintained.
  */
 void cpx_multiplicative(cpx_t result,
               void (*func)(cpx_t f, unsigned long p, int nprec),
+              unsigned long n,
               int nprec);
 
 #ifdef  __cplusplus
