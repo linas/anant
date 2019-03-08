@@ -90,10 +90,43 @@ unsigned int cpx_euler_sum(cpx_t result,
 	return n;
 }
 
+// ============================================================
 #define TEST
 #ifdef TEST
 
-int main()
+#include <stdio.h>
+
+mpf_t ex;
+
+void test_func(cpx_t f, unsigned long n, int nprec)
 {
+	mpf_pow_ui(f[0].re, ex, n-1);
+	mpf_set_ui(f[0].im, 0);
+}
+
+
+int main (int argc, char * argv[])
+{
+   int prec, nbits;
+   prec = 120;
+   nbits = 3.3*prec;
+   mpf_set_default_prec (nbits+200);
+
+	double xx = 0.9;
+	mpf_init2(ex, nbits);
+	mpf_set_d(ex, xx);
+
+	cpx_t result;
+	cpx_init2(result, nbits);
+
+	unsigned int nterm;
+	nterm = cpx_euler_sum(result, test_func, 30, 30000000, prec);
+
+	printf("summed to %u terms\n", nterm);
+
+	mpf_t sum;
+	mpf_init(sum);
+	cpx_abs(sum, result);
+	printf("got=%f expected=%f\n", mpf_get_d(sum), 1.0/(1.0-xx));
 }
 #endif

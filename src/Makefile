@@ -10,6 +10,7 @@ CC = cc
 EXES= db-merge db-prt
 
 TESTS=
+TESTS += mp-euler
 # TESTS += mp-multiplicative
 # TESTS += mp-topsin
 
