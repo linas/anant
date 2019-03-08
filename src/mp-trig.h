@@ -88,7 +88,7 @@ void fp_arctan2 (mpf_t atn, const mpf_t y, const mpf_t x, unsigned int prec);
 
 /**
  * cpx_sqrt
- * Simple implemenmtation of complex square-root
+ * Simple implementation of complex square-root
  */
 void cpx_sqrt (cpx_t sqrt, const cpx_t zee, int prec);
 

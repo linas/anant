@@ -1018,7 +1018,7 @@ void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
 
 	/* avoid divide by zero when cosine(half) is zero
 	 * i.e. when sine (full angle) is zero */
-	if (mpf_cmp_ui(rt[0].im,0))
+	if (mpf_cmp_ui(rt[0].im, 0))
 	{
 		/* sin A = sin 2A / (2 cos A) */
 		// mpf_div_ui (rt[0].im, rt[0].im, 2);
@@ -1027,7 +1027,7 @@ void cpx_sqrt (cpx_t rt, const cpx_t z, int prec)
 	}
 	else
 	{
-		mpf_set_ui (rt[0].im, 1);
+		mpf_set_ui (rt[0].im, 0);
 	}
 #endif
 
