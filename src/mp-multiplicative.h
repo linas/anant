@@ -39,20 +39,20 @@ extern "C" {
  * provide a values for on composite integers, by factoring them.
  *
  * A completely multiplicative function is a complex-valued function
- * on the positive integers that is a homomorpism under multiplication
+ * on the positive integers that is a homomorphism under multiplication
  * i.e. preserves multiplication, i.e. f(mn) = f(m) f(n) for positive
  * integers m,n. Thus, it is sufficient to specify f(p) for prime p,
  * all other values are determined by the values on the primes.
  *
  * Given only f(p), this computes the values at all other integers.
  *
- * Two variants are provided: a cachine and a non-caching version.
+ * Two variants are provided: a caching and a non-caching version.
  * The caching version will call f(p) only one per prime p. The
  * non-caching version might call f(p) repeatedly.
  *
- * @func function provding values on the prime numbers.
+ * @func function providing values on the prime numbers.
  *       It will only be called for a prime-number argument.
- *       'nprec' is the suggested decimal precisiton at which 'fun'
+ *       'nprec' is the suggested decimal precision at which 'fun'
  *       should perform its calculations.
  * @n    number at which results should be computed.
  * @nprec number of digits of decimal precision to which intermediate

@@ -37,7 +37,7 @@ extern "C" {
  *
  * @func function whose zeros are to be found.
  *       func takes z as input, returns f as output.
- *       'nprec' is the suggested decimal precisiton at which 'fun'
+ *       'nprec' is the suggested decimal precision at which 'fun'
  *       should perform its calculations.
  * @initial_z initial suggestion for the location of the zero.
  * @e1, @e2 initial suggestions for a bounding ellipse. These are
