@@ -53,7 +53,7 @@ void i_factorial (mpz_t fact, unsigned int n);
 void fp_inv_factorial (mpf_t invfac, unsigned int n, unsigned int prec);
 
 /* i_binomial
- * Binomial coefficient (n k)
+ * Binomial coefficient (n k) $ {n \choose k} $
  */
 // #define USE_LOCAL_BINOMIAL
 #ifdef USE_LOCAL_BINOMIAL
@@ -64,10 +64,12 @@ void i_binomial (mpz_t bin, unsigned int n, unsigned int k);
 
 /**
  * i_binomial_sequence -- returns binomial, assumes purely sequential access.
+ *
+ * Returns $ {n \choose k} $
  * 
  * This routine assumes that the binomial coefficients will be 
  * accessed in an utterly sequential mode, with k running from 
- * zero to n, and n running from zero to k. For sequential access,
+ * zero to n, and n running from zero to infinity. For sequential access,
  * this routine is very, very fast. If the access is not sequential,
  * the correct answer is still returned; just that a random access
  * compute method is used, which is considerably slower.

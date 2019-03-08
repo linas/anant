@@ -97,6 +97,7 @@ Combinatorial functions:
 * Rising pochhammer symbol (real)    i.e. (s)_n for real s
 * Rising pochhammer symbol (complex) i.e. (s)_n for complex s
 * Binomial coefficient (complex)     i.e. (s choose n) for complex s
+* High-speed, cached sequential-access binomial coefficient.
 
 Elementary functions:
 ---------------------

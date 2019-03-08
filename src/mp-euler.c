@@ -21,13 +21,41 @@
  * 02110-1301  USA
  */
 
+#include "mp-binomial.h"
 #include "mp-euler.h"
 
 unsigned int cpx_euler_sum(cpx_t result,
-              void (*func)(cpx_t f, unsigned long p, int nprec),
+              void (*func)(cpx_t, unsigned long, int),
               unsigned int maxterms,
               int nprec)
 {
+	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
 
-	return 0;
+	mpf_t half;
+	mpf_init2(half, bits);
+	mpf_set_ui(half, 1);
+	mpf_div_ui(half, half, 2);
+
+	cpx_t term, fval;
+	cpx_init2(term, bits);
+	cpx_init2(fval, bits);
+
+	mpz_t bin;
+	mpz_init(bin);
+
+	int n = 0;
+	for (; n<maxterms; n++)
+	{
+		cpx_set_ui(term, 0, 0);
+		for (int k=0; k<=n; k++)
+		{
+			func(fval, k+1, nprec);
+			i_binomial_sequence(bin, n, k);
+		}
+	}
+
+	mpz_clear(bin);
+	cpx_clear(term);
+	mpf_clear(half);
+	return n;
 }

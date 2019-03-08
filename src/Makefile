@@ -32,7 +32,7 @@ mp-arith.o: mp-arith.h mp-cache.h mp-misc.h
 mp-binomial.o: mp-binomial.h mp-cache.h mp-complex.h mp-misc.h mp-trig.h
 mp-cache.o: mp-cache.h mp-complex.h
 mp-consts.o: mp-consts.h mp-binomial.h mp-complex.h mp-trig.h mp-zeta.h
-mp-euler.o: mp-euler.h mp-complex.h
+mp-euler.o: mp-euler.h mp-binomial.h mp-complex.h
 mp-gamma.o: mp-gamma.h mp-binomial.h mp-complex.h mp-consts.h mp-misc.h mp-trig.h mp-zeta.h
 mp-genfunc.o: mp-genfunc.h mp-complex.h mp-consts.h
 mp-gkw.o: mp-gkw.h mp-binomial.h mp-complex.h mp-misc.h mp-zeta.h

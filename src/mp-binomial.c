@@ -191,7 +191,7 @@ void i_binomial (mpz_t bin, unsigned int n, unsigned int k)
  *
  * This routine assumes that the binomial coefficients will be
  * accessed in an utterly sequential mode, with k running from
- * zero to n, and n running from zero to k. For sequential access,
+ * zero to n, and n running from zero to infinity. For sequential access,
  * this routine is very very fast. Otherwise, random access is used
  * which is considerably slower.
  */
@@ -272,7 +272,7 @@ void i_binomial_sequence (mpz_t bin, unsigned int n, unsigned int k)
 		return;
 	}
 
-	/* Initialize the suential access system. */
+	/* Initialize the sequential access system. */
 	if (0 == n && 0 == k)
 	{
 		curr_n = 0;
