@@ -128,6 +128,7 @@ Utilities:
 ----------
 * Fill in values of completely multiplicative arithmetic function.
 * Ordinary and exponential generating functions for arithmetic functions.
+* Euler re-summation of convergent series (speeds convergence).
 * Powell's method for zero-finding on complex plane (noise-cancelling variant).
 
 
@@ -142,16 +143,18 @@ This package has minimal build support. `cd` to the src directory, and
 this by hand, or custom-tailor to suit your needs.
 
 There is a unit test, rather ad-hoc in nature, and it is not
-"user-freindly".  It will report some errors in the last few decimal
+"user-friendly".  It will report some errors in the last few decimal
 places of various routines, depending on how it was invoked. It is up
 to you to figure out if these are serious errors or not.  Caveat Emptor!
 
 (I mean, its 'error-free' for me, i.e. 'good enough'.  There is nothing
 in here that is horribly broken, as far as I know.  If quibbling over
 the last few decimal places is important to you, you might have a
-different opinion.)
+different opinion. If you're reasonably careful, and actually think
+about what you are actually doing, things will go well.)
 
-Patches to improve the build system, and other fixes are accepted.
+Patches to improve the build system (and anything else that annoys you)
+are gladly accepted.
 
 Precision
 ---------
@@ -221,8 +224,8 @@ library.
          // Check for error conditions
          if (0 != rc)
          {
-         	printf("Error occured during computation! rc=%d\n", rc);
-         	return 1;
+             printf("Error occurred during computation! rc=%d\n", rc);
+             return 1;
          }
          cpx_prt("Answer is ", plog);
          printf("\n");
