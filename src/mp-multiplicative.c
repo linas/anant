@@ -69,3 +69,32 @@ void cpx_multiplicative(cpx_t result,
 	}
 	plicplic(result, func, n, 2, nprec);
 }
+
+#define TEST
+#ifdef TEST
+#include <stdio.h>
+
+void test_func(cpx_t f, unsigned long p, int nprec)
+{
+	// f(p) = p
+	cpx_set_ui(f, p, 0);
+}
+
+int main (int argc, char * argv[])
+{
+	int prec, nbits;
+	prec = 120;
+	nbits = 3.3*prec;
+	mpf_set_default_prec (nbits+200);
+
+	cpx_t result;
+	cpx_init2(result, nbits);
+
+	for (unsigned long n=1; n<30; n++)
+	{
+		cpx_multiplicative(result, test_func, n, prec);
+		printf("N=%lu result=%f + i%f\n", n,
+			cpx_get_re(result), cpx_get_im(result));
+	}
+}
+#endif

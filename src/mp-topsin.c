@@ -224,7 +224,7 @@ int main (int argc, char * argv[])
 }
 #endif
 
-#define PRINT_OUT_AK
+// #define PRINT_OUT_AK
 #ifdef PRINT_OUT_AK
 int main (int argc, char * argv[])
 {
