@@ -26,6 +26,7 @@
 
 unsigned int cpx_euler_sum(cpx_t result,
               void (*func)(cpx_t, unsigned long, int),
+              unsigned int ndigits,
               unsigned int maxterms,
               int nprec)
 {
@@ -40,6 +41,19 @@ unsigned int cpx_euler_sum(cpx_t result,
 
 	mpz_t bin;
 	mpz_init(bin);
+
+	/* Compute desired accuracy. This is used as a termination
+	 * condition. We ask for twice-as-many digits, since we
+	 * square the term.
+	 */
+	mpf_t epsi;
+	mpf_init(epsi);
+	mpf_set_ui(epsi, 1);
+	mpf_div_2exp(epsi, epsi, (int)(2 * 3.322*ndigits));
+
+	mpf_t asum, aterm;
+	mpf_init(asum);
+	mpf_init(aterm);
 
 	int n = 0;
 	for (; n<maxterms; n++)
@@ -60,10 +74,26 @@ unsigned int cpx_euler_sum(cpx_t result,
 		cpx_add(result, result, term);
 
 		// Are we there yet?
+		cpx_mod_sq(aterm, term);
+		cpx_mod_sq(asum, result);
+		mpf_div(aterm, aterm, asum);
+		if (0 > mpf_cmp(aterm, epsi)) break;
 	}
+
+	mpf_clear(asum);
+	mpf_clear(aterm);
+	mpf_clear(epsi);
 
 	mpz_clear(bin);
 	cpx_clear(term);
 	mpf_clear(fbin);
 	return n;
 }
+
+#define TEST
+#ifdef TEST
+
+int main()
+{
+}
+#endif

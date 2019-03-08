@@ -51,6 +51,9 @@ extern "C" {
  *       It will only be called for positive integers.
  *       'nprec' is the suggested decimal precisiton at which 'fun'
  *       should perform its calculations.
+ * @ndigits Terminate summation when each term contributes less than
+ *       10^ndigits to the sum. This is approximately that accuracy
+ *       that will be attained. Roughly.
  * @maxterms Maximum number of terms to sum. If few terms are needed
  *       to reach the desired precision, that's fine; summation will
  *       stop. Otherwise, is summation has not converged, it will be
@@ -62,6 +65,7 @@ extern "C" {
  */
 unsigned int cpx_euler_sum(cpx_t result,
               void (*func)(cpx_t f, unsigned long p, int nprec),
+              unsigned int ndigits,
               unsigned int maxterms,
               int nprec);
 
