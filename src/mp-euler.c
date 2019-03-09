@@ -131,6 +131,7 @@ unsigned int cpx_newton_series(cpx_t result,
 	mpf_t asum, aterm;
 	mpf_init(asum);
 	mpf_init(aterm);
+	cpx_set_ui(result, 0, 0);
 
 	int n = 0;
 	for (; n<maxterms; n++)
