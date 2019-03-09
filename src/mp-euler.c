@@ -156,6 +156,7 @@ unsigned int cpx_newton_series(cpx_t result,
 		mpf_add(aterm, zeem1[0].re, aterm);
 		mpf_floor(aterm, aterm);
 		mpf_sub(asum, zeem1[0].re, aterm);
+		mpf_mul(asum, asum, asum); // square to remove sign
 		if (0 > mpf_cmp(asum, epsi))
 		{
 			is_int = mpf_get_ui(aterm);
