@@ -2,7 +2,16 @@
 Changelog
 ---------
 
-Version 0.3.0 (XXX)
+Version 0.2.4 (8 March 2019)
+	* Add generator of completely multiplicative functions.
+	* Add Euler resummation.
+	* Add Newton series summation.
+
+Version 0.2.3 (30 June 2017)
+	* Add ordinary, exponential generating functions.
+	* Add set-partition function.
+
+Version 0.2.2 (5 November 2016)
 	* Add a 'make install' target.
 	* Add topologist's sine function series.
 	* Add generalized harmonic number.
