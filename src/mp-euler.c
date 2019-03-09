@@ -56,6 +56,9 @@ unsigned int cpx_euler_sum(cpx_t result,
 	mpf_init(asum);
 	mpf_init(aterm);
 
+	// zero out; we're accumulating into this
+	cpx_set_ui(result, 0, 0);
+
 	int n = 0;
 	for (; n<maxterms; n++)
 	{
@@ -219,7 +222,7 @@ int main (int argc, char * argv[])
 
 // ============================================================
 
-#define NEWTON_TEST
+// #define NEWTON_TEST
 #ifdef NEWTON_TEST
 
 // Quick-n-dirty unit test. Verify interplants.
