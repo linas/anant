@@ -129,6 +129,7 @@ Utilities:
 * Fill in values of completely multiplicative arithmetic function.
 * Ordinary and exponential generating functions for arithmetic functions.
 * Euler re-summation of convergent series (speeds convergence).
+* Newton series interpolation of arithmetic series.
 * Powell's method for zero-finding on complex plane (noise-cancelling variant).
 
 
