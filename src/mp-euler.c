@@ -22,6 +22,8 @@
  */
 
 #include <math.h>
+#include <stdbool.h>
+
 #include "mp-binomial.h"
 #include "mp-euler.h"
 
@@ -59,6 +61,7 @@ unsigned int cpx_euler_sum(cpx_t result,
 	// zero out; we're accumulating into this
 	cpx_set_ui(result, 0, 0);
 
+	bool almost_done = false;
 	int n = 0;
 	for (; n<maxterms; n++)
 	{
@@ -78,10 +81,17 @@ unsigned int cpx_euler_sum(cpx_t result,
 		cpx_add(result, result, term);
 
 		// Are we there yet?
+		// Avoid accidental loop termination by spurious zeros.
+		// Look for two consecutive terms that are small.
 		cpx_mod_sq(aterm, term);
 		cpx_mod_sq(asum, result);
 		mpf_div(aterm, aterm, asum);
-		if (0 > mpf_cmp(aterm, epsi)) break;
+		if (0 > mpf_cmp(aterm, epsi))
+		{
+			if (almost_done) break;
+			almost_done = true;
+		}
+		else almost_done = false;
 	}
 
 	mpf_clear(asum);
@@ -110,10 +120,11 @@ unsigned int cpx_newton_series(cpx_t result,
 	mpf_t fbin;
 	mpf_init2(fbin, bits);
 
-	cpx_t term, fval, zeem1;
+	cpx_t term, fval, zeem1, zbin;
 	cpx_init2(term, bits);
 	cpx_init2(fval, bits);
 	cpx_init2(zeem1, bits);
+	cpx_init2(zbin, bits);
 
 	// zeem1 = z-1
 	cpx_set(zeem1, zee);
@@ -121,6 +132,10 @@ unsigned int cpx_newton_series(cpx_t result,
 
 	mpz_t bin;
 	mpz_init(bin);
+
+	mpf_t asum, aterm;
+	mpf_init(asum);
+	mpf_init(aterm);
 
 	/* Compute desired accuracy. This is used as a termination
 	 * condition. We ask for twice-as-many digits, since we
@@ -131,14 +146,32 @@ unsigned int cpx_newton_series(cpx_t result,
 	mpf_set_ui(epsi, 1);
 	mpf_div_2exp(epsi, epsi, (int)(2 * 3.322*ndigits));
 
-	mpf_t asum, aterm;
-	mpf_init(asum);
-	mpf_init(aterm);
+	// For integer values of zee equal to n, the binomial coefficient
+	// will be exacly zero. We want to break out of the loop in such
+	// cases. So...  is zee an integer, and if so, which?
+	int is_int = 0;
+	if (0 > mpf_cmp(zeem1[0].im, epsi))
+	{
+		mpf_set_d(aterm, 0.5);
+		mpf_add(aterm, zeem1[0].re, aterm);
+		mpf_floor(aterm, aterm);
+		mpf_sub(asum, zeem1[0].re, aterm);
+		if (0 > mpf_cmp(asum, epsi))
+		{
+			is_int = mpf_get_ui(aterm);
+		}
+	}
+
 	cpx_set_ui(result, 0, 0);
 
+	bool almost_done = false;
 	int n = 0;
 	for (; n<maxterms; n++)
 	{
+		// If z is an integer, such that the binomial vanishes,
+		// then break out of the loop.
+		if (is_int && is_int == n-1) break;
+
 		// `term` accumulates the finite difference sum
 		//    $ \sum_{k=0}^n (-1)^k {n \choose k} f(k+1) $
 		cpx_set_ui(term, 0, 0);
@@ -152,17 +185,24 @@ unsigned int cpx_newton_series(cpx_t result,
 			cpx_add(term, term, fval);
 		}
 
-		cpx_binomial(fval, zeem1, n);
-		cpx_mul(term, term, fval);
+		cpx_binomial(zbin, zeem1, n);
+		cpx_mul(term, term, zbin);
 		if (n%2 == 1) cpx_neg(term, term);
 
 		cpx_add(result, result, term);
 
 		// Are we there yet?
+		// Avoid accidental loop termination by spurious zeros.
+		// Look for two consecutive terms that are small.
 		cpx_mod_sq(aterm, term);
 		cpx_mod_sq(asum, result);
 		mpf_div(aterm, aterm, asum);
-		if (0 > mpf_cmp(aterm, epsi)) break;
+		if (0 > mpf_cmp(aterm, epsi))
+		{
+			if (almost_done) break;
+			almost_done = true;
+		}
+		else almost_done = false;
 	}
 
 	mpf_clear(asum);
@@ -173,6 +213,7 @@ unsigned int cpx_newton_series(cpx_t result,
 	cpx_clear(zeem1);
 	cpx_clear(term);
 	cpx_clear(fval);
+	cpx_clear(zbin);
 	mpf_clear(fbin);
 	return n;
 }
