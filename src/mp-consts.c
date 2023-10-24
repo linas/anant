@@ -44,8 +44,8 @@ static pthread_spinlock_t mp_const_lock;
 static pthread_spinlock_t mp_pi_lock;
 __attribute__((constructor)) void fp_e_ctor(void)
 {
-	pthread_spin_init(&mp_const_lock, 0);
-	pthread_spin_init(&mp_pi_lock, 0);
+	pthread_spin_init(&mp_const_lock, PTHREAD_PROCESS_PRIVATE);
+	pthread_spin_init(&mp_pi_lock, PTHREAD_PROCESS_PRIVATE);
 }
 
 /* ======================================================================= */
