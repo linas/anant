@@ -381,8 +381,8 @@ bailout:
 static int recurse_away_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int rc;
-	double zre = mpf_get_d (zee[0].re);
-	double zim = mpf_get_d (zee[0].im);
+	double zre = cpx_get_re (zee);
+	double zim = cpx_get_im (zee);
 	double mod = zre*zre + zim*zim;
 
 	/* The algo will never converge when modulus >= 5 or so */
@@ -1097,8 +1097,8 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
 	int rc;
-	double zre = mpf_get_d (zee[0].re);
-	double zim = mpf_get_d (zee[0].im);
+	double zre = cpx_get_re (zee);
+	double zim = cpx_get_im (zee);
 	double mod = zre*zre + zim*zim;
 
 	/*
