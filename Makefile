@@ -5,7 +5,7 @@ all:
 install:
 	cd src; make install
 
-VERSION=0.2.1
+VERSION=0.2.4
 VERDIR=anant-${VERSION}
 
 dist:
