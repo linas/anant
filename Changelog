@@ -2,6 +2,9 @@
 Changelog
 ---------
 
+Version 0.2.5 (223 October 2023)
+	* Fix dumb deadlock added during hurried thread-safety work.
+
 Version 0.2.4 (8 March 2019)
 	* Add generator of completely multiplicative functions.
 	* Add Euler resummation.
