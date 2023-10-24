@@ -547,12 +547,13 @@ bailout:
  *
  * Implement the following inversion formula for polylog:
  * (1-e^{2pi is}) Li_s(z) =  e^{i\pi s} (2pi i)^s / Gamma(s)
- *           (zeta(1-s, ln z/(2pi i) -e^{ipi s} zeta(1-s, 1- ln z/(2pi i))
+ *           (zeta(1-s, ln z/(2pi i)) - e^{pi is} zeta(1-s, 1-ln z/(2pi i))
  *
  * This formula appears to work well for both positive and negative
  * half s-plane.
  */
-#if THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION
+// #define THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION
+#ifdef THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION
 static int
 polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth)
 {
@@ -632,13 +633,13 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
 /*
  * polylog_invert -- implement the polylog inversion formula
  *
- * The following is an alternate version of the invert routine,
- * it works, too, for the upper half or the lower half s-plane.
+ * The following is an alternate version of the invert routine.
+ * It works, too, for the upper-half and the lower-half s-plane.
  * The only difference between this and the above is that the
  * gamma function reflection formula was used to put the gamma
  * on the top and not the bottom.
  *
- * Note: this will throw an exception when ess is a positive integer.
+ * Note: This will throw an exception when ess is a positive integer.
  * That's because it needs to calculate gamma(1-s) which has a pole
  * at these locations.
  */
@@ -693,7 +694,7 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
 	cpx_init (logz);
 
 	/* Recompute these values only if s differs from last time. */
-	if(redo || !cpx_eq (ess, cache_ess, prec*3.322))
+	if (redo || !cpx_eq (ess, cache_ess, prec*3.322))
 	{
 		cpx_set (cache_ess, ess);
 
@@ -1194,6 +1195,7 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	if (log(mod) < 6.28)
 	{
 		rc = polylog_invert (plog, ess, zee, prec, depth);
+		// rc = polylog_invert_works (plog, ess, zee, prec, depth);
 		return rc;
 	}
 
@@ -1945,11 +1947,8 @@ static void zeta_euler_fp(cpx_t zeta, cpx_t ess, mpf_t q, int em, int prec)
 
 		cpx_mod_sq (ft, term);
 		if (mpf_cmp (ft, eps) < 0) break;
-#if 0
-		double t = mpf_get_d (ft);
-		printf ("M=%d Q=%d bern=%g ", em, k, t);
-#endif
 
+		// printf ("M=%d Q=%d bern=%g ", em, k, mpf_get_d(ft));
 		k++;
 
 		mpf_div_ui (fact, fact, (2*k-1)*2*k);
