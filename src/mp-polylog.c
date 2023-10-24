@@ -759,11 +759,13 @@ polylog_invert(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int depth
 #ifdef NON_WORKING_INVERSION_ROUTINES
 /* Implement the following inversion formula for polylog:
  * Li_s(z) = - e^{i\pi s} Li_s(1/z)
- *           + (2pi i)^s zeta(1-s, ln z/(2pi i)) / Gamma (s)
+ *           + (2pi i)^s zeta(1-s, rho) / Gamma (s)
+ *
+ * where rho = (ln z)/(2pi i)
  *
  * This polylog inversion formula "should" work well.
  * and it does, for the upper half s-plane. However, for the
- * lower-half s-plane, its broken, and the reason for this
+ * lower-half s-plane, its broken. The reason for this
  * brokenness is confusing, since its theoretically the same
  * formula as the one that works. Not clear what the gig is.
  */
@@ -774,48 +776,48 @@ polylog_invert_broken_for_lower_half_plane(cpx_t plog, const cpx_t ess, const cp
 	mpf_init (twopi);
 	fp_two_pi (twopi, prec);
 
-	cpx_t s, oz, tmp, ph, term, logz;
+	cpx_t s, oz, tmp, ph, term, rho;
 	cpx_init (s);
 	cpx_init (oz);
 	cpx_init (tmp);
 	cpx_init (term);
 	cpx_init (ph);
-	cpx_init (logz);
+	cpx_init (rho);
 	cpx_set (s, ess);
 	cpx_recip (oz, zee);
 
-	/* compute ph = e^{i pi s / 2} = i^s */
+	/* Compute ph = e^{i pi s / 2} = i^s */
 	cpx_times_mpf (tmp, s, twopi);
-	cpx_div_ui (tmp,tmp, 4);
+	cpx_div_ui (tmp, tmp, 4);
 	cpx_times_i (tmp, tmp);
 	cpx_exp (ph, tmp, prec);
 
-	/* - e^i\pi s Li_s(1/z) */
+	/* Compute Li_s(1/z) */
 	int rc = recurse_towards_polylog (plog, s, oz, prec, depth);
 	if (rc) goto bail;
 
+	/* Compute - e^{i\pi s} Li_s(1/z) */
 	cpx_mul (plog, plog, ph);
 	cpx_mul (plog, plog, ph);
 	cpx_neg (plog, plog);
 
-	/* compute ln z/(2pi i) */
-	cpx_log (logz, oz, prec);
-	cpx_div_mpf (logz, logz, twopi);
-	cpx_times_i (logz, logz);
+	/* Compute rho = (ln z)/(2pi i) */
+	cpx_log (rho, oz, prec);
+	cpx_div_mpf (rho, rho, twopi);
+	cpx_times_i (rho, rho);
 
 	/* Place branch cut so that it extends to the right from z=1 */
-	if (mpf_sgn(logz[0].re) < 0)
+	if (mpf_sgn(rho[0].re) < 0)
 	{
-		mpf_add_ui (logz[0].re, logz[0].re, 1);
+		mpf_add_ui (rho[0].re, rho[0].re, 1);
 	}
 
-	/* zeta (1-s, ln z/(2pi i)) */
+	/* Compute zeta (1-s, rho) */
 	cpx_ui_sub (tmp, 1, 0, s);
-	cpx_hurwitz_taylor (term, tmp, logz, prec);
+	cpx_hurwitz_taylor (term, tmp, rho, prec);
 
-	/* (2pi)^s i^s zeta /gamma (s) */
+	/* Compute (2pi)^s i^s zeta / gamma (s) */
 	cpx_mul (term, term, ph);
-
 	cpx_mpf_pow (tmp, twopi, s, prec);
 	cpx_mul (term, term, tmp);
 	cpx_gamma_cache (tmp, s, prec);
@@ -826,7 +828,7 @@ polylog_invert_broken_for_lower_half_plane(cpx_t plog, const cpx_t ess, const cp
 bail:
 	cpx_clear (s);
 	cpx_clear (oz);
-	cpx_clear (logz);
+	cpx_clear (rho);
 	cpx_clear (tmp);
 	cpx_clear (term);
 	cpx_clear (ph);
@@ -1202,6 +1204,7 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	{
 		rc = polylog_invert (plog, ess, zee, prec, depth);
 		// rc = polylog_invert_works (plog, ess, zee, prec, depth);
+		// rc = polylog_invert_broken_for_lower_half_plane (plog, ess, zee, prec, depth);
 		return rc;
 	}
 
