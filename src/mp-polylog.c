@@ -1775,11 +1775,35 @@ void cpx_hurwitz_zeta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)
 /**
  * cpx_hurwitz_taylor -- Hurwitz zeta function Taylor series
  *
- * Implement the Hurwitz zeta as a taylor expansion about q=0
- * (pulling out the leading 1/q^s term to handle uniquely)
+ * Implement the Hurwitz zeta as a taylor expansion about q=0.
+ * Recall, hurwitz(s,q) = sum_{k=0}^\infty (k+q)^{-s}
+ *
+ * Overview of the algorithm:
+ * First, pull out the leading 1/q^s term, and handle it distinctly.
+ *    hurwitz(s,q) = 1/q^s + sum_{k=1}^\infty (k+q)^{-s}
+ *
+ * Taylor series is f(q) = sum_{n=0}^\infty q^n f^{(n)}(0) / n!
+ *
+ * Taylor series for hurwitz in q requires the n'th derivative
+ * d^n/dq^n (k+q)^{-s} = (-1)^n s(s+1)(s+2)...(s+n-1) / (k+q)^{s+n}
+ *
+ * Exchanging the order of the Hurwitz and Taylor summations, we get
+ *    f^{(n)}(0) = (-1)^n s(s+1)(s+2)...(s+n-1)
+ *                       sum_{k=1}^\infty 1/k^{s+n}
+ *
+ * The product is the rising Pochammer. The sum is just the Riemann
+ * zeta, that is zeta(s+n) = sum_{k=1}^\infty 1/k^{s+n} and so we write
+ *    f^{(n)}(0) = (-1)^n s(s+1)(s+2)...(s+n-1) zeta(s+n)
+ *
+ * The factorial divides the rising Pochammer to yeild the binomial
+ * coefficient:
+ *    binom(s+n-1, n) = s(s+1)(s+2)...(s+n-1) / n!
+ *
+ * Thus, we conclude
+ *    hurwitz(s,q) = 1/q^s + sum_{n=0}^\infty q^n binom(s+n-1, n) zeta(s+n)
  */
 
-void cpx_hurwitz_taylor (cpx_t zee, const cpx_t ess, const cpx_t que, int prec)
+void cpx_hurwitz_taylor (cpx_t hurw, const cpx_t ess, const cpx_t que, int prec)
 {
 	cpx_t s, sn, q, qn, bin, term;
 	cpx_init (s);
@@ -1789,47 +1813,57 @@ void cpx_hurwitz_taylor (cpx_t zee, const cpx_t ess, const cpx_t que, int prec)
 	cpx_init (bin);
 	cpx_init (term);
 
-	/* Use 10^{-prec} for smallest term in sum */
-	mpf_t maxterm, aterm;
-	mpf_init (maxterm);
+	/* Define epsilon = 10^{-prec} as bound for smallest term in sum. */
+	mpf_t epsilon, aterm;
+	mpf_init (epsilon);
 	mpf_init (aterm);
-	fp_epsilon (maxterm, 2*prec);
+	fp_epsilon (epsilon, 2*prec);
 
 	cpx_set (s, ess);
 	cpx_set (q, que);
 
 	/* Compute 1/q^s if the real part of q is near 0.
 	 * Else navigate the waters of the Hurwitz branch cut.
+	 * "Near zero" is -0.5 < Re q < 0.5. However, 0.5 is
+	 * The Riemann critical line, so move off of that,
+	 * to -0.55 < Re q < 0.45 to avoid weird rounding effects.
+	 *
+	 * On exit from this pair of loops, hurw will contain
+	 * hurw = 1/q^s ...
+	 * and Re q will be ...
 	 */
+#define STRIP 0.45
 	cpx_neg (s, s);
-	cpx_set_ui (zee, 0, 0);
-	while (mpf_cmp_d (q[0].re, 0.5) < 0)
+	cpx_set_ui (hurw, 0, 0);
+	while (mpf_cmp_d (q[0].re, STRIP) < 0)
 	{
 		cpx_pow (qn, q, s, prec);
-		cpx_add (zee, zee, qn);
+		cpx_add (hurw, hurw, qn);
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 	mpf_sub_ui (q[0].re, q[0].re, 1);
-	while (mpf_cmp_d (q[0].re, 1.5) > 0)
+	while (mpf_cmp_d (q[0].re, 1.0+STRIP) > 0)
 	{
 		mpf_sub_ui (q[0].re, q[0].re, 1);
 		cpx_pow (qn, q, s, prec);
-		cpx_sub (zee, zee, qn);
+		cpx_sub (hurw, hurw, qn);
 	}
-	if (mpf_cmp_d (q[0].re, 0.5) > 0)
+	if (mpf_cmp_d (q[0].re, STRIP) > 0)
 	{
 		mpf_sub_ui (q[0].re, q[0].re, 1);
 	}
-	cpx_neg (s, s);
+	cpx_neg (s, s); /* Restore original s */
 
-double qre = mpf_get_d (q[0].re);
-double qim = mpf_get_d (q[0].im);
+double qre = cpx_get_re (q);
+double qim = cpx_get_im (q);
 double mod = sqrt(qre*qre+qim*qim);
 if (0.9 < mod) {
-printf ("oh no mr bill! q=%g +i%g m=%g\n", qre, qim, mod);
+printf ("oh no mr bill! q=%g +i%g modulus=%g\n", qre, qim, mod);
 goto punt;
 }
-	/* Now do a power series in -q */
+
+	/* Now do a power series in -q. We use a minus here, to cleverly
+	 * absorb a minus sign coming from the Taylor's differentiation. */
 	cpx_neg (q, q);
 	cpx_set_ui (qn, 1, 0);
 	cpx_sub_ui (sn, s, 1, 0);
@@ -1838,22 +1872,22 @@ goto punt;
 	{
 		/* s+n-1 */
 		/* The caching version uses precomputed values,
-		 * making te algo faster. This also means that
+		 * making the algo faster. This also means that
 		 * sn does not need to be incremented. */
 		// cpx_binomial (bin, sn, n);
 		// cpx_add_ui (sn, sn, 1, 0);
 		cpx_binomial_sum_cache (bin, sn, n);
 
-		/* zeta_cache returns vale at s+n */
+		/* zeta_cache returns value at s+n */
 		cpx_borwein_zeta_cache (term, s, n, prec);
 		// cpx_borwein_zeta (term, sn, prec);
 		cpx_mul (term, term, bin);
 		cpx_mul (term, term, qn);
-		cpx_add (zee, zee, term);
+		cpx_add (hurw, hurw, term);
 
 		/* Don't go no farther than this */
 		cpx_mod_sq (aterm, term);
-		if (mpf_cmp (aterm, maxterm) < 0) break;
+		if (mpf_cmp (aterm, epsilon) < 0) break;
 
 		n++;
 
@@ -1869,7 +1903,7 @@ punt:
 	cpx_clear (bin);
 	cpx_clear (term);
 	mpf_clear (aterm);
-	mpf_clear (maxterm);
+	mpf_clear (epsilon);
 }
 
 /* =========================================================== */
