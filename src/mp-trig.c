@@ -1181,6 +1181,11 @@ void cpx_ui_pow (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 	mpf_clear(pha);
 }
 
+// Caching  versions need a thread lock
+static pthread_spinlock_t cache_lock;
+__attribute__((constructor))
+	void cache_lock_init(void) { pthread_spin_init(&cache_lock, 0); }
+
 /**
  * cpx_ui_pow_cache -- return k^s for complex s, integer k.
  *
@@ -1193,15 +1198,17 @@ void cpx_ui_pow_cache (cpx_t powc, unsigned int k, const cpx_t ess, int prec)
 	static cpx_t cache_s;
 	static int precision = 0;
 
-	if (!precision)
-	{
-		cpx_init (cache_s);
-	}
-
 	if (precision < prec)
 	{
+		pthread_spin_lock(&cache_lock);
+		if (!precision)
+		{
+			cpx_init (cache_s);
+		}
+
 		precision = prec;
 		cpx_set_prec (cache_s, 3.322*prec+50);
+		pthread_spin_unlock(&cache_lock);
 	}
 
 	// If value of s has changed, then clear the cache.
@@ -1275,27 +1282,31 @@ void fp_pow_rc (cpx_t powc, int k, const mpf_t q, const cpx_t ess, int prec)
 	static mpf_t *next_q;
 	static cpx_t *next_s;
 
-	// XXX FIXME not thread-safe!
-	if (!precision)
-	{
-		mpf_init (cache_q_one);
-		mpf_init (cache_q_two);
-		cpx_init (cache_s_one);
-		cpx_init (cache_s_two);
-		next_cache = &powcache_one;
-		next_q = &cache_q_one;
-		next_s = &cache_s_one;
-	}
-
 	if (precision < prec)
 	{
-		precision = prec;
-		mpf_set_prec (cache_q_one, 3.322*prec+50);
-		mpf_set_prec (cache_q_two, 3.322*prec+50);
-		cpx_set_prec (cache_s_one, 3.322*prec+50);
-		cpx_set_prec (cache_s_two, 3.322*prec+50);
-		cpx_one_d_cache_clear (&powcache_one);
-		cpx_one_d_cache_clear (&powcache_two);
+		pthread_spin_lock(&cache_lock);
+		if (precision < prec)
+		{
+			if (!precision)
+			{
+				mpf_init (cache_q_one);
+				mpf_init (cache_q_two);
+				cpx_init (cache_s_one);
+				cpx_init (cache_s_two);
+				next_cache = &powcache_one;
+				next_q = &cache_q_one;
+				next_s = &cache_s_one;
+			}
+
+			precision = prec;
+			mpf_set_prec (cache_q_one, 3.322*prec+50);
+			mpf_set_prec (cache_q_two, 3.322*prec+50);
+			cpx_set_prec (cache_s_one, 3.322*prec+50);
+			cpx_set_prec (cache_s_two, 3.322*prec+50);
+			cpx_one_d_cache_clear (&powcache_one);
+			cpx_one_d_cache_clear (&powcache_two);
+		}
+		pthread_spin_unlock(&cache_lock);
 	}
 
 	cpx_cache *powcache = NULL;
@@ -1356,26 +1367,31 @@ void cpx_pow_rc (cpx_t powc, int k, const cpx_t q, const cpx_t ess, int prec)
 	static cpx_cache *next_cache;
 	static cpx_t *next_q, *next_s;
 
-	if (!precision)
-	{
-		cpx_init (cache_q_one);
-		cpx_init (cache_q_two);
-		cpx_init (cache_s_one);
-		cpx_init (cache_s_two);
-		next_cache = &powcache_one;
-		next_q = &cache_q_one;
-		next_s = &cache_s_one;
-	}
-
 	if (precision < prec)
 	{
-		precision = prec;
-		cpx_set_prec (cache_q_one, 3.322*prec+50);
-		cpx_set_prec (cache_q_two, 3.322*prec+50);
-		cpx_set_prec (cache_s_one, 3.322*prec+50);
-		cpx_set_prec (cache_s_two, 3.322*prec+50);
-		cpx_one_d_cache_clear (&powcache_one);
-		cpx_one_d_cache_clear (&powcache_two);
+		pthread_spin_lock(&cache_lock);
+		if (precision < prec)
+		{
+			if (!precision)
+			{
+				cpx_init (cache_q_one);
+				cpx_init (cache_q_two);
+				cpx_init (cache_s_one);
+				cpx_init (cache_s_two);
+				next_cache = &powcache_one;
+				next_q = &cache_q_one;
+				next_s = &cache_s_one;
+			}
+
+			precision = prec;
+			cpx_set_prec (cache_q_one, 3.322*prec+50);
+			cpx_set_prec (cache_q_two, 3.322*prec+50);
+			cpx_set_prec (cache_s_one, 3.322*prec+50);
+			cpx_set_prec (cache_s_two, 3.322*prec+50);
+			cpx_one_d_cache_clear (&powcache_one);
+			cpx_one_d_cache_clear (&powcache_two);
+		}
+		pthread_spin_unlock(&cache_lock);
 	}
 
 	cpx_cache *powcache = NULL;

@@ -3,7 +3,7 @@ Anant  -- Algorithmic 'n Analytic Number Theory
 ===============================================
 
 <p style="text-align: center;"><b>
-<i>Version 0.2.4</i><br>
+<i>Version 0.2.5</i><br>
 Linas Vepstas March 2019<br>
 linasvepstas@gmail.com
 </b></p>
