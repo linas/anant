@@ -42,10 +42,14 @@
 
 static pthread_spinlock_t mp_const_lock;
 static pthread_spinlock_t mp_pi_lock;
+static pthread_spinlock_t mp_euler_lock;
+static pthread_spinlock_t mp_zeta_lock;
 __attribute__((constructor)) void fp_e_ctor(void)
 {
 	pthread_spin_init(&mp_const_lock, PTHREAD_PROCESS_PRIVATE);
 	pthread_spin_init(&mp_pi_lock, PTHREAD_PROCESS_PRIVATE);
+	pthread_spin_init(&mp_euler_lock, PTHREAD_PROCESS_PRIVATE);
+	pthread_spin_init(&mp_zeta_lock, PTHREAD_PROCESS_PRIVATE);
 }
 
 /* ======================================================================= */
@@ -491,11 +495,11 @@ void fp_euler_mascheroni (mpf_t gam, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_gam;
 
-	pthread_spin_lock(&mp_const_lock);
+	pthread_spin_lock(&mp_euler_lock);
 	if (precision >= prec)
 	{
 		mpf_set (gam, cached_gam);
-		pthread_spin_unlock(&mp_const_lock);
+		pthread_spin_unlock(&mp_euler_lock);
 		return;
 	}
 
@@ -508,7 +512,7 @@ void fp_euler_mascheroni (mpf_t gam, unsigned int prec)
 	fp_euler_mascheroni_compute (gam, prec);
 	mpf_set (cached_gam, gam);
 	precision = prec;
-	pthread_spin_unlock(&mp_const_lock);
+	pthread_spin_unlock(&mp_euler_lock);
 }
 
 /* ======================================================================= */
@@ -538,11 +542,11 @@ void fp_zeta_half (mpf_t gam, unsigned int prec)
 	static unsigned int precision=0;
 	static mpf_t cached_gam;
 
-	pthread_spin_lock(&mp_const_lock);
+	pthread_spin_lock(&mp_zeta_lock);
 	if (precision >= prec)
 	{
 		mpf_set (gam, cached_gam);
-		pthread_spin_unlock(&mp_const_lock);
+		pthread_spin_unlock(&mp_zeta_lock);
 		return;
 	}
 
@@ -555,7 +559,7 @@ void fp_zeta_half (mpf_t gam, unsigned int prec)
 	fp_zeta_half_compute (gam, prec);
 	mpf_set (cached_gam, gam);
 	precision = prec;
-	pthread_spin_unlock(&mp_const_lock);
+	pthread_spin_unlock(&mp_zeta_lock);
 }
 
 /* =============================== END OF FILE =========================== */
