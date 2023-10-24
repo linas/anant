@@ -546,8 +546,10 @@ bailout:
  * polylog_invert -- implement the polylog inversion formula
  *
  * Implement the following inversion formula for polylog:
- * (1-e^{2pi is}) Li_s(z) =  e^{i\pi s} (2pi i)^s / Gamma(s)
- *           (zeta(1-s, ln z/(2pi i)) - e^{pi is} zeta(1-s, 1-ln z/(2pi i))
+ * (1-e^{2pi is}) Li_s(z) =  e^{i\pi s/2} (2pi)^s / Gamma(s)
+ *           [zeta(1-s, rho) - e^{pi is} zeta(1-s, 1-rho)]
+ *
+ * where rho = (ln z)/(2pi i)
  *
  * This formula appears to work well for both positive and negative
  * half s-plane.
@@ -561,67 +563,71 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
 	mpf_init (twopi);
 	fp_two_pi (twopi, prec);
 
-	cpx_t s, oz, tmp, ph, term, logz;
+	cpx_t s, oz, tmp, ph, term, rho;
 	cpx_init (s);
 	cpx_init (oz);
 	cpx_init (tmp);
 	cpx_init (term);
 	cpx_init (ph);
-	cpx_init (logz);
+	cpx_init (rho);
 	cpx_set (s, ess);
 	cpx_recip (oz, zee);
 
-	/* compute ph = e^{i pi s / 2} = i^s */
+	/* Compute ph = e^{i pi s / 2} = i^s */
 	cpx_times_mpf (tmp, s, twopi);
-	cpx_div_ui (tmp,tmp, 4);
+	cpx_div_ui (tmp, tmp, 4);
 	cpx_times_i (tmp, tmp);
 	cpx_exp (ph, tmp, prec);
 
-	/* compute ln z/(2pi i) */
-	cpx_log (logz, oz, prec);
-	cpx_div_mpf (logz, logz, twopi);
-	cpx_times_i (logz, logz);
+	/* Compute rho = (ln z)/(2pi i) */
+	cpx_log (rho, oz, prec);
+	cpx_div_mpf (rho, rho, twopi);
+	cpx_times_i (rho, rho);
 
 	/* Place branch cut so that it extends to the right from z=1 */
-	if (mpf_sgn(logz[0].re) < 0)
+	if (mpf_sgn(rho[0].re) < 0)
 	{
-		mpf_add_ui (logz[0].re, logz[0].re, 1);
+		mpf_add_ui (rho[0].re, rho[0].re, 1);
 	}
 
-	/* zeta (1-s, ln z/(2pi i)) */
+	/* Compute zeta (1-s, rho) */
 	cpx_ui_sub (tmp, 1, 0, s);
-	// cpx_hurwitz_taylor (term, tmp, logz, prec);
-	cpx_hurwitz_euler (term, tmp, logz, prec);
+	// cpx_hurwitz_taylor (term, tmp, rho, prec);
+	cpx_hurwitz_euler (term, tmp, rho, prec);
 
-	/* plus e^{ipi s} zeta (1-s, 1-ln z/(2pi i)) */
-	cpx_neg (logz, logz);
-	cpx_add_ui (logz, logz, 1, 0);
-	// cpx_hurwitz_taylor (tmp, tmp, logz, prec);
-	cpx_hurwitz_euler (tmp, tmp, logz, prec);
+	/* Compute zeta (1-s, 1-rho) */
+	cpx_neg (rho, rho);
+	cpx_add_ui (rho, rho, 1, 0);
+	// cpx_hurwitz_taylor (tmp, tmp, rho, prec);
+	cpx_hurwitz_euler (tmp, tmp, rho, prec);
+
+	/* Subtract e^{pi is} zeta (1-s, 1-rho) from earlier term. */
 	cpx_mul (tmp, tmp, ph);
 	cpx_mul (tmp, tmp, ph);
 	cpx_sub (term, term, tmp);
 
-	/* (2pi)^s i^s zeta /gamma (s) */
+	/* Scale zeta sum by (2pi)^s i^s zeta /gamma (s) */
 	cpx_mul (term, term, ph);
 	cpx_mpf_pow (tmp, twopi, s, prec);
 	cpx_mul (term, term, tmp);
 	cpx_gamma_cache (tmp, s, prec);
 	cpx_div (term, term, tmp);
 
+	/* Almost done; we've got the RHS of the formula given above. */
 	cpx_set (plog, term);
 
-	/* divide by (1-e^{2pi s}) */
+	/* Compute e^{2pi is} */
 	cpx_mul(ph, ph, ph);
 	cpx_mul(ph, ph, ph);
 
-	cpx_neg(ph,ph);
+	/* Divide by (1-e^{2pi is}) */
+	cpx_neg(ph, ph);
 	cpx_add_ui (ph, ph, 1, 0);
 	cpx_div (plog, plog, ph);
 
 	cpx_clear (s);
 	cpx_clear (oz);
-	cpx_clear (logz);
+	cpx_clear (rho);
 	cpx_clear (tmp);
 	cpx_clear (term);
 	cpx_clear (ph);
