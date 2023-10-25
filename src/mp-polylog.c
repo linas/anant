@@ -542,6 +542,15 @@ bailout:
 	return rc;
 }
 
+#ifdef CROSS_VALIDATE_RESULTS
+static inline double cpx_abs_d (const cpx_t z)
+{
+   double zre = mpf_get_d (z->re);
+   double zim = mpf_get_d (z->im);
+   return sqrt(zre*zre+zim*zim);
+}
+#endif // CROSS_VALIDATE_RESULTS
+
 /*
  * polylog_invert -- implement the polylog inversion formula
  *
@@ -592,14 +601,38 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
 
 	/* Compute zeta (1-s, rho) */
 	cpx_ui_sub (tmp, 1, 0, s);
-	// cpx_hurwitz_taylor (term, tmp, rho, prec);
 	cpx_hurwitz_euler (term, tmp, rho, prec);
+
+#ifdef CROSS_VALIDATE_RESULTS
+	/* Perform cross-validation. Lst I tried this, it worked. */
+	cpx_t tm2; cpx_init(tm2);
+	cpx_hurwitz_taylor (tm2, tmp, rho, prec);
+	cpx_sub(tm2,tm2,term);
+	if (4.0e-9 < cpx_abs_d(tm2)) {
+		printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+		printf("rho= %g +I %g\n", cpx_get_re(rho), cpx_get_im(rho));
+		printf("hurta= %g +I %g\n", cpx_get_re(tm2), cpx_get_im(tm2));
+		printf("hureu= %g +I %g\n", cpx_get_re(term), cpx_get_im(term));
+		printf("delta= %g +I %g\n", cpx_get_re(tm2), cpx_get_im(tm2));
+	}
+#endif // CROSS_VALIDATE_RESULTS
 
 	/* Compute zeta (1-s, 1-rho) */
 	cpx_neg (rho, rho);
 	cpx_add_ui (rho, rho, 1, 0);
-	// cpx_hurwitz_taylor (tmp, tmp, rho, prec);
 	cpx_hurwitz_euler (tmp, tmp, rho, prec);
+
+#ifdef CROSS_VALIDATE_RESULTS
+	cpx_hurwitz_taylor (tm2, tmp, rho, prec);
+	cpx_sub(tm2,tm2,tmp);
+	if (1.0e-12 < cpx_abs_d(tm2)) {
+		printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n");
+		printf("mdelta= %g +I %g\n", cpx_get_re(tm2), cpx_get_im(tm2));
+		printf("1-rho= %g +I %g\n", cpx_get_re(rho), cpx_get_im(rho));
+		printf("hurtm= %g +I %g\n", cpx_get_re(tm2), cpx_get_im(tm2));
+		printf("hurum= %g +I %g\n", cpx_get_re(tmp), cpx_get_im(tmp));
+	}
+#endif // CROSS_VALIDATE_RESULTS
 
 	/* Subtract e^{pi is} zeta (1-s, 1-rho) from earlier term. */
 	cpx_mul (tmp, tmp, ph);
@@ -632,6 +665,7 @@ polylog_invert_works(cpx_t plog, const cpx_t ess, const cpx_t zee, int prec, int
 	cpx_clear (term);
 	cpx_clear (ph);
 	mpf_clear (twopi);
+// cpx_clear(tm2);
 	return 0;
 }
 #endif /* THIS_CODE_WORKS_BUT_AVOID_COMPILER_COMPLAINT_ABOUT_UNUSED_FUNCTION */
@@ -1203,8 +1237,29 @@ static int recurse_towards_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee
 	if (log(mod) < 6.28)
 	{
 		rc = polylog_invert (plog, ess, zee, prec, depth);
-		// rc = polylog_invert_works (plog, ess, zee, prec, depth);
-		// rc = polylog_invert_broken_for_lower_half_plane (plog, ess, zee, prec, depth);
+
+#ifdef CROSS_VALIDATE_RESULTS
+		/* Perform cross-validation. Lst I tried this, it worked. */
+		cpx_t tm2; cpx_init(tm2);
+		cpx_set(tm2, plog);
+		rc = polylog_invert_works (plog, ess, zee, prec, depth);
+		cpx_sub(tm2,tm2,plog);
+		if (1.0e-8 < cpx_abs_d(tm2)) {
+			printf("----------\n");
+			printf("mod=%g\n", cpx_abs_d(tm2));
+			printf("delta= %g +I %g\n", cpx_get_re(tm2), cpx_get_im(tm2));
+			printf("invfast= %g +I %g\n", cpx_get_re(plog), cpx_get_im(plog));
+			}
+		cpx_set(tm2, plog);
+		rc = polylog_invert_broken_for_lower_half_plane (plog, ess, zee, prec, depth);
+		cpx_sub(tm2,tm2,plog);
+		if (1.0e-8 < cpx_abs_d(tm2)) {
+			printf("++++++++\n");
+			printf("mod=%g\n", cpx_abs_d(tm2));
+			printf("delta= %g +I %g\n", cpx_get_re(tm2), cpx_get_im(tm2));
+			printf("invbork= %g +I %g\n", cpx_get_re(plog), cpx_get_im(plog));
+		}
+#endif // CROSS_VALIDATE_RESULTS
 		return rc;
 	}
 
@@ -1775,12 +1830,29 @@ void cpx_hurwitz_zeta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)
 /**
  * cpx_hurwitz_taylor -- Hurwitz zeta function Taylor series
  *
- * Implement the Hurwitz zeta as a taylor expansion about q=0.
+ * Implement the Hurwitz zeta as a Taylor expansion about q=0.
  * Recall, hurwitz(s,q) = sum_{k=0}^\infty (k+q)^{-s}
+ *
+ * If the real part of q fails to satisfy -0.5 < Re q < 0.5 then
+ * the sum over k is shifted, to absorb the integer part. Thus,
+ * the domain of convergence is a bubbly strip surrounding the real
+ * axis, approximately -0.866 < Im q < 0.866. This corresponds to
+ * an infinitely repeated bubble of |q| < 1.0 in which the Taylor
+ * series can converge.
+ *
+ * The algo prints a warning when the shifted |q| < 0.9 isn't true.
+ * It returns a non-zero value in this case, else zero if success.
+ * TODO: This should be converted to an exception.
  *
  * Overview of the algorithm:
  * First, pull out the leading 1/q^s term, and handle it distinctly.
  *    hurwitz(s,q) = 1/q^s + sum_{k=1}^\infty (k+q)^{-s}
+ *
+ * If the real part of q fails to satisfy -0.5 < Re q < 0.5 then
+ * additional terms are peeled off the sum, until it is brought into
+ * this domain. This works, because, hey, it just means moving over
+ * where the sum in k starts. Execution time is linear in |Re q|
+ * because each term is peeled off, one by one.
  *
  * Taylor series is f(q) = sum_{n=0}^\infty q^n f^{(n)}(0) / n!
  *
@@ -1803,7 +1875,7 @@ void cpx_hurwitz_zeta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec)
  *    hurwitz(s,q) = 1/q^s + sum_{n=0}^\infty q^n binom(s+n-1, n) zeta(s+n)
  */
 
-void cpx_hurwitz_taylor (cpx_t hurw, const cpx_t ess, const cpx_t que, int prec)
+int cpx_hurwitz_taylor (cpx_t hurw, const cpx_t ess, const cpx_t que, int prec)
 {
 	cpx_t s, sn, q, qn, bin, term;
 	cpx_init (s);
@@ -1823,14 +1895,40 @@ void cpx_hurwitz_taylor (cpx_t hurw, const cpx_t ess, const cpx_t que, int prec)
 	cpx_set (q, que);
 
 	/* Compute 1/q^s if the real part of q is near 0.
+	 *
 	 * Else navigate the waters of the Hurwitz branch cut.
 	 * "Near zero" is -0.5 < Re q < 0.5. However, 0.5 is
-	 * The Riemann critical line, so move off of that,
+	 * the Riemann critical line, so move off of that,
 	 * to -0.55 < Re q < 0.45 to avoid weird rounding effects.
 	 *
-	 * On exit from this pair of loops, hurw will contain
-	 * hurw = 1/q^s ...
-	 * and Re q will be ...
+	 * Define tay(s,q) = sum_{k=1}^\infty (k+q)^{-s}
+	 * and note that hurwitz(s,q) = 1/q^s + tay(s,q)
+	 * Perform repeated shifts as follows:
+	 *
+	 * Let L = floor(Re q + 0.55)
+	 * Define q' = q - L
+	 * This allows tay(s,q') to be evaluated within the
+	 * domain of convergence |q'| < 1. This correspnds to
+	 * a band of unit-radius disks centered on the integers.
+	 *
+	 * For L > 0 define shif(s,q) = - sum_{k=1}^{L-1} 1/(q-k)^s
+	 * For L <=0 define shif(s,q) = sum_{k=0}^{-L} 1/(q+k)^s
+	 * This allows hurwitz(s,q) = shif(s,q) + tay(s,q')
+	 *
+	 * On exit from this pair of loops, hurw will contain shif(s,q)
+	 * and Re q will satisfy -0.55 < Re q < 0.45
+	 *
+	 * Examples:
+	 * -1.55 < Re q < -0.55  means L=-1 and hurw = 1/q^s + 1/(q+1)^s
+	 * -0.55 < Re q < +0.45  means L=0 and hurw = 1/q^s
+	 * +0.45 < Re q < +1.45  means L=1 and hurw = 0
+	 * +1.45 < Re q < +2.45  means L=2 and hurw = - 1/(q-1)^s
+	 * +2.45 < Re q < +3.45  means L=3 and hurw = - [1/(q-1)^s + 1/(q-2)^s]
+	 *
+	 * TODO: right now, the above uses the floating compare, which
+	 * might result in bizarro rounding errors at high accuracy. Maybe.
+	 * I dunno. Right now, none of the code actually requires this func,
+	 * so for now, leave as-is.
 	 */
 #define STRIP 0.45
 	cpx_neg (s, s);
@@ -1854,13 +1952,17 @@ void cpx_hurwitz_taylor (cpx_t hurw, const cpx_t ess, const cpx_t que, int prec)
 	}
 	cpx_neg (s, s); /* Restore original s */
 
-double qre = cpx_get_re (q);
-double qim = cpx_get_im (q);
-double mod = sqrt(qre*qre+qim*qim);
-if (0.9 < mod) {
-printf ("oh no mr bill! q=%g +i%g modulus=%g\n", qre, qim, mod);
-goto punt;
-}
+	/* Sanity check. This is never hit, but still, nice to have. */
+	/* TODO: convert this to an exception. */
+	int rc = 0;
+	double qre = cpx_get_re (q);
+	double qim = cpx_get_im (q);
+	double mod = sqrt(qre*qre+qim*qim);
+	if (0.9 < mod) {
+		rc = 1;
+		printf ("oh no mr bill! q=%g +i%g modulus=%g\n", qre, qim, mod);
+		goto punt;
+	}
 
 	/* Now do a power series in -q. We use a minus here, to cleverly
 	 * absorb a minus sign coming from the Taylor's differentiation. */
@@ -1870,15 +1972,15 @@ goto punt;
 	int n = 0;
 	while (1)
 	{
-		/* s+n-1 */
-		/* The caching version uses precomputed values,
-		 * making the algo faster. This also means that
+		/* Compute binomial(s+n-1, n) as per above. */
+		/* The caching version uses precomputed values, making
+		 * the algo faster. The caching version also means that
 		 * sn does not need to be incremented. */
 		// cpx_binomial (bin, sn, n);
 		// cpx_add_ui (sn, sn, 1, 0);
 		cpx_binomial_sum_cache (bin, sn, n);
 
-		/* zeta_cache returns value at s+n */
+		/* zeta_cache returns zeta(s+n) */
 		cpx_borwein_zeta_cache (term, s, n, prec);
 		// cpx_borwein_zeta (term, sn, prec);
 		cpx_mul (term, term, bin);
@@ -1904,6 +2006,8 @@ punt:
 	cpx_clear (term);
 	mpf_clear (aterm);
 	mpf_clear (epsilon);
+
+	return rc;
 }
 
 /* =========================================================== */

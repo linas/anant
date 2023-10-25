@@ -152,10 +152,12 @@ void cpx_hurwitz_zeta (cpx_t hzeta, const cpx_t ess, const mpf_t que, int prec);
 /**
  * cpx_hurwitz_taylor -- Hurwitz zeta function taylor series
  *
- * Implement the Hurwitz zeta as a taylor expansion about q=0
- * (pulling out the leading 1/q^s term to handle uniquely)
+ * Implement the Hurwitz zeta as a taylor expansion about q=0.
+ * See source code for detailed explanations about the algo and
+ * the domain of validity. Returns non-zero if argument is out of
+ * the domain of convergence.
  */
-void cpx_hurwitz_taylor (cpx_t hzeta, const cpx_t ess, const cpx_t que, int prec);
+int cpx_hurwitz_taylor (cpx_t hzeta, const cpx_t ess, const cpx_t que, int prec);
 
 /**
  * cpx_hurwitz_euler -- Hurwitz zeta function via Euler-Maclaurin algo
