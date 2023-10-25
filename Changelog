@@ -2,10 +2,10 @@
 Changelog
 ---------
 
-Version 0.2.5 (223 October 2023)
-	* Fix serious arithmetic bug addd during hurried optimizations.
+Version 0.2.5 (23 October 2023)
+	* Fix serious arithmetic bug added during hurried optimizations.
 	* Fix dumb deadlock added during hurried thread-safety work.
-	* Improve documentation for Polylog algoithm internals.
+	* Improve documentation for polylog algorithm internals.
 
 Version 0.2.4 (8 March 2019)
 	* Add generator of completely multiplicative functions.
