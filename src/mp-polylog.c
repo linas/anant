@@ -995,6 +995,13 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
 	mpf_clear (twopi);
 }
 
+/**
+ * cpx_polylog_sheet_g0_action()
+ * Return a factor providing the action of g0 on Delta_1; see the
+ * paper.
+ * For direction=1 this returns -exp(-2pi is)
+ * For others, the signs are toggled.
+ */
 void
 cpx_polylog_sheet_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
 {
