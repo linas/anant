@@ -871,6 +871,40 @@ bail:
 }
 #endif /* NON_WORKING_INVERSION_ROUTINES */
 
+// ====================================================================
+// Moving to other sheets. This is painful and confusing, because there
+// are branch points, not one. Well, the main sheet has only one branch
+// point, at z=1. All the other sheets have two: one at z=1 and one at
+// z=0. Ideally, we draw things so that the branch cut from z=1 extends
+// to the right, and the one from z=0 extends to the left. However,
+// jiggling all the signs to get this right is janky. So the code below
+// is "correct" only for the first few sheets, and then you are on
+// you're own.
+//
+// The problem is spicey, in part because moving to other sheets rquires
+// specifying an element from the free group in two generators: wind
+// around either z=0 or 1, in the left or the right directions, in a
+// given sequential order. For special cases of s, this forms a
+// monodromy, but its free in the general case.
+//
+// The most interesting case is for winding around z=1 in the left-hand
+// direction. This is given by the following code snippet:
+#if WORKS_BUT_YOU_HAVE_TO_DO_IT_MANUALLY
+      if (mpf_cmp_ui(zee[0].im, 0) <= 0)
+      {
+         cpx_polylog_sheet_g1_action(z2, ess, zee, 0, -1, prec);
+      }
+      else
+      {
+         mpf_neg(zee[0].im, zee[0].im);
+         cpx_polylog_sheet_g1_action(z2, ess, zee, 0, -2, prec);
+      }
+      cpx_sub(zeta, zeta, z2);
+#endif
+// The above works fine, you have to do it manually, because I'm too
+// lazy to eff with this code to automate and test everything. Like
+// I said, all this is a confusing mess. But above does work fine.
+// In particular, it gets the two cut directions oriented correctly.
 /*
  * cpx_polylog_sheet -- move to sheet N of polylog
  * The Nth sheet of Li_s(z) is given by
