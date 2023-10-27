@@ -1055,7 +1055,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_init (q);
 	cpx_set (s, ess);
 
-	/* Compute q = ln z/(2pi i) */
+	/* Compute q = (ln z)/(2pi i) */
 	cpx_log (q, zee, prec);
 	cpx_div_mpf (q, q, twopi);
 	cpx_times_i (q, q);
@@ -1065,7 +1065,10 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	 * right from z=1. This is the same as adding 2pi i to the value
 	 * of the log, if the value is in the lower half plane, so that
 	 * we move the cut of the log to lie along the positive, not
-	 * negative axis. */
+	 * negative axis.
+	 *
+	 * Recall, the branch point is at q=0, which corresponds to z=1.
+	 */
 	if (mpf_sgn(q[0].re) < 0)
 	{
 		mpf_add_ui (q[0].re, q[0].re, 1);
@@ -1087,11 +1090,11 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 		cpx_neg (q, q);
 		mpf_add_ui (q[0].re, q[0].re, -z1_dromy);
 
-		/* and one more, for the loop */
+		/* ... And one more, for the loop */
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 
-	/* Compute sum over 1/q^s = (ln z/(2pi i))^{s-1} */
+	/* Compute sum over 1/q^{s-1} = ((ln z)/(2pi i))^{s-1} */
 	cpx_sub_ui (s, s, 1, 0);
 	cpx_set_ui (delta, 0, 0);
 
@@ -1114,7 +1117,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_div_ui (tmp, tmp, 4);
 	cpx_times_i (tmp, tmp);
 
-	if (0> z1_dromy)
+	if (0 > z1_dromy)
 	{
 		cpx_neg (tmp, tmp);
 	}
