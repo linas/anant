@@ -884,13 +884,14 @@ bail:
 // The problem is spicey, in part because moving to other sheets rquires
 // specifying an element from the free group in two generators: wind
 // around either z=0 or 1, in the left or the right directions, in a
-// given sequential order. For special cases of s, this forms a
-// monodromy, but its free in the general case.
+// given sequential order. Although this forms a monodromy, it's
+// complicaated enough that we can pretend that navigating between
+// the sheets is given by an elt of the free group.
 //
 // The most interesting case is for winding around z=1 in the left-hand
 // direction. This is given by the following code snippet:
 #if WORKS_BUT_YOU_HAVE_TO_DO_IT_MANUALLY
-      if (mpf_cmp_ui(zee[0].im, 0) <= 0)
+      if (mpf_sgn(zee[0].im) <= 0)
       {
          cpx_polylog_sheet_g1_action(z2, ess, zee, 0, -1, prec);
       }
