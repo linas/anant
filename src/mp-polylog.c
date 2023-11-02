@@ -1096,6 +1096,31 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_times_i (q, q);
 	cpx_neg (q,q);
 
+#ifdef BRANCHES_TO_LEFT_AND_RIGHT
+	/* Arrange the two branch cuts of polylog so that the one at
+	 * z=+1 goes to right, and the one at z=0 goes to the left.
+	 * This makes use of some voodoo math to make it work.
+	 * I hope I got the voodoo right; this needs double-checking.
+	 *
+	 * Here goes. Points are outside of the unit circle iff
+	 *   mpf_sgn(q[0].im) < 0
+	 * Points are in the lower half-plane iff mpf_sgn(zee[0].im) < 0
+	 * For sheet +1, obtained by winding once around z=+1 in the
+	 * right-handed (counter-clockwise) direction, we make the
+	 * correction below.
+	 */
+	if ((0 < direction) && (mpf_sgn(q[0].im) < 0) && (mpf_sgn(zee[0].im) < 0))
+	{
+		// This just puts a cut from z=0 to the left,
+		// with the the principal sheet in the bottom half.
+		// There's another cut, visible when s=0.5+2i
+		// This cut fades away as tau increases.
+		mpf_neg(q[0].im, q[0].im);
+	}
+#endif
+
+#define BOTH_BRANCHES_GO_RIGHT
+#ifdef BOTH_BRANCHES_GO_RIGHT
 	/* Place branch cut of the polylog so that it extends to the
 	 * right from z=1. This is the same as adding 2pi i to the value
 	 * of the log, if the value is in the lower half plane, so that
@@ -1108,6 +1133,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	{
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
+#endif
 
 	/* Move to the n'th sheet; sheets of the log and the polylog
 	 * are now one and the same thing. */
@@ -1118,6 +1144,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	int z1_dromy = sheet + direction;
 	if (0 < z1_dromy)
 	{
+		// Add one, because its subtracted in the sum below.
 		mpf_add_ui (q[0].re, q[0].re, z1_dromy);
 	}
 	else
