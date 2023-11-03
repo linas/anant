@@ -1120,9 +1120,13 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	}
 	if (0 > direction)
 	{
-		// mpf_neg(zee[0].im, zee[0].im);
 		if (mpf_sgn(zee[0].im) > 0)
+		{
+			// Flipping Im z is same as flipping Re q
+			// mpf_neg(zee[0].im, zee[0].im);
+			mpf_neg(q[0].re, q[0].re);
 			direction--;
+		}
 
 		if (mpf_sgn(q[0].re) < 0)
 			mpf_add_ui (q[0].re, q[0].re, 1);
