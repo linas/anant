@@ -1116,15 +1116,13 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 		// with the the principal sheet in the bottom half.
 		// There's another cut, visible when s=0.5+2i
 		// This cut fades away as tau increases.
-		mpf_neg(q[0].im, q[0].im);
+		cpx_neg(q, q);
 	}
 	if (0 > direction)
 	{
 		if (mpf_sgn(zee[0].im) > 0)
 		{
-			// Flipping Im z is same as flipping Re q
-			// mpf_neg(zee[0].im, zee[0].im);
-			mpf_neg(q[0].re, q[0].re);
+			cpx_neg(q, q);
 			direction--;
 		}
 
