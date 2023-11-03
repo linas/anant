@@ -1096,7 +1096,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_times_i (q, q);
 	cpx_neg (q,q);
 
-// #define BRANCHES_TO_LEFT_AND_RIGHT
+#define BRANCHES_TO_LEFT_AND_RIGHT
 #ifdef BRANCHES_TO_LEFT_AND_RIGHT
 	/* Arrange the two branch cuts of polylog so that the one at
 	 * z=+1 goes to right, and the one at z=0 goes to the left.
@@ -1118,14 +1118,17 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 		// This cut fades away as tau increases.
 		mpf_neg(q[0].im, q[0].im);
 	}
-	if ((0 < direction) && (mpf_sgn(zee[0].im) > 0))
+	if (0 > direction)
 	{
 		// mpf_neg(zee[0].im, zee[0].im);
-		direction--;
-	}
+		if (mpf_sgn(zee[0].im) > 0)
+			direction--;
+
+		if (mpf_sgn(q[0].re) < 0)
+			mpf_add_ui (q[0].re, q[0].re, 1);
 #endif
 
-#define BOTH_BRANCHES_GO_RIGHT
+// #define BOTH_BRANCHES_GO_RIGHT
 #ifdef BOTH_BRANCHES_GO_RIGHT
 	/* Place branch cut of the polylog so that it extends to the
 	 * right from z=1. This is the same as adding 2pi i to the value
@@ -2411,7 +2414,7 @@ int test_bernoulli_poly (int n)
 		double bs;
 		if (0 == n%2)
 		{
-	 		bs = z.re;
+			bs = z.re;
 			if (n%4 == 0) bs = -bs;
 		}
 		if (n%2)
