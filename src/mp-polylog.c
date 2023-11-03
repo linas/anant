@@ -1126,6 +1126,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 
 		if (mpf_sgn(q[0].re) < 0)
 			mpf_add_ui (q[0].re, q[0].re, 1);
+	}
 #endif
 
 // #define BOTH_BRANCHES_GO_RIGHT
