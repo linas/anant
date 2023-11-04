@@ -95,22 +95,30 @@ int cpx_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
 void cpx_polylog_euler (cpx_t zeta, const cpx_t ess, const cpx_t zee, int prec);
 
 /**
- * cpx_polylog_sheet -- give the branch difference for the polylog
+ * cpx_polylog_sheet -- give the branch difference for the polylog.
+ * XXX FIXME This API is kind-of broken, it does not quite make sense.
+ *
  * M is the monodromy number of going around z=0
  * N is the monodromy number of going around z=1
  *
  * For M=0, the branch difference is that given between the principle
  * sheet, and the N'th winding around the z=1 branch point.
  * Thus, for example, the (0,1)'th sheet of Li_s(z) is given by
- *      (2pi i)^s (ln z/(2pi i)^{s-1} / Gamma (s)
+ *      (2pi i)^s ((ln z)/(2pi i))^{s-1} / Gamma (s)
  *
  * For N=0, the monodromy M has no effect.
  * For N!=0, the monodromy is given with respect to the N=1 sheet.
  */
 void cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, int z1_dromy, int prec);
-void cpx_polylog_sheet_g0_action(cpx_t delta, const cpx_t ess, int direction, int prec);
+
+/** Attempt to fix above API. Partial success, only. */
 void cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec);
 
+/** Simple global offset for winding around the log at z=0 */
+void cpx_polylog_g0_action(cpx_t delta, const cpx_t ess, int direction, int prec);
+
+/** New improved API. Add this to the result from cpx_polylog() */
+void cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int direction, int prec);
 
 /**
  * cpx_periodic_zeta -- Periodic zeta function 

@@ -1031,14 +1031,14 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
 }
 
 /**
- * cpx_polylog_sheet_g0_action()
+ * cpx_polylog_g0_action()
  * Return a factor providing the action of g0 on Delta_1; see the
  * paper.
  * For direction=1 this returns -exp(-2pi is)
  * For others, the signs are toggled.
  */
 void
-cpx_polylog_sheet_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
+cpx_polylog_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
 {
 	if (0 == direction)
 	{
@@ -1071,7 +1071,7 @@ cpx_polylog_sheet_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
 }
 
 void
-cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec)
+cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int direction, int prec)
 {
 	if (0 == direction)
 	{
@@ -1115,6 +1115,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	if (0 < direction)
 	{
 		if ((mpf_sgn(q[0].im) < 0) && (mpf_sgn(zee[0].im) < 0))
+		{
 			// This just puts a cut from z=0 to the left,
 			// with the the principal sheet in the bottom half.
 			// There's another cut, visible when s=0.5+2i
@@ -1153,22 +1154,18 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 
-	/* Move to the n'th sheet; sheets of the log and the polylog
-	 * are now one and the same thing. */
 	// XXX this is wrong, if zero is crossed.
 	// That is, this works correctly only if direction is +1 or -1
-	// or if z1_dromy is same sign as sheet.  But for now, this
-	// restriction is enough.
-	int z1_dromy = sheet + direction;
-	if (0 < z1_dromy)
+	// But for now, this restriction is enough.
+	if (0 < direction)
 	{
 		// Add one, because its subtracted in the sum below.
-		mpf_add_ui (q[0].re, q[0].re, z1_dromy);
+		mpf_add_ui (q[0].re, q[0].re, direction);
 	}
 	else
 	{
 		cpx_neg (q, q);
-		mpf_add_ui (q[0].re, q[0].re, -z1_dromy);
+		mpf_add_ui (q[0].re, q[0].re, -direction);
 
 		/* ... And one more, for the loop */
 		mpf_add_ui (q[0].re, q[0].re, 1);
@@ -1198,7 +1195,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_div_ui (tmp, tmp, 4);
 	cpx_times_i (tmp, tmp);
 
-	if (0 > z1_dromy)
+	if (0 > direction)
 	{
 		cpx_neg (tmp, tmp);
 	}
@@ -1211,11 +1208,21 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_gamma_cache (tmp, s, prec);
 	cpx_div (delta, delta, tmp);
 
+	cpx_neg(delta, delta);
+
 	cpx_clear (s);
 	cpx_clear (q);
 	cpx_clear (tmp);
 	cpx_clear (ph);
 	mpf_clear (twopi);
+}
+
+/** XXX Backwards compat API. Broken. */
+void
+cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec)
+{
+	cpx_polylog_g1_action(delta, ess, zee, direction+sheet, prec);
+	cpx_neg(delta, delta);
 }
 
 /**
