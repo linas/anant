@@ -6,6 +6,7 @@ Version 0.2.5 (23 October 2023)
 	* Fix serious arithmetic bug added during hurried optimizations.
 	* Fix dumb deadlock added during hurried thread-safety work.
 	* Improve documentation for polylog algorithm internals.
+	* Rework polylog branch-cut locations to point to left & right.
 
 Version 0.2.4 (8 March 2019)
 	* Add generator of completely multiplicative functions.
