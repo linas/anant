@@ -11,7 +11,7 @@
  * and correct, and passes tests. The range of convergence
  * is rather limited because of precision/rounding errors.
  *
- * Copyright (C) 2006,2007 Linas Vepstas
+ * Copyright (C) 2006,2007,2023 Linas Vepstas
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1100,8 +1100,10 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 #ifdef BRANCHES_TO_LEFT_AND_RIGHT
 	/* Arrange the two branch cuts of polylog so that the one at
 	 * z=+1 goes to right, and the one at z=0 goes to the left.
-	 * This makes use of some voodoo math to make it work.
-	 * I hope I got the voodoo right; this needs double-checking.
+	 *
+	 * Getting this all correct rquires a bit of voodoo.
+	 * I hope I got it all correct; I've been double-checking,
+	 * but there may still be bugs.
 	 *
 	 * Here goes. Points are outside of the unit circle iff
 	 *   mpf_sgn(q[0].im) < 0
@@ -1110,24 +1112,29 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	 * right-handed (counter-clockwise) direction, we make the
 	 * correction below.
 	 */
-	if ((0 < direction) && (mpf_sgn(q[0].im) < 0) && (mpf_sgn(zee[0].im) < 0))
+	if (0 < direction)
 	{
-		// This just puts a cut from z=0 to the left,
-		// with the the principal sheet in the bottom half.
-		// There's another cut, visible when s=0.5+2i
-		// This cut fades away as tau increases.
-		cpx_neg(q, q);
+		if ((mpf_sgn(q[0].im) < 0) && (mpf_sgn(zee[0].im) < 0))
+			// This just puts a cut from z=0 to the left,
+			// with the the principal sheet in the bottom half.
+			// There's another cut, visible when s=0.5+2i
+			// This cut fades away as tau increases.
+			cpx_neg(q, q);
+		}
+
+		// Add one, because its subtracted in the loop sum below.
+		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 	if (0 > direction)
 	{
 		if (mpf_sgn(zee[0].im) > 0)
 		{
-			cpx_neg(q, q);
-			direction--;
 		}
 
 		if (mpf_sgn(q[0].re) < 0)
 			mpf_add_ui (q[0].re, q[0].re, 1);
+
+		cpx_neg (q, q);
 	}
 #endif
 
@@ -1145,7 +1152,6 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	{
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
-#endif
 
 	/* Move to the n'th sheet; sheets of the log and the polylog
 	 * are now one and the same thing. */
@@ -1167,6 +1173,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 		/* ... And one more, for the loop */
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
+#endif
 
 	/* Compute sum over 1/q^{s-1} = ((ln z)/(2pi i))^{s-1} */
 	cpx_sub_ui (s, s, 1, 0);
