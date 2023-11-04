@@ -1126,14 +1126,23 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	}
 	if (0 > direction)
 	{
-		if (mpf_sgn(q[0].re) < 0)
+		if ((mpf_sgn(zee[0].im) < 0) && (mpf_sgn(q[0].re) < 0))
 		{
 			cpx_neg (q, q);
 		}
 		if (mpf_sgn(zee[0].im) > 0)
 		{
-			cpx_neg (q, q);
-			mpf_sub_ui (q[0].re, q[0].re, 1);
+			if (mpf_sgn(q[0].im) < 0)
+			{
+				cpx_neg (q, q);
+				mpf_sub_ui (q[0].re, q[0].re, 1);
+			}
+			else
+			{
+				// XXX This is wrong ... but almost right
+				// wtf ...
+				mpf_sub_ui (q[0].re, q[0].re, 3);
+			}
 		}
 	}
 #endif
