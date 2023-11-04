@@ -1,22 +1,22 @@
-/** 
+/**
  * mp-polylog.h
  *
  * Implement Borwein-style polylogarithm.
- * Also implement the "periodic zeta" and 
+ * Also implement the "periodic zeta" and
  * the Hurwitz zeta function.
  *
  * Copyright (C) 2006,2007,2023 Linas Vepstas
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -32,7 +32,7 @@ extern "C" {
 /**
  * cpx_polylog_nint -- compute the polylogarithm at negetive integers
  *
- * Li_{-n}(z) 
+ * Li_{-n}(z)
  * At the negative integers, the polylog is a rational function,
  * meromorphic everywhere except for multiple poles at z=1.
  */
@@ -42,8 +42,8 @@ void cpx_polylog_nint (cpx_t plog, unsigned int negn, const cpx_t zee);
  * cpx_polylog_sum -- compute the polylogarithm by direct summation
  *
  * Li_s(z) = sum_{n=1}^infty z^n/ n^s
- * 
- * The magnitude of z must be less than one in order for the 
+ *
+ * The magnitude of z must be less than one in order for the
  * summation to be caqrried out.
  *
  * Caches intermediate results, so that overall performance is
@@ -55,7 +55,7 @@ void cpx_polylog_sum (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
  * cpx_polylog -- polylogarithm
  *
  * Li_s(z) = sum_{n=1}^infty z^n/ n^s
- * 
+ *
  * Works for general complex s, z; lightly tested, may be buggy.
  * Watch out for branchpoint at z=1.
  *
@@ -63,7 +63,7 @@ void cpx_polylog_sum (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
  * the given point.
  *
  * Possible bug: This may work badly when Re s is negative integer,
- * and Im s isn't zero. This is because an internal estimator for 
+ * and Im s isn't zero. This is because an internal estimator for
  * the number of terms to compute fails for this case.
  *
  * Actual bug: This will crash when s is a positive integer, and
@@ -140,11 +140,11 @@ void cpx_polylog_sheet_g0_action(cpx_t delta, const cpx_t ess, int direction, in
 void cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec);
 
 /**
- * cpx_periodic_zeta -- Periodic zeta function 
+ * cpx_periodic_zeta -- Periodic zeta function
  *
  * F(s,q) = sum_{n=1}^infty exp(2pi iqn)/ n^s
  *        = Li_s (exp(2pi iq))
- * where 
+ * where
  * Li_s(z) is the polylogarithm
  *
  * Periodic zeta function is defined as F(s,q) by Tom Apostol, chapter 12
@@ -152,13 +152,13 @@ void cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, 
 void cpx_periodic_zeta (cpx_t z, const cpx_t ess, const mpf_t que, int prec);
 
 /**
- * cpx_periodic_beta -- Periodic beta function 
+ * cpx_periodic_beta -- Periodic beta function
  *
  * Similar to periodic zeta, but with different normalization
  *
  * beta = 2 Gamma(s+1) (2\pi)^{-s} F(s,q)
  *
- * Caches intermediate terms, and so performance is much better 
+ * Caches intermediate terms, and so performance is much better
  * if s is held const, while q is varied.
  */
 void cpx_periodic_beta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec);
@@ -169,9 +169,9 @@ void cpx_periodic_beta (cpx_t zee, const cpx_t ess, const mpf_t que, int prec);
  * Accepts complex s, real-valued q.
  *
  * Built up from the fast polylogarithm algo
- * Caches intermediate terms, and so performance is much better 
+ * Caches intermediate terms, and so performance is much better
  * if s is held const, while q is varied.
- * The input value of q must be postive; 
+ * The input value of q must be postive;
  * the algo gets slow if q is very large.
  */
 void cpx_hurwitz_zeta (cpx_t hzeta, const cpx_t ess, const mpf_t que, int prec);
