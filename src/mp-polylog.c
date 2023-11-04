@@ -11,7 +11,11 @@
  * and correct, and passes tests. The range of convergence
  * is rather limited because of precision/rounding errors.
  *
- * Copyright (C) 2006,2007 Linas Vepstas
+ * As of October 2023, the computation of differences across
+ * branch cuts remains wonky. Some cases are treated correctly,
+ * others are not. Some of the API's are wrong/inappropriate.
+ *
+ * Copyright (C) 2006,2007,2023 Linas Vepstas
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,6 +33,7 @@
  * 02110-1301  USA
  */
 
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -1071,7 +1076,9 @@ cpx_polylog_sheet_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
 }
 
 void
-cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec)
+cpx_polylog_g1_delta(cpx_t delta, const cpx_t ess, const cpx_t zee,
+                     int direction, bool z0_cut_right, bool z1_cut_right,
+                     int prec)
 {
 	if (0 == direction)
 	{
@@ -1096,73 +1103,94 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_times_i (q, q);
 	cpx_neg (q,q);
 
-#define BRANCHES_TO_LEFT_AND_RIGHT
-#ifdef BRANCHES_TO_LEFT_AND_RIGHT
-	/* Arrange the two branch cuts of polylog so that the one at
-	 * z=+1 goes to right, and the one at z=0 goes to the left.
-	 * This makes use of some voodoo math to make it work.
-	 * I hope I got the voodoo right; this needs double-checking.
-	 *
-	 * Here goes. Points are outside of the unit circle iff
-	 *   mpf_sgn(q[0].im) < 0
-	 * Points are in the lower half-plane iff mpf_sgn(zee[0].im) < 0
-	 * For sheet +1, obtained by winding once around z=+1 in the
-	 * right-handed (counter-clockwise) direction, we make the
-	 * correction below.
-	 */
-	if ((0 < direction) && (mpf_sgn(q[0].im) < 0) && (mpf_sgn(zee[0].im) < 0))
+	// If both branches point the the left
+	if (0 == z0_cut_right && 0 == z1_cut_right)
 	{
-		// This just puts a cut from z=0 to the left,
-		// with the the principal sheet in the bottom half.
-		// There's another cut, visible when s=0.5+2i
-		// This cut fades away as tau increases.
-		cpx_neg(q, q);
-	}
-	if (0 > direction)
-	{
-		if (mpf_sgn(zee[0].im) > 0)
+		if (0 < direction)
 		{
-			cpx_neg(q, q);
-			direction--;
 		}
-
-		if (mpf_sgn(q[0].re) < 0)
-			mpf_add_ui (q[0].re, q[0].re, 1);
+		else
+		{
+		}
+		assert (0); // not implemeneted
 	}
-#endif
 
-// #define BOTH_BRANCHES_GO_RIGHT
-#ifdef BOTH_BRANCHES_GO_RIGHT
-	/* Place branch cut of the polylog so that it extends to the
-	 * right from z=1. This is the same as adding 2pi i to the value
-	 * of the log, if the value is in the lower half plane, so that
-	 * we move the cut of the log to lie along the positive, not
-	 * negative axis.
-	 *
-	 * Recall, the branch point is at q=0, which corresponds to z=1.
-	 */
-	if (mpf_sgn(q[0].re) < 0)
+	// If z0 goes off the the left, and z1 to the right.
+	if (0 == z0_cut_right && 1 == z1_cut_right)
 	{
-		mpf_add_ui (q[0].re, q[0].re, 1);
-	}
-#endif
+		/* Arrange the two branch cuts of polylog so that the one at
+		 * z=+1 goes to right, and the one at z=0 goes to the left.
+		 *
+		 * Here goes. Points are outside of the unit circle iff
+		 *   mpf_sgn(q[0].im) < 0
+		 * Points are in the lower half-plane iff mpf_sgn(zee[0].im) < 0
+		 * For sheet +1, obtained by winding once around z=+1 in the
+		 * right-handed (counter-clockwise) direction, we make the
+		 * correction below.
+		 */
+		if ((0 < direction) && (mpf_sgn(q[0].im) < 0) && (mpf_sgn(zee[0].im) < 0))
+		{
+			// This just puts a cut from z=0 to the left,
+			// with the the principal sheet in the bottom half.
+			// There's another cut, visible when s=0.5+2i
+			// This cut fades away as tau increases.
+			cpx_neg(q, q);
+		}
+		if (0 > direction)
+		{
+	assert (0); // "Broken!!";
+			if (mpf_sgn(zee[0].im) > 0)
+			{
+				cpx_neg(q, q);
+				direction--;
+			}
 
+			if (mpf_sgn(q[0].re) < 0)
+				mpf_add_ui (q[0].re, q[0].re, 1);
+		}
+	}
+
+	// If z0 goes off the the right, and z1 to the left.
+	if (1 == z0_cut_right && 0 == z1_cut_right)
+	{
+		if (0 < direction)
+		{
+		}
+		else
+		{
+		}
+		assert (0); // not implemeneted
+	}
+
+	// If both branches head off to the right.
+	if (1 == z0_cut_right && 0 == z1_cut_right)
+	{
+		/* Place branch cut of the polylog so that it extends to the
+		 * right from z=1. This is the same as adding 2pi i to the value
+		 * of the log, if the value is in the lower half plane, so that
+		 * we move the cut of the log to lie along the positive, not
+		 * negative axis.
+		 *
+		 * Recall, the branch point is at q=0, which corresponds to z=1.
+		 */
+		if (mpf_sgn(q[0].re) < 0)
+		{
+			mpf_add_ui (q[0].re, q[0].re, 1);
+		}
+	}
+
+	/* ------------------------------------------ */
 	/* Move to the n'th sheet; sheets of the log and the polylog
 	 * are now one and the same thing. */
-	// XXX this is wrong, if zero is crossed.
-	// That is, this works correctly only if direction is +1 or -1
-	// or if z1_dromy is same sign as sheet.  But for now, this
-	// restriction is enough.
-	int z1_dromy = sheet + direction;
-	if (0 < z1_dromy)
+	if (0 < direction)
 	{
 		// Add one, because its subtracted in the sum below.
-		mpf_add_ui (q[0].re, q[0].re, z1_dromy);
+		mpf_add_ui (q[0].re, q[0].re, direction);
 	}
 	else
 	{
 		cpx_neg (q, q);
-		mpf_add_ui (q[0].re, q[0].re, -z1_dromy);
+		mpf_add_ui (q[0].re, q[0].re, -direction);
 
 		/* ... And one more, for the loop */
 		mpf_add_ui (q[0].re, q[0].re, 1);
@@ -1191,7 +1219,7 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_div_ui (tmp, tmp, 4);
 	cpx_times_i (tmp, tmp);
 
-	if (0 > z1_dromy)
+	if (0 > direction)
 	{
 		cpx_neg (tmp, tmp);
 	}
@@ -1209,6 +1237,13 @@ cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int s
 	cpx_clear (tmp);
 	cpx_clear (ph);
 	mpf_clear (twopi);
+}
+
+void
+cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec)
+{
+	// sheet is ignored
+	cpx_polylog_g1_delta(delta, ess, zee, direction, 0, 1, prec);
 }
 
 /**

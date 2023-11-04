@@ -5,7 +5,7 @@
  * Also implement the "periodic zeta" and 
  * the Hurwitz zeta function.
  *
- * Copyright (C) 2006,2007 Linas Vepstas
+ * Copyright (C) 2006,2007,2023 Linas Vepstas
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301  USA
  */
+#include <stdbool.h>
 #include "mp-complex.h"
 
 #ifdef  __cplusplus
@@ -95,6 +96,29 @@ int cpx_polylog (cpx_t plog, const cpx_t ess, const cpx_t zee, int prec);
 void cpx_polylog_euler (cpx_t zeta, const cpx_t ess, const cpx_t zee, int prec);
 
 /**
+ * cpx_polylog_g1_delta -- compute the difference across the branch cut,
+ * for the branch point located at z=1.
+ *
+ * direction=+N means wind around z=1 in a right-handed
+ * (counter-clockwise) direction.
+ *
+ * direction=-N means wind around z=1 in a left-handed
+ * (clockwise) direction.
+ *
+ * z0_cut_right = 0 means extend the z=0 cut to the left
+ * z0_cut_right = 1 means extend the z=0 cut to the right
+ * z1_cut_right = 0 means extend the z=1 cut to the left
+ * z1_cut_right = 1 means extend the z=1 cut to the right
+ *
+ * For direction=1, the difference is that given between the principal
+ * sheet, and the N'th winding around the z=1 branch point.
+ * Thus, for example, the (0,1)'th sheet of Li_s(z) is given by
+ *      (2pi i)^s ((ln z)/(2pi i))^{s-1} / Gamma (s)
+ */
+void cpx_polylog_g1_delta(cpx_t delta, const cpx_t ess, const cpx_t zee,
+          int direction, bool z0_cut_right, bool z1_cut_right, int prec);
+
+/**
  * cpx_polylog_sheet -- give the branch difference for the polylog
  * M is the monodromy number of going around z=0
  * N is the monodromy number of going around z=1
@@ -106,11 +130,14 @@ void cpx_polylog_euler (cpx_t zeta, const cpx_t ess, const cpx_t zee, int prec);
  *
  * For N=0, the monodromy M has no effect.
  * For N!=0, the monodromy is given with respect to the N=1 sheet.
+ *
+ * XXX The implementation is currently half-broken and even the API
+ * itself doesn't really make sense. More work is needed on this blob
+ * of code. FIXME!
  */
 void cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, int z1_dromy, int prec);
 void cpx_polylog_sheet_g0_action(cpx_t delta, const cpx_t ess, int direction, int prec);
 void cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec);
-
 
 /**
  * cpx_periodic_zeta -- Periodic zeta function 
