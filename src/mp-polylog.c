@@ -1122,9 +1122,11 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 			// This cut fades away as tau increases.
 			cpx_neg(q, q);
 		}
-
-		// Add one, because its subtracted in the loop sum below.
-		mpf_add_ui (q[0].re, q[0].re, 1);
+		else
+		{
+			// Add one, because its subtracted in the loop sum below.
+			mpf_add_ui (q[0].re, q[0].re, 1);
+		}
 	}
 	if (0 > direction)
 	{
