@@ -1128,14 +1128,14 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	{
 		if (mpf_sgn(q[0].re) < 0)
 		{
-			mpf_add_ui (q[0].re, q[0].re, 1);
+			cpx_neg (q, q);
 		}
 		if (mpf_sgn(zee[0].im) > 0)
 		{
+			// XXX This has the z=0 branch going the wrong way!
+			cpx_neg (q, q);
+			mpf_add_ui (q[0].re, q[0].re, 1);
 		}
-
-		cpx_neg (q, q);
-		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 #endif
 
