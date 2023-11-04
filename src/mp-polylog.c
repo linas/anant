@@ -1121,11 +1121,7 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 			// There's another cut, visible when s=0.5+2i
 			// This cut fades away as tau increases.
 			cpx_neg(q, q);
-		}
-		else
-		{
-			// Add one, because its subtracted in the loop sum below.
-			mpf_add_ui (q[0].re, q[0].re, 1);
+			mpf_sub_ui (q[0].re, q[0].re, 1);
 		}
 	}
 	if (0 > direction)
@@ -1139,7 +1135,6 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 		}
 
 		cpx_neg (q, q);
-		mpf_add_ui (q[0].re, q[0].re, 1);
 		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 #endif
@@ -1162,18 +1157,10 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	// XXX this is wrong, if zero is crossed.
 	// That is, this works correctly only if direction is +1 or -1
 	// But for now, this restriction is enough.
-	if (0 < direction)
-	{
-		// Add one, because its subtracted in the sum below.
-		mpf_add_ui (q[0].re, q[0].re, direction);
-	}
-	else
+	if (0 > direction)
 	{
 		cpx_neg (q, q);
 		mpf_add_ui (q[0].re, q[0].re, -direction);
-
-		/* ... And one more, for the loop */
-		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 #endif
 
@@ -1185,10 +1172,10 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	if (0 > dromy) dromy = -dromy;
 	while (dromy > 0)
 	{
-		mpf_sub_ui (q[0].re, q[0].re, 1);
 		cpx_pow (tmp, q, s, prec);
 		cpx_add (delta, delta, tmp);
 		dromy --;
+		mpf_sub_ui (q[0].re, q[0].re, 1);
 	}
 
 	cpx_add_ui (s, s, 1, 0);
