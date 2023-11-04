@@ -97,14 +97,23 @@ void cpx_polylog_euler (cpx_t zeta, const cpx_t ess, const cpx_t zee, int prec);
 
 /**
  * cpx_polylog_g1_delta -- compute the difference across the branch cut,
- * for the branch point located at z=1.
+ * for the branch point located at z=1. The value returned by this
+ * function should be *added* to what is returned by cpx_polylog(),
+ * above. Note that cpx_polylog() is designed so that it returns the
+ * principal sheet, which has one branch point, at z=1 and the branch
+ * cut is arranged to right.
  *
  * direction=+N means wind around z=1 in a right-handed
- * (counter-clockwise) direction.
+ * (counter-clockwise) direction. That is, move from below,
+ * upwards across the cut.
  *
  * direction=-N means wind around z=1 in a left-handed
- * (clockwise) direction.
+ * (clockwise) direction. That is, move from above,
+ * downwards across the cut.
  *
+ * Upon return, the cuts can be re-arranged to go off in different
+ * directions. This helps with visualization and general
+ * sanity-checking.
  * z0_cut_right = 0 means extend the z=0 cut to the left
  * z0_cut_right = 1 means extend the z=0 cut to the right
  * z1_cut_right = 0 means extend the z=1 cut to the left

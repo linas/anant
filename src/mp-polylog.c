@@ -1239,6 +1239,7 @@ cpx_polylog_g1_delta(cpx_t delta, const cpx_t ess, const cpx_t zee,
 	mpf_clear (twopi);
 }
 
+// XXX backwards-compat API
 void
 cpx_polylog_sheet_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int sheet, int direction, int prec)
 {
