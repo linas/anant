@@ -1107,6 +1107,7 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 			mpf_sub_ui (q[0].re, q[0].re, 1);
 		}
 	}
+
 	if (0 > direction)
 	{
 		if (mpf_sgn(zee[0].im) < 0)
@@ -1118,8 +1119,9 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 			if (mpf_sgn(q[0].im) < 0)
 			{
 				// Outside the unit circle
+				cpx_neg (q, q);
 // XXX we are doing something wrong here, but what is it???
-mpf_sub_ui(q[0].re, q[0].re, 1);
+// mpf_add_ui(q[0].re, q[0].re, 1);
 			}
 			else
 			{
@@ -1186,9 +1188,9 @@ mpf_sub_ui(q[0].re, q[0].re, 1);
 	cpx_exp (ph, tmp, prec);
 
 	/* (2pi)^s i^s (sum) /gamma (s) */
-	cpx_mul (delta, delta, ph);
 	cpx_mpf_pow (tmp, twopi, s, prec);
-	cpx_mul (delta, delta, tmp);
+	cpx_mul (ph, ph, tmp);
+	cpx_mul (delta, delta, ph);
 	cpx_gamma_cache (tmp, s, prec);
 	cpx_div (delta, delta, tmp);
 
