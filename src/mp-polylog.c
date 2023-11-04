@@ -1130,14 +1130,17 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	}
 	if (0 > direction)
 	{
+		if (mpf_sgn(q[0].re) < 0)
+		{
+			mpf_add_ui (q[0].re, q[0].re, 1);
+		}
 		if (mpf_sgn(zee[0].im) > 0)
 		{
 		}
 
-		if (mpf_sgn(q[0].re) < 0)
-			mpf_add_ui (q[0].re, q[0].re, 1);
-
 		cpx_neg (q, q);
+		mpf_add_ui (q[0].re, q[0].re, 1);
+		mpf_add_ui (q[0].re, q[0].re, 1);
 	}
 #endif
 
@@ -1178,13 +1181,14 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	cpx_sub_ui (s, s, 1, 0);
 	cpx_set_ui (delta, 0, 0);
 
-	if (0 > direction) direction = -direction;
-	while (direction > 0)
+	int dromy = direction;
+	if (0 > dromy) dromy = -dromy;
+	while (dromy > 0)
 	{
 		mpf_sub_ui (q[0].re, q[0].re, 1);
 		cpx_pow (tmp, q, s, prec);
 		cpx_add (delta, delta, tmp);
-		direction --;
+		dromy --;
 	}
 
 	cpx_add_ui (s, s, 1, 0);
