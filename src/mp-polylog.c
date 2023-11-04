@@ -1105,12 +1105,11 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	 * I hope I got it all correct; I've been double-checking,
 	 * but there may still be bugs.
 	 *
-	 * Here goes. Points are outside of the unit circle iff
-	 *   mpf_sgn(q[0].im) < 0
+	 * Here goes. There are four "quadrants":
 	 * Points are in the lower half-plane iff mpf_sgn(zee[0].im) < 0
-	 * For sheet +1, obtained by winding once around z=+1 in the
-	 * right-handed (counter-clockwise) direction, we make the
-	 * correction below.
+	 * Points are outside of the unit circle iff mpf_sgn(q[0].im) < 0
+	 * Naive treatment of the logarithm(s) typically screws up one
+	 * of these quadrants. So the twiddling below tries to set it right.
 	 */
 	if (0 < direction)
 	{
@@ -1141,7 +1140,7 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 			{
 				// XXX This is wrong ... but almost right
 				// wtf ...
-				mpf_sub_ui (q[0].re, q[0].re, 3);
+				mpf_sub_ui (q[0].re, q[0].re, 2);
 			}
 		}
 	}
