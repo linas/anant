@@ -1132,6 +1132,10 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	if ((1 < direction) || (-1 > direction))
 		fprintf(stderr,
 			"WARNING: code is probably broken for winding more than once!\n");
+
+	if (mpf_sgn(s[0].im) < 0)
+		fprintf(stderr,
+			"WARNING: code is probably broken for Im s < 0!\n");
 #endif
 
 // #define BOTH_BRANCHES_GO_RIGHT
@@ -1157,6 +1161,8 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 		cpx_neg (q, q);
 		mpf_add_ui (q[0].re, q[0].re, -direction);
 	}
+
+	int bump_phase = 0;
 #endif
 
 	/* Compute sum over 1/q^{s-1} = ((ln z)/(2pi i))^{s-1} */
