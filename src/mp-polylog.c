@@ -1020,6 +1020,8 @@ cpx_polylog_sheet(cpx_t delta, const cpx_t ess, const cpx_t zee, int z0_dromy, i
  * paper.
  * For direction=1 this returns -exp(-2pi is)
  * For others, the signs are toggled.
+ *
+ * FIXME: this should cache, for improved performance.
  */
 void
 cpx_polylog_g0_action(cpx_t ph, const cpx_t ess, int direction, int prec)
@@ -1108,27 +1110,19 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 		}
 	}
 
+	int bump_phase = 0;
 	if (0 > direction)
 	{
-		if (mpf_sgn(zee[0].im) < 0)
-		{
-			cpx_neg (q, q);
-		}
-		if (mpf_sgn(zee[0].im) > 0)
-		{
-			if (mpf_sgn(q[0].im) < 0)
-			{
-				// Outside the unit circle
-				cpx_neg (q, q);
-// XXX we are doing something wrong here, but what is it???
-// mpf_add_ui(q[0].re, q[0].re, 1);
-			}
-			else
-			{
-				// Inside the unit circle ...
-				cpx_neg (q, q);
-			}
-		}
+		// For the upper quadrant, we've got to adjust the cut.
+		// So q^(s-1) = exp ((s-1) log q) and log q has a cut from
+		// zero, along neg axis. This cut is mapped to the upper
+		// half-plane, extending from z=1 (aka q=0), along the unit
+		// circle, moving upwards. We need to add (2pi i) to the
+		// log q. Can't do it here; we do that below.
+		if ((mpf_sgn(zee[0].im) > 0) && (mpf_sgn(q[0].im) < 0))
+			bump_phase = 1;
+
+		cpx_neg (q, q);
 	}
 #endif
 
@@ -1176,10 +1170,17 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 	/* compute normalization */
 	// XXX this code can be more optimized than this
 	// current form is easier to validate vs. theory
+	// XXX Most obvious optimization is that most of this stuff
+	// is indep of zee, and so can be cached.
 	/* Compute ph = e^{i pi s / 2} = i^s */
 	cpx_times_mpf (tmp, s, twopi);
 	cpx_div_ui (tmp, tmp, 4);
 	cpx_times_i (tmp, tmp);
+
+	// See notes above. Note that 5 = 4+1 that is,
+	// 5 i pi s / 2 = (2pi is) + (i pi s/2)
+	// so this just introduces a factor of g0 into the works.
+	if (bump_phase) { cpx_times_ui(tmp, tmp, 5); }
 
 	if (0 > direction)
 	{
