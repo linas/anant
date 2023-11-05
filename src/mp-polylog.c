@@ -1124,6 +1124,14 @@ cpx_polylog_g1_action(cpx_t delta, const cpx_t ess, const cpx_t zee, int directi
 
 		cpx_neg (q, q);
 	}
+
+	// It probably won't work right. But maybe it will. But probably
+	// Not. It's probably quite close. e.g. the 5pi/4 stunt below
+	// probably needs an update. Maybe the dromy sum (loop) below
+	// needs revision. I dunno; untested.
+	if ((1 < direction) || (-1 > direction))
+		fprintf(stderr,
+			"WARNING: code is probably broken for winding more than once!\n");
 #endif
 
 // #define BOTH_BRANCHES_GO_RIGHT
