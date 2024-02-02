@@ -21,7 +21,7 @@ all:  $(MPLIB) $(EXES) $(TESTS)
 MPOBJS= db-cache.o mp-arith.o mp-binomial.o mp-cache.o mp-consts.o \
 	mp-euler.o mp-gamma.o mp-genfunc.o mp-gkw.o mp-hyper.o mp-misc.o \
 	mp-multiplicative.o mp-polylog.o \
-	mp-quest.o mp-topsin.o mp-trig.o mp-zerofind.o mp-zeta.o
+	mp-quest.o mp-topsin.o mp-trig.o mp-zerofind.o mp-zeroiso.o mp-zeta.o
 
 cache-fill:	cache-fill.o $(MPLIB)
 db-merge:	db-merge.o $(MPLIB)
@@ -45,6 +45,7 @@ mp-quest.o: mp-quest.h
 mp-topsin.o: mp-topsin.h
 mp-trig.o: mp-trig.h mp-binomial.h mp-cache.h mp-complex.h mp-misc.h
 mp-zerofind.o: mp-zerofind.h mp-complex.h
+mp-zeroiso.o: mp-zeroiso.h mp-complex.h
 mp-zeta.o: mp-zeta.h db-cache.h mp-binomial.h mp-cache.h mp-complex.h mp-consts.h mp-trig.h
 
 cache-fill.o: db-cache.h mp-zeta.h mp-misc.h

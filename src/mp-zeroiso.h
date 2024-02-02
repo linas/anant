@@ -59,13 +59,15 @@ extern "C" {
  * @radii   Array of radii of the disks.
  * Both of these must be provided by the caller, and must be of length
  * at least equal to degree of the polynomial.
+ *
+ * Returns number of zeros found.
  */
-void cpx_isolate_roots(
+int cpx_isolate_roots(
               void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
               int degree,
               cpx_t boxll, cpx_t boxrr,
-              cpx_t* centers, mpf_t radii,
-              void* args)
+              cpx_t* centers, mpf_t* radii,
+              void* args);
 
 #ifdef  __cplusplus
 };
