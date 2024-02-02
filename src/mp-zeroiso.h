@@ -65,7 +65,7 @@ extern "C" {
 int cpx_isolate_roots(
               void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
               int degree,
-              cpx_t boxll, cpx_t boxrr,
+              cpx_t boxll, cpx_t boxur,
               cpx_t* centers, mpf_t* radii,
               void* args);
 
