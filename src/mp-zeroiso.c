@@ -114,6 +114,50 @@ void box_radius(box_t* box, mpf_t radius, mpf_t rim)
 	mpf_div_ui(radius, radius, 4);
 }
 
+/* =============================================== */
+
+// Test function
+void test_fun(mpf_t bound,
+              void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
+              int degree, cpx_t center, mpf_t radius, int offset, void* args)
+{
+	cpx_t eval;
+	cpx_init(eval);
+
+	mpf_t term, rk, fact;
+	mpf_init(term);
+	mpf_init(rk);
+	mpf_init(fact);
+
+	mpf_set_ui(fact, 1);
+	mpf_set_ui(rk, 1);
+
+	mpf_set_ui(bound, 0);
+	for (int k=1; k<=degree; k++)
+	{
+		mpf_mul_ui(fact, fact, k);
+		mpf_mul(rk, rk, radius);
+
+		poly(eval, k+offset, center, args);
+		cpx_abs(term, eval);
+		mpf_mul(term, term, rk);
+		mpf_div(term, term, fact);
+		mpf_add(bound, bound, term);
+	}
+
+	// Divide by norm
+	poly(eval, offset, center, args);
+	cpx_abs(term, eval);
+	mpf_div(bound, bound, term);
+
+	cpx_clear(eval);
+	mpf_clear(fact);
+	mpf_clear(rk);
+	mpf_clear(term);
+}
+
+/* =============================================== */
+
 /**
  * Implements
  *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
