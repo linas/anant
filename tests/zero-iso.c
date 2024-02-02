@@ -103,7 +103,13 @@ void polyn(cpx_t f, int deriv, cpx_t z, void* args)
 		// Deriv of (z - 1/order) is just one, so we are done.
 		cpx_set_ui(f, 0, 1);
 	}
-	else if (deriv <= order)
+	else if (deriv == order)
+	{
+		// Deriv of (z - 1/order) is just one, so add lower
+		order--;
+		polyn(f, deriv-1, z, &order);
+	}
+	else if (deriv < order)
 	{
 		// Recurse to get lower orders
 		// Compute (z - 1/order)
@@ -163,9 +169,10 @@ int main (int argc, char * argv[])
 			cpx_get_im(centers[i]),
 			mpf_get_d(radii[i]));
 	}
+	printf("--------------\n");
 
 	// Degree n polynomial with roots colliding
-	for (int degree=2; degree<15; degree++)
+	for (int degree=2; degree<=12; degree++)
 	{
 		nfound = cpx_isolate_roots(polyn, degree, boxll, boxur,
 			centers, radii, &degree);
