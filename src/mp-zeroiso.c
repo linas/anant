@@ -113,7 +113,8 @@ static void box_radius(box_t* box, mpf_t radius)
 	mpf_sub(rim, box->boxll[0].im, box->boxur[0].im);
 
 	// The larger of the two.
-	if (0 < mpf_cmp(radius, rim))
+	// mpf_cmp(a,b) is +1 if a>b
+	if (0 < mpf_cmp(rim, radius))
 		mpf_set(radius, rim);
 
 	mpf_mul_ui(radius, radius, 3);
@@ -191,7 +192,8 @@ static bool test_predicate(
 	if (0 == offset)
 	{
 		test_fun(est, poly, degree, center, radius, 0, args);
-		test = mpf_cmp(one, est);
+		// mpf_cmp(a,b) is +1 if a>b
+		test = (0 < mpf_cmp(one, est));
 	}
 	else
 	{
@@ -200,7 +202,8 @@ static bool test_predicate(
 		mpf_mul_ui(rad, radius, 4*degree);
 
 		test_fun(est, poly, degree, center, radius, 1, args);
-		test = mpf_cmp(hsqrt2, est);
+		// mpf_cmp(a,b) is +1 if a>b
+		test = (0 < mpf_cmp(hsqrt2, est));
 
 		mpf_clear(rad);
 	}
@@ -223,7 +226,8 @@ bool disk_intersect(cpx_t ca, mpf_t ra, cpx_t cb, mpf_t rb)
 	cpx_sub(diff, ca, cb);
 	cpx_abs(dist, diff);
 	mpf_sub(dist, dist, ra);
-	bool rc = mpf_cmp(rb, dist);
+	// mpf_cmp(a,b) is +1 if a>b
+	bool rc = (0 < mpf_cmp(rb, dist));
 
 	cpx_clear(diff);
 	mpf_clear(dist);
@@ -284,7 +288,8 @@ int cpx_isolate_roots(
 		{
 			if (disk_intersect(centers[n], radii[n], midpoint, radius))
 			{
-				if (mpf_cmp(radii[n], radius))
+				// mpf_cmp(a,b) is +1 if a>b
+				if (0 < mpf_cmp(radii[n], radius))
 				{
 					cpx_set(centers[n], midpoint);
 					mpf_set(radii[n], radius);
