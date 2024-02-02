@@ -142,7 +142,7 @@ static void test_fun(mpf_t bound,
 	mpf_set_ui(rk, 1);
 
 	mpf_set_ui(bound, 0);
-	for (int k=1; k<=degree; k++)
+	for (int k=1; k<=degree-offset; k++)
 	{
 		mpf_mul_ui(fact, fact, k);
 		mpf_mul(rk, rk, radius);
