@@ -518,11 +518,11 @@ static void conic(cpx_t loc,
  * except I'm lazy and the below mostly works.
  */
 
-int cpx_find_zero(cpx_t result,
-              void (*func)(cpx_t f, cpx_t z, int nprec),
+int cpx_find_zero_r(cpx_t result,
+              void (*func)(cpx_t f, cpx_t z, int nprec, void*),
               cpx_t initial_z,
               cpx_t e1, cpx_t e2,
-              int ndigits, int nprec)
+              int ndigits, int nprec, void* args)
 {
 	mp_bitcnt_t bits = ((double) nprec) * 3.322 + 50;
 
@@ -558,9 +558,9 @@ int cpx_find_zero(cpx_t result,
 	cpx_add (s1, initial_z, e1);
 	cpx_add (s2, initial_z, e2);
 
-	func (y0, s0, nprec);
-	func (y1, s1, nprec);
-	func (y2, s2, nprec);
+	func (y0, s0, nprec, args);
+	func (y1, s1, nprec, args);
+	func (y2, s2, nprec, args);
 
 	cpx_abs(f0, y0);
 	cpx_abs(f1, y1);
@@ -600,7 +600,7 @@ int cpx_find_zero(cpx_t result,
 		}
 
 		conic(s3, s0, s1, s2, y0, y1, y2, bits);
-		func (y3, s3, nprec);
+		func (y3, s3, nprec, args);
 		cpx_abs(f3, y3);
 
 		if (0 < mpf_cmp(f3, f2))
@@ -670,6 +670,20 @@ fflush (stdout);
 	mpf_clear (epsi);
 
 	return rc;
+}
+
+int cpx_find_zero(cpx_t result,
+              void (*func)(cpx_t f, cpx_t z, int nprec),
+              cpx_t initial_z,
+              cpx_t e1, cpx_t e2,
+              int ndigits, int nprec)
+{
+	void wrap(cpx_t f, cpx_t z, int nprec, void* empty)
+	{
+		func(f, z, nprec);
+	}
+	return cpx_find_zero_r(result, wrap, initial_z, e1, e2,
+		ndigits, nprec, 0x0);
 }
 
 /* =============================================== */

@@ -64,6 +64,13 @@ int cpx_find_zero(cpx_t result,
               cpx_t e1, cpx_t e2,
               int ndigits, int nprec);
 
+/** Reentrant version of above. Passes user-defined args to function. */
+int cpx_find_zero_r(cpx_t result,
+              void (*func)(cpx_t f, cpx_t z, int nprec, void*),
+              cpx_t initial_z,
+              cpx_t e1, cpx_t e2,
+              int ndigits, int nprec, void* args);
+
 #ifdef  __cplusplus
 };
 #endif
