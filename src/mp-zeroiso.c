@@ -201,7 +201,7 @@ static bool test_predicate(
 		mpf_init(rad);
 		mpf_mul_ui(rad, radius, 4*degree);
 
-		test_fun(est, poly, degree, center, radius, 1, args);
+		test_fun(est, poly, degree, center, rad, 1, args);
 		// mpf_cmp(a,b) is +1 if a>b
 		test = (0 < mpf_cmp(hsqrt2, est));
 
