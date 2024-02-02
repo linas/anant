@@ -672,18 +672,20 @@ fflush (stdout);
 	return rc;
 }
 
+static void wrap(cpx_t f, cpx_t z, int nprec, void* func)
+{
+	void (*fun)(cpx_t, cpx_t, int) = func;
+	fun(f, z, nprec);
+}
+
 int cpx_find_zero(cpx_t result,
               void (*func)(cpx_t f, cpx_t z, int nprec),
               cpx_t initial_z,
               cpx_t e1, cpx_t e2,
               int ndigits, int nprec)
 {
-	void wrap(cpx_t f, cpx_t z, int nprec, void* empty)
-	{
-		func(f, z, nprec);
-	}
 	return cpx_find_zero_r(result, wrap, initial_z, e1, e2,
-		ndigits, nprec, 0x0);
+		ndigits, nprec, func);
 }
 
 /* =============================================== */
