@@ -66,19 +66,22 @@ static box_t* box_split(box_t* head)
 	cpx_add(center, head->boxll, head->boxur);
 	cpx_div_ui(center, center, 2);
 
-	// The LL and UR quadrants.
-	box_t* orig = head;
-	head = box_new(head, orig->boxll, center);
-	head = box_new(head, center, orig->boxur);
-
-	// The UL quadrant
 	cpx_t cll;
 	cpx_init(cll);
+	cpx_t cur;
+	cpx_init(cur);
+
+	// The LL and UR quadrants.
+	box_t* orig = head;
+	cpx_set(cll, orig->boxll);
+	head = box_new(head, cll, center);
+	cpx_set(cur, orig->boxur);
+	head = box_new(head, center, cur);
+
+	// The UL quadrant
 	mpf_set(cll[0].re, orig->boxll[0].re);
 	mpf_set(cll[0].im, center[0].im);
 
-	cpx_t cur;
-	cpx_init(cur);
 	mpf_set(cur[0].re, center[0].re);
 	mpf_set(cur[0].im, orig->boxur[0].im);
 
@@ -232,6 +235,25 @@ int cpx_isolate_roots(
 	{
 		box_midpoint(head, midpoint);
 		box_radius(head, radius, tmp);
+
+		// First test; if it passes, the box is empty and discard it.
+		bool result = test_predicate(poly, degree, midpoint, radius, 0, args);
+		if (result)
+		{
+			head = box_delete(head);
+			continue;
+		}
+
+		// Second test; if it fails, split box into four and try again.
+		result = test_predicate(poly, degree, midpoint, radius, 1, args);
+		if (false == result)
+		{
+			head = box_split(head);
+			continue;
+		}
+
+		// Found a box with one root in it.
+		nfound++;
 	}
 
 	cpx_clear(midpoint);
