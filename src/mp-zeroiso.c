@@ -105,8 +105,10 @@ static void box_midpoint(box_t* box, cpx_t center)
 	cpx_div_ui(center, center, 2);
 }
 
-static void box_radius(box_t* box, mpf_t radius, mpf_t rim)
+static void box_radius(box_t* box, mpf_t radius)
 {
+	mpf_t rim;
+	mpf_init(rim);
 	mpf_sub(radius, box->boxll[0].re, box->boxur[0].re);
 	mpf_sub(rim, box->boxll[0].im, box->boxur[0].im);
 
@@ -116,11 +118,12 @@ static void box_radius(box_t* box, mpf_t radius, mpf_t rim)
 
 	mpf_mul_ui(radius, radius, 3);
 	mpf_div_ui(radius, radius, 4);
+	mpf_clear(rim);
 }
 
 /* =============================================== */
 
-// Test function.
+// Test function. Implemented according to what the paper says.
 // Offset should be zero or one.
 static void test_fun(mpf_t bound,
               void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
@@ -167,6 +170,7 @@ static mpf_t one;
 static mpf_t hsqrt2;
 static bool init = false;
 
+// Test pedicate. Implemented according to what the paper says.
 static bool test_predicate(
               void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
               int degree, cpx_t center, mpf_t radius, int offset, void* args)
@@ -207,6 +211,28 @@ static bool test_predicate(
 
 /* =============================================== */
 
+// Return true if two dists overlap.
+// Disk centers are ca, cb, disk radii are ra, rb
+bool disk_intersect(cpx_t ca, mpf_t ra, cpx_t cb, mpf_t rb)
+{
+	cpx_t diff;
+	cpx_init(diff);
+	mpf_t dist;
+	mpf_init(dist);
+
+	cpx_sub(diff, ca, cb);
+	cpx_abs(dist, diff);
+	mpf_sub(dist, dist, ra);
+	bool rc = mpf_cmp(rb, dist);
+
+	cpx_clear(diff);
+	mpf_clear(dist);
+
+	return rc;
+}
+
+/* =============================================== */
+
 /**
  * Implements
  *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
@@ -225,8 +251,6 @@ int cpx_isolate_roots(
 
 	mpf_t radius;
 	mpf_init(radius);
-	mpf_t tmp;
-	mpf_init(tmp);
 
 	int nfound = 0;
 
@@ -234,7 +258,7 @@ int cpx_isolate_roots(
 	while (NULL != head)
 	{
 		box_midpoint(head, midpoint);
-		box_radius(head, radius, tmp);
+		box_radius(head, radius);
 
 		// First test; if it passes, the box is empty and discard it.
 		bool result = test_predicate(poly, degree, midpoint, radius, 0, args);
@@ -253,17 +277,27 @@ int cpx_isolate_roots(
 		}
 
 		// Found a box with one root in it.
-		nfound++;
-		mpf_mul_ui(radius, radius, 4*degree);
+		mpf_mul_ui(radius, radius, 2*degree);
 
 		bool replaced = false;
-		for (int n=0; n< nfound; n++)
+		for (int n=0; n<=nfound; n++)
 		{
+			if (disk_intersect(centers[n], radii[n], midpoint, radius))
+			{
+				if (mpf_cmp(radii[n], radius))
+				{
+					cpx_set(centers[n], midpoint);
+					mpf_set(radii[n], radius);
+				}
+				replaced = true;
+				break;
+			}
 		}
 		if (false == replaced)
 		{
 			cpx_set(centers[nfound], midpoint);
 			mpf_set(radii[nfound], radius);
+			nfound++;
 		}
 
 		// We are done with this one.
@@ -272,6 +306,5 @@ int cpx_isolate_roots(
 
 	cpx_clear(midpoint);
 	mpf_clear(radius);
-	mpf_clear(tmp);
 	return nfound;
 }
