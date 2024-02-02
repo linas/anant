@@ -73,7 +73,7 @@ static box_t* box_split(box_t* head)
 
 	// The LL and UR quadrants.
 	box_t* orig = head;
-	cpx_set(cll, orig->boxll);
+	cpx_set(cll, orig->boxll);  // ??? Compiler complains if I don't use indirection.
 	head = box_new(head, cll, center);
 	cpx_set(cur, orig->boxur);
 	head = box_new(head, center, cur);
@@ -254,6 +254,20 @@ int cpx_isolate_roots(
 
 		// Found a box with one root in it.
 		nfound++;
+		mpf_mul_ui(radius, radius, 4*degree);
+
+		bool replaced = false;
+		for (int n=0; n< nfound; n++)
+		{
+		}
+		if (false == replaced)
+		{
+			cpx_set(centers[nfound], midpoint);
+			mpf_set(radii[nfound], radius);
+		}
+
+		// We are done with this one.
+		head = box_delete(head);
 	}
 
 	cpx_clear(midpoint);
