@@ -21,6 +21,7 @@
  * 02110-1301  USA
  */
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "mp-complex.h"
@@ -36,7 +37,7 @@ typedef struct box
 	struct box* next;
 } box_t;
 
-box_t* box_new(box_t* head, cpx_t boxll, cpx_t boxur)
+static box_t* box_new(box_t* head, cpx_t boxll, cpx_t boxur)
 {
 	box_t* b = (box_t*) malloc(sizeof(box_t));
 	cpx_init(b->boxll);
@@ -48,7 +49,7 @@ box_t* box_new(box_t* head, cpx_t boxll, cpx_t boxur)
 	return b;
 }
 
-box_t* box_delete(box_t* head)
+static box_t* box_delete(box_t* head)
 {
 	cpx_clear(head->boxll);
 	cpx_clear(head->boxur);
@@ -58,7 +59,7 @@ box_t* box_delete(box_t* head)
 }
 
 // Split box into four
-box_t* box_split(box_t* head)
+static box_t* box_split(box_t* head)
 {
 	cpx_t center;
 	cpx_init(center);
@@ -95,13 +96,13 @@ box_t* box_split(box_t* head)
 	return head;
 }
 
-void box_midpoint(box_t* box, cpx_t center)
+static void box_midpoint(box_t* box, cpx_t center)
 {
 	cpx_add(center, box->boxll, box->boxur);
 	cpx_div_ui(center, center, 2);
 }
 
-void box_radius(box_t* box, mpf_t radius, mpf_t rim)
+static void box_radius(box_t* box, mpf_t radius, mpf_t rim)
 {
 	mpf_sub(radius, box->boxll[0].re, box->boxur[0].re);
 	mpf_sub(rim, box->boxll[0].im, box->boxur[0].im);
@@ -116,8 +117,9 @@ void box_radius(box_t* box, mpf_t radius, mpf_t rim)
 
 /* =============================================== */
 
-// Test function
-void test_fun(mpf_t bound,
+// Test function.
+// Offset should be zero or one.
+static void test_fun(mpf_t bound,
               void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
               int degree, cpx_t center, mpf_t radius, int offset, void* args)
 {
@@ -154,6 +156,50 @@ void test_fun(mpf_t bound,
 	mpf_clear(fact);
 	mpf_clear(rk);
 	mpf_clear(term);
+}
+
+/* =============================================== */
+
+static mpf_t one;
+static mpf_t hsqrt2;
+static bool init = false;
+
+static bool test_predicate(
+              void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
+              int degree, cpx_t center, mpf_t radius, int offset, void* args)
+{
+	if (false == init)
+	{
+		mpf_init(one);
+		mpf_set_ui(one, 1);
+		mpf_init(hsqrt2);
+		mpf_sqrt_ui(hsqrt2, 2);
+		mpf_div_ui(hsqrt2, hsqrt2, 2);
+		init = true;
+	}
+	mpf_t est;
+	mpf_init(est);
+
+	bool test = false;
+	if (0 == offset)
+	{
+		test_fun(est, poly, degree, center, radius, 0, args);
+		test = mpf_cmp(one, est);
+	}
+	else
+	{
+		mpf_t rad;
+		mpf_init(rad);
+		mpf_mul_ui(rad, radius, 4*degree);
+
+		test_fun(est, poly, degree, center, radius, 1, args);
+		test = mpf_cmp(hsqrt2, est);
+
+		mpf_clear(rad);
+	}
+
+	mpf_clear(est);
+	return test;
 }
 
 /* =============================================== */
