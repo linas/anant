@@ -109,8 +109,8 @@ static void box_radius(box_t* box, mpf_t radius)
 {
 	mpf_t rim;
 	mpf_init(rim);
-	mpf_sub(radius, box->boxll[0].re, box->boxur[0].re);
-	mpf_sub(rim, box->boxll[0].im, box->boxur[0].im);
+	mpf_sub(radius, box->boxur[0].re, box->boxll[0].re);
+	mpf_sub(rim, box->boxur[0].im, box->boxll[0].im);
 
 	// The larger of the two.
 	// mpf_cmp(a,b) is +1 if a>b
@@ -246,7 +246,7 @@ bool disk_intersect(cpx_t ca, mpf_t ra, cpx_t cb, mpf_t rb)
 int cpx_isolate_roots(
               void (*poly)(cpx_t f, int deriv, cpx_t z, void* args),
               int degree,
-              cpx_t boxll, cpx_t boxrr,
+              cpx_t boxll, cpx_t boxur,
               cpx_t* centers, mpf_t* radii,
               void* args)
 {
@@ -258,7 +258,21 @@ int cpx_isolate_roots(
 
 	int nfound = 0;
 
-	box_t* head = box_new(NULL, boxll, boxrr);
+	// Avoid user error with swapped box coordinates
+	if (0 < mpf_cmp(boxll[0].re, boxur[0].re))
+	{
+		mpf_set(radius, boxll[0].re);
+		mpf_set(boxll[0].re, boxur[0].re);
+		mpf_set(boxur[0].re, radius);
+	}
+	if (0 < mpf_cmp(boxll[0].im, boxur[0].im))
+	{
+		mpf_set(radius, boxll[0].im);
+		mpf_set(boxll[0].im, boxur[0].im);
+		mpf_set(boxur[0].im, radius);
+	}
+
+	box_t* head = box_new(NULL, boxll, boxur);
 	while (NULL != head)
 	{
 		box_midpoint(head, midpoint);
