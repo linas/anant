@@ -28,7 +28,7 @@
 
 /* =============================================== */
 
-
+// Bounding box
 typedef struct box
 {
 	cpx_t boxll;
@@ -95,6 +95,25 @@ box_t* box_split(box_t* head)
 	return head;
 }
 
+void box_midpoint(box_t* box, cpx_t center)
+{
+	cpx_add(center, box->boxll, box->boxur);
+	cpx_div_ui(center, center, 2);
+}
+
+void box_radius(box_t* box, mpf_t radius, mpf_t rim)
+{
+	mpf_sub(radius, box->boxll[0].re, box->boxur[0].re);
+	mpf_sub(rim, box->boxll[0].im, box->boxur[0].im);
+
+	// The larger of the two.
+	if (0 < mpf_cmp(radius, rim))
+		mpf_set(radius, rim);
+
+	mpf_mul_ui(radius, radius, 3);
+	mpf_div_ui(radius, radius, 4);
+}
+
 /**
  * Implements
  *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
@@ -108,7 +127,25 @@ int cpx_isolate_roots(
               cpx_t* centers, mpf_t* radii,
               void* args)
 {
+	cpx_t midpoint;
+	cpx_init(midpoint);
+
+	mpf_t radius;
+	mpf_init(radius);
+	mpf_t tmp;
+	mpf_init(tmp);
+
 	int nfound = 0;
 
+	box_t* head = box_new(NULL, boxll, boxrr);
+	while (NULL != head)
+	{
+		box_midpoint(head, midpoint);
+		box_radius(head, radius, tmp);
+	}
+
+	cpx_clear(midpoint);
+	mpf_clear(radius);
+	mpf_clear(tmp);
 	return nfound;
 }
