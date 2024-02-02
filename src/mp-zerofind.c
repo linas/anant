@@ -515,7 +515,9 @@ static void conic(cpx_t loc,
  * or maybe this:
  *    Michael Sagraloff, Chee K. Yap, "A Simple But Exact and Efficient
  *    Algorithm for Complex Root Isolation" (2011)
- * except I'm lazy and the below mostly works.
+ * except I'm lazy and the below mostly works. Mostly. It can fail.
+ *
+ * FYI, the Sagraloff-Yap algo is now implemented in "mp-zeroiso.c"
  */
 
 int cpx_find_zero_r(cpx_t result,
