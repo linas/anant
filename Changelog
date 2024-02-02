@@ -2,6 +2,9 @@
 Changelog
 ---------
 
+Version 0.3.0 (2 February 2024)
+	* Implement Sagraloff-Yap complex root isolation algorithm.
+
 Version 0.2.5 (23 October 2023)
 	* Fix serious arithmetic bug added during hurried optimizations.
 	* Fix dumb deadlock added during hurried thread-safety work.

@@ -3,8 +3,8 @@ Anant  -- Algorithmic 'n Analytic Number Theory
 ===============================================
 
 <p style="text-align: center;"><b>
-<i>Version 0.2.5</i><br>
-Linas Vepstas March 2019<br>
+<i>Version 0.3.0</i><br>
+Linas Vepstas February 2024<br>
 linasvepstas@gmail.com
 </b></p>
 
@@ -131,6 +131,7 @@ Utilities:
 * Euler re-summation of convergent series (speeds convergence).
 * Newton series interpolation of arithmetic series.
 * Powell's method for zero-finding on complex plane (noise-cancelling variant).
+* Root isolation on complex plane using Sagraloff-Yap (2011) algorithm.
 
 
 Pre-requisites, Compiling, Installing, Testing
