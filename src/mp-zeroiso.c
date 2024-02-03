@@ -22,6 +22,7 @@
  */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "mp-complex.h"
@@ -157,7 +158,12 @@ static void test_fun(mpf_t bound,
 	// Divide by norm
 	poly(eval, offset, center, args);
 	cpx_abs(term, eval);
-	mpf_div(bound, bound, term);
+	if (0 != mpf_sgn(term))
+		mpf_div(bound, bound, term);
+	else
+		fprintf(stderr, "Error: polynomial has double-zero at z=%g +i %g\n"
+			"Results will be incomplete/incorrect\n",
+			cpx_get_re(center), cpx_get_im(center));
 
 	cpx_clear(eval);
 	mpf_clear(fact);
