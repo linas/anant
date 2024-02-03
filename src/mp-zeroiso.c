@@ -304,7 +304,7 @@ int cpx_isolate_roots(
 		mpf_mul_ui(radius, radius, 2*degree);
 
 		bool replaced = false;
-		for (int n=0; n<=nfound; n++)
+		for (int n=0; n<nfound; n++)
 		{
 			if (disk_intersect(centers[n], radii[n], midpoint, radius))
 			{
